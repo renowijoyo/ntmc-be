@@ -27,12 +27,12 @@ app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
 jwt = JWTManager(app)
 
 
-db = mysql.connect(
-    host="202.67.14.247",
-    user="ntmc_ccntmc",
-    passwd="0uH7kc6ceEYt",
-    database="ntmc_ccntmc"
-)
+# db = mysql.connect(
+#     host="202.67.14.247",
+#     user="ntmc_ccntmc",
+#     passwd="0uH7kc6ceEYt",
+#     database="ntmc_ccntmc"
+# )
 
 db = mysql.connect(
     host="202.67.10.238",
@@ -117,10 +117,10 @@ def load_banner_news():
     res2['list'] = res
     return json.dumps(res2)
 
-@app.route('/warga_get_history')
+@app.route('/warga_get_history', methods=["POST"])
 @jwt_required()
 def warga_get_history():
-    id = request.args.get('id')
+    id = request.json.get('id', None)
 
     cursor = db.cursor(dictionary=True)
 
@@ -137,10 +137,10 @@ def warga_get_history():
 
     return res
 
-@app.route('/check_rate')
+@app.route('/check_rate', methods=["POST"])
 @jwt_required()
 def check_rate():
-    id = request.args.get('idworkorder')
+    id = request.json.get('idworkorder', None)
     cursor = db.cursor(dictionary=True)
     # get the last rate & feedback - the latest ID
     query = "SELECT id, rate, feedback FROM report_rate WHERE idworkorder = %s ORDER BY id DESC"
@@ -169,12 +169,12 @@ def warga_get_picturesolve():
     res['valid'] = 1
     return res
 
-@app.route('/rate_this')
+@app.route('/rate_this', methods=["POST"])
 @jwt_required()
 def rate_this():
-    idworkorder = request.args.get('idworkorder')
-    rate = request.args.get('rate')
-    feedback = request.args.get('feedback')
+    idworkorder = request.json.get('idworkorder', None)
+    rate = request.json.get('rate', None)
+    feedback = request.json.get('feedback', None)
 
     cursor = db.cursor(dictionary=True)
     # get the last rate & feedback - the latest ID
@@ -189,10 +189,10 @@ def rate_this():
     return res
 
 
-@app.route('/warga_get_mail')
+@app.route('/warga_get_mail', methods=["POST"])
 @jwt_required()
 def warga_get_mail():
-    username = request.args.get('username')
+    username = request.json.get('username', None)
 #originalnya ada 3 query execution di satu API call ini
     cursor = db.cursor(dictionary=True)
     # query = "SELECT id_user_mobile, nama FROM user_mobile WHERE email = %s"
@@ -275,10 +275,10 @@ def save_token():
     res['valid'] = 1
     return res
 
-@app.route('/warga_idle')
+@app.route('/warga_idle', methods=["POST"])
 @jwt_required()
 def warga_idle():
-    username = request.args.get('username')
+    username = request.json.get('username', None)
     if (username == "") :
         valid = 0
         name = ""
@@ -301,16 +301,16 @@ def warga_idle():
     return res
 
 
-@app.route('/warga_save_report')
+@app.route('/warga_save_report', methods=["POST"])
 @jwt_required()
 def warga_save_report():
-    username = request.args.get('username')
-    address = request.args.get('address')
-    lat = request.args.get('lat')
-    lon = request.args.get('lon')
-    id_cat = request.args.get('id_cat')
-    detail = request.args.get('detail')
-    picture = request.args.get('picture')
+    username = request.json.get("username", None)
+    address = request.json.get("address", None)
+    lat = request.json.get('lat', None)
+    lon = request.json.get('lon', None)
+    id_cat = request.json.get('id_cat', None)
+    detail = request.json.get('detail', None)
+    picture = request.json.get('picture', None)
 
     cursor = db.cursor(dictionary=True)
     query = "SELECT id_user_mobile, ktp, telepon, alamat, nama FROM user_mobile WHERE email = %s"
@@ -342,11 +342,11 @@ def warga_save_report():
     res['valid'] = valid
     return res
 
-@app.route('/warga_setpass')
+@app.route('/warga_setpass', methods=["POST"])
 @jwt_required()
 def warga_setpass():
-    username = request.args.get('username')
-    password = request.args.get('password')
+    username = request.json.get("username", None)
+    password = request.json.get("password", None)
     ol_password = request.args.get('ol_password')
 
     cursor = db.cursor(dictionary=True)
@@ -387,7 +387,7 @@ def warga_login():
 
 
 
-@app.route('/verify')
+@app.route('/verify', methods=["POST"])
 @jwt_required()
 def verify():
     email = request.args.get('email')
