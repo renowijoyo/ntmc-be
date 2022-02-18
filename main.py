@@ -410,7 +410,8 @@ def verify():
     return 'valid'
 
 
-@app.route('/warga_reg')
+@app.route('/warga_reg', methods=["POST"])
+@jwt_required()
 def warga_reg():
     email = request.args.get('email')
     passwd = request.args.get('pass')
