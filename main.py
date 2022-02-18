@@ -254,7 +254,8 @@ def warga_get_category():
     res['valid'] = 1
     return res
 
-@app.route('/save_token')
+@app.route('/save_token',methods=["POST"])
+@jwt_required()
 def save_token():
     username = request.args.get('username')
     token = request.args.get('token')
