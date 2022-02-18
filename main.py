@@ -156,7 +156,8 @@ def check_rate():
         res['feedback'] = ""
     return res
 
-@app.route('/warga_get_picturesolve')
+@app.route('/warga_get_picturesolve',methods=["POST"])
+@jwt_required()
 def warga_get_picturesolve():
     id = request.args.get('id')
     cursor = db.cursor(dictionary=True)
