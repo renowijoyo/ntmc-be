@@ -159,7 +159,7 @@ def check_rate():
 @app.route('/warga_get_picturesolve',methods=["POST"])
 @jwt_required()
 def warga_get_picturesolve():
-    id = request.args.get('id')
+    id = request.json.get('id')
     cursor = db.cursor(dictionary=True)
     # get the last rate & feedback - the latest ID
     query = "SELECT problem,solve FROM work_order_image WHERE work_order_id = %s ORDER BY idworkorderimage DESC"
@@ -257,8 +257,8 @@ def warga_get_category():
 @app.route('/save_token',methods=["POST"])
 @jwt_required()
 def save_token():
-    username = request.args.get('username')
-    token = request.args.get('token')
+    username = request.json.get('username')
+    token = request.json.get('token')
 
 
     stamp2 = datetime.now()
@@ -349,7 +349,7 @@ def warga_save_report():
 def warga_setpass():
     username = request.json.get("username", None)
     password = request.json.get("password", None)
-    ol_password = request.args.get('ol_password')
+    ol_password = request.json.get('ol_password')
 
     cursor = db.cursor(dictionary=True)
     query = "SELECT id_user_mobile,nama, password FROM user_mobile WHERE email = %s"
@@ -392,8 +392,8 @@ def warga_login():
 @app.route('/verify', methods=["POST"])
 @jwt_required()
 def verify():
-    email = request.args.get('email')
-    passwd = request.args.get('pass')
+    email = request.json.get('email')
+    passwd = request.json.get('pass')
     cursor = db.cursor(dictionary=True)
     query = "SELECT id_user_mobile,password FROM user_mobile WHERE email = %s"
     cursor.execute(query, (email,))
@@ -411,16 +411,15 @@ def verify():
 
 
 @app.route('/warga_reg', methods=["POST"])
-@jwt_required()
 def warga_reg():
-    email = request.args.get('email')
-    passwd = request.args.get('pass')
-    name = request.args.get('name')
-    ktp = request.args.get('ktp')
-    ktppic = request.args.get('ktppic')
-    detail = request.args.get('detail')
-    hp = request.args.get('hp')
-    address = request.args.get('alamat')
+    email = request.json.get('email')
+    passwd = request.json.get('pass')
+    name = request.json.get('name')
+    ktp = request.json.get('ktp')
+    ktppic = request.json.get('ktppic')
+    detail = request.json.get('detail')
+    hp = request.json.get('hp')
+    address = request.json.get('alamat')
     cursor = db.cursor(dictionary=True)
     query = "SELECT id_user_mobile,password FROM user_mobile WHERE email = %s"
     cursor.execute(query, (email,))
@@ -429,7 +428,6 @@ def warga_reg():
 
     salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(passwd.encode(), salt)
-
 
     if (len(record) > 0):
         valid = 2
