@@ -12,6 +12,7 @@ import bcrypt
 from flask import Flask
 from flask import jsonify
 from flask import request
+from flask_cors import CORS
 
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
@@ -21,6 +22,7 @@ from flask_jwt_extended import JWTManager
 
 
 app = Flask(__name__)
+CORS(app)
 
 # Setup the Flask-JWT-Extended extension
 app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
@@ -409,6 +411,47 @@ def verify():
         print("does not match")
     return 'valid'
 
+@app.route('/login_user', methods=["POST"])
+def login_user():
+    username = request.json.get("username", None)
+    password = request.json.get("password", None)
+    res = authenticate_user(username, password)
+    return res
+
+
+
+
+@app.route('/simpan_user', methods=["POST"])
+def simpan_user():
+    username = request.json.get('username')
+    password = request.json.get('password')
+    level_user = request.json.get('level_user')
+    satwil_id = request.json.get('satwil')
+    polda_id = request.json.get('polda')
+
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT username,password FROM user WHERE username = %s"
+    cursor.execute(query, (username,))
+    record = cursor.fetchall()
+    valid = 0
+
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(password.encode(), salt)
+
+    if (len(record) > 0):
+        valid = 2
+    else:
+        valid = 1
+        query = "INSERT INTO user (username, password, level_user, satwil_id, polda_id " \
+                ") " \
+                "VALUES (%s, %s, %s, %s, %s)"
+        cursor.execute(query, (username, hashed,level_user,satwil_id, polda_id,))
+        db.commit()
+    res = dict()
+    res['valid'] = valid
+
+    return res
+
 
 @app.route('/warga_reg', methods=["POST"])
 def warga_reg():
@@ -443,6 +486,37 @@ def warga_reg():
 
     return res
 
+def authenticate_user(username, password):
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT iduser,username,password FROM user WHERE username = %s"
+    cursor.execute(query, (username,))
+    record = cursor.fetchall()
+    valid = 0
+    if (len(record) > 0):
+        salt = bcrypt.gensalt()
+        hashed = bcrypt.hashpw(password.encode(), salt)
+
+        if bcrypt.checkpw(password.encode(), (record[0]['password']).encode()):
+            valid = 1
+            token = username
+            access_token = create_access_token(identity=username)
+            name = record[0]['username']
+            return jsonify(token=access_token, name=name, valid=valid)
+
+        else:
+            valid = 2
+            token = ""
+            name = ""
+    else:
+        valid = 2
+        token = ""
+        name = ""
+    res = dict()
+    res['valid'] = valid
+    res['name'] = name
+    res['token'] = token
+
+    return res
 
 def authenticate(username, password):
     cursor = db.cursor(dictionary=True)

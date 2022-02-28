@@ -1,0 +1,568 @@
+{
+	"info": {
+		"_postman_id": "253b4df3-d47a-422c-ae4c-b8279b443983",
+		"name": "contact center backend",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "load_video_banner",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{serverip}}:5000/load_video_banner",
+					"protocol": "http",
+					"host": [
+						"{{serverip}}"
+					],
+					"port": "5000",
+					"path": [
+						"load_video_banner"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "load_banner_news",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{serverip}}:5000/load_banner_news",
+					"host": [
+						"{{serverip}}"
+					],
+					"port": "5000",
+					"path": [
+						"load_banner_news"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "warga_get_history",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\" : \"100159798\"\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{serverip}}:5000/warga_get_history",
+					"host": [
+						"{{serverip}}"
+					],
+					"port": "5000",
+					"path": [
+						"warga_get_history"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "warga_get_category",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{serverip}}:5000/warga_get_category",
+					"host": [
+						"{{serverip}}"
+					],
+					"port": "5000",
+					"path": [
+						"warga_get_category"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "warga_save_report",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\" : \"renowissjoyo@gmail.com\",\r\n    \"address\" : \"alamat\",\r\n    \"lat\" : \"sasa\",\r\n    \"lon\" : \"dddf\",\r\n    \"id_cat\" : 1,\r\n    \"detail\" : \"sq\",\r\n    \"picture\" : \"wg\"\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{serverip}}:5000/warga_save_report",
+					"host": [
+						"{{serverip}}"
+					],
+					"port": "5000",
+					"path": [
+						"warga_save_report"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "warga_get_mail",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0NTE1ODYxNiwianRpIjoiZWVjOTVhZmUtNDcxZi00YjJiLTgyOGEtMTc2ZjZkYjhlNzdmIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6InJlbm93aWpveW8xMkBnYW1hbnRoYS5jb20iLCJuYmYiOjE2NDUxNTg2MTYsImV4cCI6MTY0NTE1OTUxNn0.2oTA5E9WHgwg8imjADbxj5F69xdRX2W8D-wg35Ed2A8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\" : \"renowijoyo12@gamantha.com\"\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{serverip}}:5000/warga_get_mail",
+					"host": [
+						"{{serverip}}"
+					],
+					"port": "5000",
+					"path": [
+						"warga_get_mail"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "warga_get_picturesolve",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\" : \"100159798\"\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{serverip}}:5000/warga_get_picturesolve",
+					"host": [
+						"{{serverip}}"
+					],
+					"port": "5000",
+					"path": [
+						"warga_get_picturesolve"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "check_rate",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"idworkorder\" : \"100159798\"\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{serverip}}:5000/check_rate?idworkorder=100159798",
+					"host": [
+						"{{serverip}}"
+					],
+					"port": "5000",
+					"path": [
+						"check_rate"
+					],
+					"query": [
+						{
+							"key": "idworkorder",
+							"value": "100159798"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "warga_idle",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\" : \"renowijoyo@gamantha.com\"\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{serverip}}:5000/warga_idle",
+					"host": [
+						"{{serverip}}"
+					],
+					"port": "5000",
+					"path": [
+						"warga_idle"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "rate_this",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"idworkorder\" : \"100159798\",\r\n    \"rate\" : \"1\",\r\n    \"feedback\" : \"test feedback\"\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{serverip}}:5000/rate_this?idworkorder=100159798&rate=1&feedback=test",
+					"host": [
+						"{{serverip}}"
+					],
+					"port": "5000",
+					"path": [
+						"rate_this"
+					],
+					"query": [
+						{
+							"key": "idworkorder",
+							"value": "100159798"
+						},
+						{
+							"key": "rate",
+							"value": "1",
+							"description": "1-4"
+						},
+						{
+							"key": "feedback",
+							"value": "test"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "save_token",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\" : \"renowijoyo@gamantha.com\",\r\n    \"token\" : \"token test\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{serverip}}:5000/save_token?username=renowijoyo@gamantha.com&token=tokentest123",
+					"host": [
+						"{{serverip}}"
+					],
+					"port": "5000",
+					"path": [
+						"save_token"
+					],
+					"query": [
+						{
+							"key": "username",
+							"value": "renowijoyo@gamantha.com"
+						},
+						{
+							"key": "token",
+							"value": "tokentest123"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "warga_reg",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\" : \"renowijoyo@gamantha.com\",\r\n    \"pass\" : \"reno123\",\r\n    \"name\" : \"reno wijoyo\",\r\n    \"ktp\" : \"sadsadadada\",\r\n    \"ktppic\" : \"ddddddd\",\r\n    \"detail\" : \"detail\",\r\n    \"hp\" : \"hp\",\r\n    \"alamat\" : \"alamat\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{serverip}}:5000/warga_reg",
+					"host": [
+						"{{serverip}}"
+					],
+					"port": "5000",
+					"path": [
+						"warga_reg"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "warga_login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\" : \"renowijoyo@gamantha.com\",\r\n    \"password\" : \"reno123\"\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{serverip}}:5000/warga_login",
+					"protocol": "https",
+					"host": [
+						"{{serverip}}"
+					],
+					"port": "5000",
+					"path": [
+						"warga_login"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "ktp",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "ktppic",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "detail",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "hp",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "warga_setpass",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\" : \"renowijoyo@gamantha.com\",\r\n    \"password\" : \"reno12345\",\r\n    \"ol_password\" : \"reno123\",\r\n    \"alamat\" : \"alamaant\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{serverip}}:5000/warga_setpass",
+					"host": [
+						"{{serverip}}"
+					],
+					"port": "5000",
+					"path": [
+						"warga_setpass"
+					],
+					"query": [
+						{
+							"key": "ktp",
+							"value": null,
+							"disabled": true
+						},
+						{
+							"key": "ktppic",
+							"value": null,
+							"disabled": true
+						},
+						{
+							"key": "detail",
+							"value": null,
+							"disabled": true
+						},
+						{
+							"key": "hp",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "verify",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "127.0.0.1:5000/verify?email=renowijoyo12@gamantha.com&pass=reno123a&name&ktp&ktppic",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"verify"
+					],
+					"query": [
+						{
+							"key": "email",
+							"value": "renowijoyo12@gamantha.com"
+						},
+						{
+							"key": "pass",
+							"value": "reno123a"
+						},
+						{
+							"key": "name",
+							"value": null
+						},
+						{
+							"key": "ktp",
+							"value": null
+						},
+						{
+							"key": "ktppic",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
