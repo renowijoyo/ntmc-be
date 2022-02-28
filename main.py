@@ -488,7 +488,7 @@ def warga_reg():
 
 def authenticate_user(username, password):
     cursor = db.cursor(dictionary=True)
-    query = "SELECT iduser,username,password FROM user WHERE username = %s"
+    query = "SELECT iduser,username,password, level_user, satwil_id, polda_id FROM user WHERE username = %s"
     cursor.execute(query, (username,))
     record = cursor.fetchall()
     valid = 0
@@ -501,6 +501,9 @@ def authenticate_user(username, password):
             token = username
             access_token = create_access_token(identity=username)
             name = record[0]['username']
+            level_user = record[0]['level_user']
+            satwil = record[0]['satwil_id']
+            polda = record[0]['polda_id']
             return jsonify(token=access_token, name=name, valid=valid)
 
         else:
@@ -513,7 +516,10 @@ def authenticate_user(username, password):
         name = ""
     res = dict()
     res['valid'] = valid
-    res['name'] = name
+    res['username'] = name
+    res['level_user'] = level_user
+    res['satwil'] = satwil
+    res['polda'] = polda
     res['token'] = token
 
     return res
