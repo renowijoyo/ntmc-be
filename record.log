@@ -1,0 +1,2 @@
+2022-03-06 23:43:31,600 INFO werkzeug MainThread :  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-03-06 23:43:39,183 INFO werkzeug Thread-1 : 127.0.0.1 - - [06/Mar/2022 23:43:39] "GET /test HTTP/1.1" 200 -

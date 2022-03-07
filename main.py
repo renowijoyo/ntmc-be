@@ -1,5 +1,9 @@
 import os
 
+import mobile
+from mrun import MRun
+from dbconfig import DBConfig
+
 from flask import Flask, request
 from flask_jwt import JWT
 from werkzeug.security import safe_str_cmp
@@ -19,40 +23,42 @@ from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
 
+import logging
+
+
 
 
 app = Flask(__name__)
 CORS(app)
+
+logging.basicConfig(filename='record.log', level=logging.DEBUG, format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
+
 
 # Setup the Flask-JWT-Extended extension
 app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
 jwt = JWTManager(app)
 
 
-# db = mysql.connect(
-#     host="202.67.14.247",
-#     user="ntmc_ccntmc",
-#     passwd="0uH7kc6ceEYt",
-#     database="ntmc_ccntmc"
-# )
 
-db = mysql.connect(
-    host="202.67.10.238",
-    user="root",
-    passwd="dhe123!@#",
-    database="ntmc_ccntmc"
-)
 
+dbObj = DBConfig()
+db = dbObj.connect()
 def __init__(self):
     self.data = dict()
 
 
+MRun = MRun()
+
+
+@app.route('/test')
+def test():
+    ret = MRun.get_polda_no_cc()
+    return ret
 
 @app.route('/load_video_banner')
 def load_video_banner():
 
     cursor = db.cursor()
-
     ## defining the Query
     query = "SELECT * FROM apps_video_banner WHERE id = '1'"
     query2 = "SELECT * FROM app_link_banner WHERE id = '1'"
@@ -87,6 +93,7 @@ def load_video_banner():
     res['link_reff_2'] = record_link[6]
     return json.dumps(res)
 
+
 @app.route('/load_banner_news')
 def load_banner_news():
 
@@ -118,6 +125,7 @@ def load_banner_news():
     res['news_embed'] = record[10]
     res2['list'] = res
     return json.dumps(res2)
+
 
 @app.route('/warga_get_history', methods=["POST"])
 @jwt_required()
@@ -614,7 +622,7 @@ def protected():
 
 
 if __name__ == "__main__":
-    app.run(ssl_context='adhoc')
+    app.run(ssl_context='adhoc', debug=True)
 
 # if __name__ == "__main__":
 #     app.run(ssl_context=('cert.pem', 'key.pem'))
