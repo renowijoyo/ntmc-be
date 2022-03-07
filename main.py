@@ -579,7 +579,7 @@ def datatable():
     res = dict()
 
     if (level_user == 'superadmin'):
-        query = "SELECT no_pengaduan,nama_pelapor,work_order.satwil_id,sub_kategori_id,tgl_kontak,tgl_close,status,idworkorder FROM work_order " \
+        query = "SELECT no_pengaduan,nama_pelapor,work_order.satwil_id, satwil.satwil,sub_kategori_id,subkategori.sub_kategori,tgl_kontak,tgl_close,status,idworkorder FROM work_order " \
                 "LEFT JOIN satwil ON satwil.idsatwil = work_order.satwil_id " \
                 "LEFT JOIN user ON user.iduser = work_order.user_id " \
                 "LEFT JOIN subkategori ON subkategori.idsubkategori = work_order.sub_kategori_id LIMIT %s, %s"
@@ -587,7 +587,7 @@ def datatable():
         record = cursor.fetchall()
         res = record
     elif (level_user == 'spv'):
-        query = "SELECT no_pengaduan,nama_pelapor,work_order.satwil_id,sub_kategori_id,tgl_kontak,tgl_close,status,idworkorder FROM work_order " \
+        query = "SELECT no_pengaduan,nama_pelapor,work_order.satwil_id,satwil.satwil,sub_kategori_id,subkategori.sub_kategori,tgl_kontak,tgl_close,status,idworkorder FROM work_order " \
                 "LEFT JOIN satwil ON satwil.idsatwil = work_order.satwil_id " \
                 "LEFT JOIN polda ON polda.idpolda = satwil.polda_id " \
                 "LEFT JOIN user ON user.iduser = work_order.user_id " \
@@ -597,7 +597,7 @@ def datatable():
         record = cursor.fetchall()
         res = record
     else:
-        query = "SELECT no_pengaduan,nama_pelapor,work_order.satwil_id,sub_kategori_id,tgl_kontak,tgl_close,status,idworkorder FROM work_order " \
+        query = "SELECT no_pengaduan,nama_pelapor,work_order.satwil_id,satwil.satwil,sub_kategori_id,subkategori.sub_kategori,tgl_kontak,tgl_close,status,idworkorder FROM work_order " \
                 "LEFT JOIN satwil ON satwil.idsatwil = work_order.satwil_id " \
                 "LEFT JOIN user ON user.iduser = work_order.user_id " \
                 "LEFT JOIN subkategori ON subkategori.idsubkategori = work_order.sub_kategori_id " \
