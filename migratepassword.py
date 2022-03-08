@@ -41,3 +41,5 @@ for x in records:
     db.commit()
     print(x)
 
+cursor.close()
+

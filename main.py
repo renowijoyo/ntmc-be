@@ -140,6 +140,7 @@ def warga_get_history():
     ## getting records from the table
     cursor.execute(query, (id,))
     record = cursor.fetchall()
+    cursor.close()
 
     res = dict()
     res['list'] = record
@@ -164,6 +165,7 @@ def check_rate():
     else:
         res['rate'] = 0
         res['feedback'] = ""
+    cursor.close()
     return res
 
 @app.route('/warga_get_picturesolve',methods=["POST"])
@@ -178,6 +180,7 @@ def warga_get_picturesolve():
     res = dict()
     res['list'] = record
     res['valid'] = 1
+    cursor.close()
     return res
 
 @app.route('/rate_this', methods=["POST"])
@@ -192,7 +195,7 @@ def rate_this():
     query = "INSERT INTO report_rate (idworkorder, rate, feedback) VALUES (%s, %s, %s)"
     cursor.execute(query, (idworkorder, rate, feedback,))
     db.commit()
-
+    cursor.close()
     # record = cursor.fetchall()
     res = dict()
     # res['list'] = record
@@ -251,6 +254,7 @@ def warga_get_mail():
         res['sitrep'] = len(record)
         res['valid'] = 1
     res['sitrep'] = len(record)
+    cursor.close()
     return res
 
 @app.route('/warga_get_category')
@@ -262,6 +266,7 @@ def warga_get_category():
     res = dict()
     res['list'] = record
     res['valid'] = 1
+    cursor.close()
     return res
 
 @app.route('/save_token',methods=["POST"])
@@ -285,6 +290,7 @@ def save_token():
     res = dict()
     # res['list'] = record
     res['valid'] = 1
+    cursor.close()
     return res
 
 @app.route('/warga_idle', methods=["POST"])
@@ -310,6 +316,7 @@ def warga_idle():
     res = dict()
     res['name'] = name
     res['valid'] = valid
+    cursor.close()
     return res
 
 
@@ -352,6 +359,7 @@ def warga_save_report():
     res = dict()
     res['list'] = record
     res['valid'] = valid
+    cursor.close()
     return res
 
 @app.route('/warga_setpass', methods=["POST"])
@@ -384,6 +392,7 @@ def warga_setpass():
 
     res = dict()
     res['valid'] = valid
+    cursor.close()
     return res
 
 
@@ -394,6 +403,7 @@ def warga_login():
     username = request.json.get("username", None)
     password = request.json.get("password", None)
     res = authenticate(username, password)
+    cursor.close()
     return res
 
 
@@ -408,6 +418,7 @@ def verify():
     query = "SELECT id_user_mobile,password FROM user_mobile WHERE email = %s"
     cursor.execute(query, (email,))
     record = cursor.fetchall()
+    cursor.close()
     valid = 0
 
     salt = bcrypt.gensalt()
@@ -457,7 +468,7 @@ def simpan_user():
         db.commit()
     res = dict()
     res['valid'] = valid
-
+    cursor.close()
     return res
 
 
@@ -491,7 +502,7 @@ def warga_reg():
         db.commit()
     res = dict()
     res['valid'] = valid
-
+    cursor.close()
     return res
 
 def authenticate_user(username, password):
@@ -530,7 +541,7 @@ def authenticate_user(username, password):
     res['satwil'] = satwil
     res['polda'] = polda
     res['token'] = token
-
+    cursor.close()
     return res
 
 def authenticate(username, password):
@@ -562,7 +573,7 @@ def authenticate(username, password):
     res['valid'] = valid
     res['name'] = name
     res['token'] = token
-
+    cursor.close()
     return res
 
 
@@ -609,7 +620,7 @@ def datatable():
         cursor.execute(query, (satwil, start, limit, ))
         record = cursor.fetchall()
         res = record
-
+    cursor.close()
     return jsonify(res)
 
 

@@ -21,6 +21,7 @@ class MRun:
         # $query = "SELECT idpolda,polda FROM polda WHERE polda LIKE 'POLDA%' OR polda LIKE 'KORLANTAS POLRI' ORDER BY polda ASC";
         # $result = $this->db->query($query);
         # return $result->result_array();
+        cursor.close()
         return res
 
     def get_satwil(self):
