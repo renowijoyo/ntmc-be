@@ -569,6 +569,7 @@ def authenticate(username, password):
 
 
 @app.route('/datatable', methods=["POST"])
+@jwt_required()
 def datatable():
     level_user = request.json.get('level_user')
     polda = request.json.get('polda')
@@ -579,7 +580,7 @@ def datatable():
     res = dict()
 
     if (level_user == 'superadmin'):
-        query = "SELECT no_pengaduan,nama_pelapor,work_order.satwil_id, satwil.satwil,sub_kategori_id,subkategori.sub_kategori,tgl_kontak,tgl_close,status,status_detail,idworkorder FROM work_order " \
+        query = "SELECT no_pengaduan,nama_pelapor,work_order.satwil_id, satwil.satwil,sub_kategori_id,subkategori.sub_kategori,tgl_kontak,tgl_close,status,status_detail.keterangan,idworkorder FROM work_order " \
                 "LEFT JOIN satwil ON satwil.idsatwil = work_order.satwil_id " \
                 "LEFT JOIN status_detail ON status_detail.idstatus = work_order.status " \
                 "LEFT JOIN user ON user.iduser = work_order.user_id " \
@@ -588,7 +589,7 @@ def datatable():
         record = cursor.fetchall()
         res = record
     elif (level_user == 'spv'):
-        query = "SELECT no_pengaduan,nama_pelapor,work_order.satwil_id,satwil.satwil,sub_kategori_id,subkategori.sub_kategori,tgl_kontak,tgl_close,status,status_detail,idworkorder FROM work_order " \
+        query = "SELECT no_pengaduan,nama_pelapor,work_order.satwil_id,satwil.satwil,sub_kategori_id,subkategori.sub_kategori,tgl_kontak,tgl_close,status,status_detail.keterangan,idworkorder FROM work_order " \
                 "LEFT JOIN satwil ON satwil.idsatwil = work_order.satwil_id " \
                 "LEFT JOIN status_detail ON status_detail.idstatus = work_order.status " \
                 "LEFT JOIN polda ON polda.idpolda = satwil.polda_id " \
@@ -599,7 +600,7 @@ def datatable():
         record = cursor.fetchall()
         res = record
     else:
-        query = "SELECT no_pengaduan,nama_pelapor,work_order.satwil_id,satwil.satwil,sub_kategori_id,subkategori.sub_kategori,tgl_kontak,tgl_close,status,status_detail,idworkorder FROM work_order " \
+        query = "SELECT no_pengaduan,nama_pelapor,work_order.satwil_id,satwil.satwil,sub_kategori_id,subkategori.sub_kategori,tgl_kontak,tgl_close,status,status_detail.keterangan,idworkorder FROM work_order " \
                 "LEFT JOIN satwil ON satwil.idsatwil = work_order.satwil_id " \
                 "LEFT JOIN status_detail ON status_detail.idstatus = work_order.status " \
                 "LEFT JOIN user ON user.iduser = work_order.user_id " \
