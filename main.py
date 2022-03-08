@@ -579,16 +579,18 @@ def datatable():
     res = dict()
 
     if (level_user == 'superadmin'):
-        query = "SELECT no_pengaduan,nama_pelapor,work_order.satwil_id, satwil.satwil,sub_kategori_id,subkategori.sub_kategori,tgl_kontak,tgl_close,status,idworkorder FROM work_order " \
+        query = "SELECT no_pengaduan,nama_pelapor,work_order.satwil_id, satwil.satwil,sub_kategori_id,subkategori.sub_kategori,tgl_kontak,tgl_close,status,status_detail,idworkorder FROM work_order " \
                 "LEFT JOIN satwil ON satwil.idsatwil = work_order.satwil_id " \
+                "LEFT JOIN status_detail ON status_detail.idstatus = work_order.status " \
                 "LEFT JOIN user ON user.iduser = work_order.user_id " \
                 "LEFT JOIN subkategori ON subkategori.idsubkategori = work_order.sub_kategori_id LIMIT %s, %s"
         cursor.execute(query, (start, limit,))
         record = cursor.fetchall()
         res = record
     elif (level_user == 'spv'):
-        query = "SELECT no_pengaduan,nama_pelapor,work_order.satwil_id,satwil.satwil,sub_kategori_id,subkategori.sub_kategori,tgl_kontak,tgl_close,status,idworkorder FROM work_order " \
+        query = "SELECT no_pengaduan,nama_pelapor,work_order.satwil_id,satwil.satwil,sub_kategori_id,subkategori.sub_kategori,tgl_kontak,tgl_close,status,status_detail,idworkorder FROM work_order " \
                 "LEFT JOIN satwil ON satwil.idsatwil = work_order.satwil_id " \
+                "LEFT JOIN status_detail ON status_detail.idstatus = work_order.status " \
                 "LEFT JOIN polda ON polda.idpolda = satwil.polda_id " \
                 "LEFT JOIN user ON user.iduser = work_order.user_id " \
                 "LEFT JOIN subkategori ON subkategori.idsubkategori = work_order.sub_kategori_id " \
@@ -597,8 +599,9 @@ def datatable():
         record = cursor.fetchall()
         res = record
     else:
-        query = "SELECT no_pengaduan,nama_pelapor,work_order.satwil_id,satwil.satwil,sub_kategori_id,subkategori.sub_kategori,tgl_kontak,tgl_close,status,idworkorder FROM work_order " \
+        query = "SELECT no_pengaduan,nama_pelapor,work_order.satwil_id,satwil.satwil,sub_kategori_id,subkategori.sub_kategori,tgl_kontak,tgl_close,status,status_detail,idworkorder FROM work_order " \
                 "LEFT JOIN satwil ON satwil.idsatwil = work_order.satwil_id " \
+                "LEFT JOIN status_detail ON status_detail.idstatus = work_order.status " \
                 "LEFT JOIN user ON user.iduser = work_order.user_id " \
                 "LEFT JOIN subkategori ON subkategori.idsubkategori = work_order.sub_kategori_id " \
                 "WHERE work_order.satwil_id = %s LIMIT %s, %s "
