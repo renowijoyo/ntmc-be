@@ -73,6 +73,7 @@ def load_video_banner():
     record = cursor.fetchone()
     cursor.execute(query2)
     record_link = cursor.fetchone()
+    cursor.close()
     ## Showing the data
     # for record in records:
     #     print(record)
@@ -108,6 +109,7 @@ def load_banner_news():
     ## getting records from the table
     cursor.execute(query)
     record = cursor.fetchone()
+    cursor.close()
 
     ## Showing the data
     # for record in records:
@@ -406,7 +408,7 @@ def warga_login():
     username = request.json.get("username", None)
     password = request.json.get("password", None)
     res = authenticate(username, password)
-    cursor.close()
+    # cursor.close()
     return res
 
 
@@ -513,6 +515,10 @@ def authenticate_user(username, password):
     query = "SELECT iduser,username,password, level_user, satwil_id, polda_id FROM user WHERE username = %s"
     cursor.execute(query, (username,))
     record = cursor.fetchall()
+    cursor.close()
+    level_user = ''
+    satwil = ''
+    polda = ''
     valid = 0
     if (len(record) > 0):
         salt = bcrypt.gensalt()
@@ -544,7 +550,7 @@ def authenticate_user(username, password):
     res['satwil'] = satwil
     res['polda'] = polda
     res['token'] = token
-    cursor.close()
+
     return res
 
 def authenticate(username, password):
@@ -552,6 +558,10 @@ def authenticate(username, password):
     query = "SELECT id_user_mobile,nama, password FROM user_mobile WHERE email = %s"
     cursor.execute(query, (username,))
     record = cursor.fetchall()
+    cursor.close()
+    valid = ''
+    name = ''
+    token = ''
     valid = 0
     if (len(record) > 0):
         salt = bcrypt.gensalt()
@@ -576,7 +586,7 @@ def authenticate(username, password):
     res['valid'] = valid
     res['name'] = name
     res['token'] = token
-    cursor.close()
+
     return res
 
 
