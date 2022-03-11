@@ -410,7 +410,6 @@ def warga_login():
     username = request.json.get("username", None)
     password = request.json.get("password", None)
     res = authenticate(username, password)
-    # cursor.close()
     return res
 
 
