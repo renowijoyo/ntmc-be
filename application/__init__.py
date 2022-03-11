@@ -12,7 +12,7 @@ from flask_jwt_extended import JWTManager
 def init_app():
     """Initialize the core application."""
     app = Flask(__name__, instance_relative_config=False)
-    app.config.from_object('config.Config')
+    # app.config.from_object('config.Config')
 
     # Initialize Plugins
     # db.init_app(app)
@@ -23,7 +23,7 @@ def init_app():
         from . import routes
 
         # Register Blueprints
-        app.register_blueprint(auth.auth_bp)
-        app.register_blueprint(admin.admin_bp)
+        # app.register_blueprint(auth.auth_bp)
+        # app.register_blueprint(admin.admin_bp)
 
         return app
