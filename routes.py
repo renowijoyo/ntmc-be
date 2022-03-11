@@ -94,6 +94,7 @@ def load_video_banner():
     res['link_title_2'] = record_link[4]
     res['link_banner_2'] = record_link[5]
     res['link_reff_2'] = record_link[6]
+    cursor.close()
     return json.dumps(res)
 
 
@@ -127,6 +128,8 @@ def load_banner_news():
     res['twitter_embed'] = record[9]
     res['news_embed'] = record[10]
     res2['list'] = res
+
+    cursor.close()
     return json.dumps(res2)
 
 
@@ -308,6 +311,7 @@ def warga_idle():
         query = "SELECT id_user_mobile, nama FROM user_mobile WHERE email = %s"
         cursor.execute(query, (username,))
         record = cursor.fetchall()
+        cursor.close()
         if (len(record) > 0) :
             valid = 1
             name = record[0]['nama']
@@ -319,7 +323,7 @@ def warga_idle():
     res = dict()
     res['name'] = name
     res['valid'] = valid
-    cursor.close()
+
     return res
 
 
@@ -406,7 +410,7 @@ def warga_login():
     username = request.json.get("username", None)
     password = request.json.get("password", None)
     res = authenticate(username, password)
-    cursor.close()
+    # cursor.close()
     return res
 
 
@@ -513,6 +517,11 @@ def authenticate_user(username, password):
     query = "SELECT iduser,username,password, level_user, satwil_id, polda_id FROM user WHERE username = %s"
     cursor.execute(query, (username,))
     record = cursor.fetchall()
+    cursor.close()
+    level_user = ''
+    satwil = ''
+    polda = ''
+
     valid = 0
     if (len(record) > 0):
         salt = bcrypt.gensalt()
@@ -544,7 +553,6 @@ def authenticate_user(username, password):
     res['satwil'] = satwil
     res['polda'] = polda
     res['token'] = token
-    cursor.close()
     return res
 
 def authenticate(username, password):
@@ -552,6 +560,10 @@ def authenticate(username, password):
     query = "SELECT id_user_mobile,nama, password FROM user_mobile WHERE email = %s"
     cursor.execute(query, (username,))
     record = cursor.fetchall()
+    cursor.close()
+    valid = ''
+    name = ''
+    token = ''
     valid = 0
     if (len(record) > 0):
         salt = bcrypt.gensalt()
@@ -576,7 +588,6 @@ def authenticate(username, password):
     res['valid'] = valid
     res['name'] = name
     res['token'] = token
-    cursor.close()
     return res
 
 
