@@ -15,15 +15,15 @@ def init_app():
     # app.config.from_object('config.Config')
 
     # Initialize Plugins
-    # db.init_app(app)
-    # r.init_app(app)
+    db.init_app(app)
+    r.init_app(app)
 
     with app.app_context():
         # Include our Routes
         # from . import routes
 
         # Register Blueprints
-        # app.register_blueprint(auth.auth_bp)
-        # app.register_blueprint(admin.admin_bp)
+        app.register_blueprint(auth.auth_bp)
+        app.register_blueprint(admin.admin_bp)
 
         return app

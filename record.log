@@ -4,3 +4,5 @@
 2022-03-07 20:32:54,748 INFO werkzeug Thread-1 : 127.0.0.1 - - [07/Mar/2022 20:32:54] "POST /datatable HTTP/1.1" 200 -
 2022-03-07 20:37:03,927 INFO werkzeug MainThread :  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
 2022-03-07 20:37:10,763 INFO werkzeug Thread-1 : 127.0.0.1 - - [07/Mar/2022 20:37:10] "POST /datatable HTTP/1.1" 200 -
+2022-03-12 07:05:03,371 INFO werkzeug MainThread :  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-03-12 07:05:06,823 INFO werkzeug Thread-1 : 127.0.0.1 - - [12/Mar/2022 07:05:06] "POST /login_user HTTP/1.1" 200 -
