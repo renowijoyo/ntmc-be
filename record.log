@@ -6,3 +6,17 @@
 2022-03-07 20:37:10,763 INFO werkzeug Thread-1 : 127.0.0.1 - - [07/Mar/2022 20:37:10] "POST /datatable HTTP/1.1" 200 -
 2022-03-12 07:05:03,371 INFO werkzeug MainThread :  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
 2022-03-12 07:05:06,823 INFO werkzeug Thread-1 : 127.0.0.1 - - [12/Mar/2022 07:05:06] "POST /login_user HTTP/1.1" 200 -
+2022-03-13 22:58:40,850 INFO werkzeug MainThread :  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-03-15 20:06:09,954 INFO werkzeug MainThread :  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-03-15 20:08:45,833 INFO werkzeug Thread-1 : 127.0.0.1 - - [15/Mar/2022 20:08:45] "GET /load_banner_news HTTP/1.1" 200 -
+2022-03-15 20:09:25,022 INFO werkzeug Thread-2 : 127.0.0.1 - - [15/Mar/2022 20:09:25] "GET /load_banner_news HTTP/1.1" 200 -
+2022-03-15 20:09:42,993 INFO werkzeug Thread-3 : 127.0.0.1 - - [15/Mar/2022 20:09:42] "[33mGET /mobile/myorders HTTP/1.1[0m" 404 -
+2022-03-15 20:11:10,802 INFO werkzeug MainThread :  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-03-15 20:11:13,785 INFO werkzeug Thread-1 : 127.0.0.1 - - [15/Mar/2022 20:11:13] "GET /mobile/myorders HTTP/1.1" 200 -
+2022-03-15 20:29:33,164 INFO werkzeug MainThread :  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-03-15 20:29:40,669 INFO werkzeug Thread-1 : 127.0.0.1 - - [15/Mar/2022 20:29:40] "GET /mobile/load_video_banner HTTP/1.1" 200 -
+2022-03-15 20:29:50,046 INFO werkzeug Thread-2 : 127.0.0.1 - - [15/Mar/2022 20:29:50] "GET /mobile/load_banner_news HTTP/1.1" 200 -
+2022-03-15 20:35:09,703 INFO werkzeug MainThread :  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-03-15 20:35:47,014 INFO werkzeug Thread-1 : 127.0.0.1 - - [15/Mar/2022 20:35:47] "POST /mobile/warga_login HTTP/1.1" 200 -
+2022-03-15 20:36:23,879 INFO werkzeug Thread-2 : 127.0.0.1 - - [15/Mar/2022 20:36:23] "[31m[1mPOST /mobile/check_rate?idworkorder=100159798 HTTP/1.1[0m" 401 -
+2022-03-15 20:36:44,238 INFO werkzeug Thread-3 : 127.0.0.1 - - [15/Mar/2022 20:36:44] "POST /mobile/check_rate?idworkorder=100159798 HTTP/1.1" 200 -
