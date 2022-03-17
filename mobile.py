@@ -1,12 +1,19 @@
 from flask import Blueprint
 import json
 from dbconfig import DBConfig
-from flask_jwt_extended import jwt_required
-
+from flask import Flask, request
+from flask_jwt import JWT
+from werkzeug.security import safe_str_cmp
+import mysql.connector as mysql
+import json
 from flask import Flask
 from flask import jsonify
 from flask import request
 from flask_cors import CORS
+
+from datetime import datetime
+import hashlib
+import bcrypt
 
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
@@ -436,4 +443,57 @@ def verify():
     else:
         print("does not match")
     return 'valid'
+
+@mobile_blueprint.route('/warga_reg', methods=["POST"])
+def warga_reg():
+    email = request.json.get('email')
+    passwd = request.json.get('pass')
+    name = request.json.get('name')
+    ktp = request.json.get('ktp')
+    ktppic = request.json.get('ktppic')
+    detail = request.json.get('detail')
+    hp = request.json.get('hp')
+    address = request.json.get('alamat')
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT id_user_mobile,password FROM user_mobile WHERE email = %s"
+    cursor.execute(query, (email,))
+    record = cursor.fetchall()
+    valid = 0
+
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(passwd.encode(), salt)
+
+    if (len(record) > 0):
+        valid = 2
+    else:
+        valid = 1
+        query = "INSERT INTO user_mobile (nama, ktp, ktppic, email, password, " \
+                "telepon, alamat, user_status) " \
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+        cursor.execute(query, (name, ktp,ktppic,email, hashed, hp, address, 1,))
+        db.commit()
+    res = dict()
+    res['valid'] = valid
+    cursor.close()
+    return res
+
+
+@mobile_blueprint.route('/warga_upload_ktp', methods=["POST"])
+@jwt_required()
+def verify():
+    email = request.json.get('email')
+    passwd = request.json.get('pass')
+
+@mobile_blueprint.route('/warga_upload_photo', methods=["POST"])
+@jwt_required()
+def verify():
+    email = request.json.get('email')
+    passwd = request.json.get('pass')
+
+@mobile_blueprint.route('/warga_upload_video', methods=["POST"])
+@jwt_required()
+def verify():
+    email = request.json.get('email')
+    passwd = request.json.get('pass')
+
 

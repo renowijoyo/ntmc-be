@@ -115,38 +115,7 @@ def simpan_user():
     return res
 
 
-@app.route('/warga_reg', methods=["POST"])
-def warga_reg():
-    email = request.json.get('email')
-    passwd = request.json.get('pass')
-    name = request.json.get('name')
-    ktp = request.json.get('ktp')
-    ktppic = request.json.get('ktppic')
-    detail = request.json.get('detail')
-    hp = request.json.get('hp')
-    address = request.json.get('alamat')
-    cursor = db.cursor(dictionary=True)
-    query = "SELECT id_user_mobile,password FROM user_mobile WHERE email = %s"
-    cursor.execute(query, (email,))
-    record = cursor.fetchall()
-    valid = 0
 
-    salt = bcrypt.gensalt()
-    hashed = bcrypt.hashpw(passwd.encode(), salt)
-
-    if (len(record) > 0):
-        valid = 2
-    else:
-        valid = 1
-        query = "INSERT INTO user_mobile (nama, ktp, ktppic, email, password, " \
-                "telepon, alamat, user_status) " \
-                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-        cursor.execute(query, (name, ktp,ktppic,email, hashed, hp, address, 1,))
-        db.commit()
-    res = dict()
-    res['valid'] = valid
-    cursor.close()
-    return res
 
 def authenticate_user(username, password):
     cursor = db.cursor(dictionary=True)
