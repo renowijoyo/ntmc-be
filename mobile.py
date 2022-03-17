@@ -480,19 +480,19 @@ def warga_reg():
 
 @mobile_blueprint.route('/warga_upload_ktp', methods=["POST"])
 @jwt_required()
-def verify():
+def warga_upload_ktp():
     email = request.json.get('email')
     passwd = request.json.get('pass')
 
 @mobile_blueprint.route('/warga_upload_photo', methods=["POST"])
 @jwt_required()
-def verify():
+def warga_upload_photo():
     email = request.json.get('email')
     passwd = request.json.get('pass')
 
 @mobile_blueprint.route('/warga_upload_video', methods=["POST"])
 @jwt_required()
-def verify():
+def warga_upload_video():
     email = request.json.get('email')
     passwd = request.json.get('pass')
 

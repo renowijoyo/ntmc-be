@@ -20,3 +20,4 @@
 2022-03-15 20:35:47,014 INFO werkzeug Thread-1 : 127.0.0.1 - - [15/Mar/2022 20:35:47] "POST /mobile/warga_login HTTP/1.1" 200 -
 2022-03-15 20:36:23,879 INFO werkzeug Thread-2 : 127.0.0.1 - - [15/Mar/2022 20:36:23] "[31m[1mPOST /mobile/check_rate?idworkorder=100159798 HTTP/1.1[0m" 401 -
 2022-03-15 20:36:44,238 INFO werkzeug Thread-3 : 127.0.0.1 - - [15/Mar/2022 20:36:44] "POST /mobile/check_rate?idworkorder=100159798 HTTP/1.1" 200 -
+2022-03-17 07:50:29,630 INFO werkzeug MainThread :  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
