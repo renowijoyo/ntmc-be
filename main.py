@@ -1,6 +1,7 @@
 import os
 
 import mobile
+import cc
 from mrun import MRun
 from dbconfig import DBConfig
 
@@ -24,7 +25,7 @@ from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
 
 from mobile import mobile_blueprint
-
+from cc import cc_blueprint
 from sqlalchemy import create_engine
 
 from flask import Blueprint
@@ -36,6 +37,7 @@ import logging
 app = Flask(__name__)
 CORS(app)
 app.register_blueprint(mobile_blueprint)
+app.register_blueprint(cc_blueprint)
 
 logging.basicConfig(filename='record.log', level=logging.DEBUG, format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 
@@ -73,16 +75,6 @@ def test():
 
 
 
-@app.route('/login_user', methods=["POST"])
-def login_user():
-    username = request.json.get("username", None)
-    password = request.json.get("password", None)
-    res = authenticate_user(username, password)
-    return res
-
-
-
-
 @app.route('/simpan_user', methods=["POST"])
 def simpan_user():
     username = request.json.get('username')
@@ -116,49 +108,6 @@ def simpan_user():
 
 
 
-
-def authenticate_user(username, password):
-    cursor = db.cursor(dictionary=True)
-    query = "SELECT iduser,username,password, level_user, satwil_id, polda_id FROM user WHERE username = %s"
-    cursor.execute(query, (username,))
-    record = cursor.fetchall()
-    cursor.close()
-    level_user = ''
-    satwil = ''
-    polda = ''
-    valid = 0
-    if (len(record) > 0):
-        salt = bcrypt.gensalt()
-        hashed = bcrypt.hashpw(password.encode(), salt)
-
-        if bcrypt.checkpw(password.encode(), (record[0]['password']).encode()):
-            valid = 1
-            token = username
-            access_token = create_access_token(identity=username)
-            name = record[0]['username']
-            level_user = record[0]['level_user']
-            satwil = record[0]['satwil_id']
-            polda = record[0]['polda_id']
-
-            return jsonify(token=access_token, name=name, level_user=level_user, satwil=satwil, polda=polda,valid=valid)
-
-        else:
-            valid = 2
-            token = ""
-            name = ""
-    else:
-        valid = 2
-        token = ""
-        name = ""
-    res = dict()
-    res['valid'] = valid
-    res['username'] = name
-    res['level_user'] = level_user
-    res['satwil'] = satwil
-    res['polda'] = polda
-    res['token'] = token
-
-    return res
 
 
 

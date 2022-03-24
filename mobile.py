@@ -260,12 +260,16 @@ def warga_get_mail():
                  "TIMESTAMPDIFF(Hour,tgl_kontak,tgl_close) AS 'Durasi (Jam)', " \
                  "TIMESTAMPDIFF(Minute,tgl_kontak,tgl_close) AS 'Durasi (Menit)', " \
                  "TIMESTAMPDIFF(Second,tgl_kontak,tgl_close) AS 'Durasi (Detik)', " \
-                 "satwil.satwil AS 'Satuan Wilayah', " \
+                 "position.position_name AS 'Position', " \
+                 "department.department_name AS 'Department', " \
+                 "region.region_name AS 'Region', " \
                  "kategori.kategori AS 'Kategori', " \
                  "subkategori.sub_kategori AS 'SubKategori', " \
                  "user.username AS 'User Creator', " \
                  "pengaduan AS 'Pengaduan', IF(STATUS=1,'Open', IF(STATUS=2,'Received', IF(STATUS=3,'On Process', IF(STATUS=4,'Done','')))) AS STATUS " \
-                 "from work_order LEFT JOIN satwil ON satwil.idsatwil = work_order.satwil_id " \
+                 "from work_order LEFT JOIN position ON position.id = work_order.position_id  " \
+                 "LEFT JOIN department ON department.id = position.department_id " \
+                 "LEFT JOIN region ON region.id = department.region_id " \
                  "LEFT JOIN work_order_image ON work_order_image.work_order_id = work_order.idworkorder " \
                  "LEFT JOIN subkategori ON subkategori.idsubkategori = work_order.sub_kategori_id " \
                  "LEFT JOIN kategori ON kategori.idkategori = subkategori.kategori_id " \

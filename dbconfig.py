@@ -15,6 +15,6 @@ class DBConfig:
             host="202.67.10.238",
             user="root",
             passwd="dhe123!@#",
-            database="ntmc_ccntmc"
+            database="cc_brimobdb"
         )
         return dbcon
