@@ -47,9 +47,12 @@ def authenticate_user(username, password):
     record = cursor.fetchall()
     cursor.close()
     level_user = ''
-    position = ''
-    region = ''
-    department = ''
+    position_id = ''
+    position_name = ''
+    region_id = ''
+    region_name = ''
+    department_id = ''
+    department_name = ''
 
     valid = 0
     if (len(record) > 0):
@@ -72,7 +75,6 @@ def authenticate_user(username, password):
 
             return jsonify(token=access_token, name=name, level_user=level_user, position_id=position_id, position_name=position_name,
                            department_id=department_id, department_name=department_name, region_id=region_id,region_name=region_name, valid=valid)
-
         else:
             valid = 2
             token = ""
@@ -94,4 +96,39 @@ def authenticate_user(username, password):
     res['token'] = token
 
     return res
+
+@cc_blueprint.route('/simpan_user', methods=["POST"])
+def simpan_user():
+    username = request.json.get('username')
+    password = request.json.get('password')
+    level_user = request.json.get('level_user')
+    position_id = request.json.get('position_id')
+
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT username,password FROM user WHERE username = %s"
+    cursor.execute(query, (username,))
+    record = cursor.fetchall()
+    valid = 0
+
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(password.encode(), salt)
+
+    if (len(record) > 0):
+        valid = 2
+    else:
+        valid = 1
+        query = "INSERT INTO user (username, password, level_user, position_id " \
+                ") " \
+                "VALUES (%s, %s, %s, %s)"
+        cursor.execute(query, (username, hashed, level_user, position_id,))
+        db.commit()
+    res = dict()
+    res['valid'] = valid
+    cursor.close()
+    return res
+
+
+
+
+
 

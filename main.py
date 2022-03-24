@@ -75,41 +75,6 @@ def test():
 
 
 
-@app.route('/simpan_user', methods=["POST"])
-def simpan_user():
-    username = request.json.get('username')
-    password = request.json.get('password')
-    level_user = request.json.get('level_user')
-    satwil_id = request.json.get('satwil')
-    polda_id = request.json.get('polda')
-
-    cursor = db.cursor(dictionary=True)
-    query = "SELECT username,password FROM user WHERE username = %s"
-    cursor.execute(query, (username,))
-    record = cursor.fetchall()
-    valid = 0
-
-    salt = bcrypt.gensalt()
-    hashed = bcrypt.hashpw(password.encode(), salt)
-
-    if (len(record) > 0):
-        valid = 2
-    else:
-        valid = 1
-        query = "INSERT INTO user (username, password, level_user, satwil_id, polda_id " \
-                ") " \
-                "VALUES (%s, %s, %s, %s, %s)"
-        cursor.execute(query, (username, hashed,level_user,satwil_id, polda_id,))
-        db.commit()
-    res = dict()
-    res['valid'] = valid
-    cursor.close()
-    return res
-
-
-
-
-
 
 
 

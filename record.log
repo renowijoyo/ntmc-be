@@ -611,3 +611,85 @@ NameError: name 'authenticate_user' is not defined
 2022-03-24 10:34:41,483 INFO werkzeug MainThread :  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
 2022-03-24 10:34:45,892 INFO werkzeug Thread-1 : 127.0.0.1 - - [24/Mar/2022 10:34:45] "POST /cc/login_user HTTP/1.1" 200 -
 2022-03-24 10:43:43,823 INFO werkzeug MainThread :  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-03-24 19:50:56,396 INFO werkzeug MainThread :  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-03-24 19:51:38,831 INFO werkzeug Thread-1 (process_request_thread) : 127.0.0.1 - - [24/Mar/2022 19:51:38] "POST /cc/login_user HTTP/1.1" 200 -
+2022-03-24 19:55:48,259 ERROR main Thread-2 (process_request_thread) : Exception on /cc/login_user [POST]
+Traceback (most recent call last):
+  File "c:\users\renow\pycharmprojects\brimob-be\venv\lib\site-packages\flask\app.py", line 2073, in wsgi_app
+    response = self.full_dispatch_request()
+  File "c:\users\renow\pycharmprojects\brimob-be\venv\lib\site-packages\flask\app.py", line 1518, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "c:\users\renow\pycharmprojects\brimob-be\venv\lib\site-packages\flask_cors\extension.py", line 165, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "c:\users\renow\pycharmprojects\brimob-be\venv\lib\site-packages\flask\app.py", line 1516, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "c:\users\renow\pycharmprojects\brimob-be\venv\lib\site-packages\flask\app.py", line 1502, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "C:\Users\renow\PycharmProjects\brimob-be\cc.py", line 35, in login_user
+    res = authenticate_user(username, password)
+  File "C:\Users\renow\PycharmProjects\brimob-be\cc.py", line 88, in authenticate_user
+    res['position_id'] = position_id
+UnboundLocalError: local variable 'position_id' referenced before assignment
+2022-03-24 19:55:48,268 INFO werkzeug Thread-2 (process_request_thread) : 127.0.0.1 - - [24/Mar/2022 19:55:48] "[35m[1mPOST /cc/login_user HTTP/1.1[0m" 500 -
+2022-03-24 19:57:00,612 INFO werkzeug MainThread :  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-03-24 19:57:03,133 INFO werkzeug Thread-1 (process_request_thread) : 127.0.0.1 - - [24/Mar/2022 19:57:03] "POST /cc/login_user HTTP/1.1" 200 -
+2022-03-24 19:57:07,850 INFO werkzeug Thread-2 (process_request_thread) : 127.0.0.1 - - [24/Mar/2022 19:57:07] "POST /cc/login_user HTTP/1.1" 200 -
+2022-03-24 20:00:06,607 INFO werkzeug MainThread :  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-03-24 20:01:06,788 INFO werkzeug MainThread :  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-03-24 20:01:45,407 ERROR main Thread-1 (process_request_thread) : Exception on /cc/simpan_user [POST]
+Traceback (most recent call last):
+  File "c:\users\renow\pycharmprojects\brimob-be\venv\lib\site-packages\mysql\connector\cursor_cext.py", line 66, in __call__
+    return self.params[index]
+IndexError: tuple index out of range
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\users\renow\pycharmprojects\brimob-be\venv\lib\site-packages\flask\app.py", line 2073, in wsgi_app
+    response = self.full_dispatch_request()
+  File "c:\users\renow\pycharmprojects\brimob-be\venv\lib\site-packages\flask\app.py", line 1518, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "c:\users\renow\pycharmprojects\brimob-be\venv\lib\site-packages\flask_cors\extension.py", line 165, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "c:\users\renow\pycharmprojects\brimob-be\venv\lib\site-packages\flask\app.py", line 1516, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "c:\users\renow\pycharmprojects\brimob-be\venv\lib\site-packages\flask\app.py", line 1502, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "C:\Users\renow\PycharmProjects\brimob-be\cc.py", line 123, in simpan_user
+    cursor.execute(query, (username, hashed,level_user,position_id,))
+  File "c:\users\renow\pycharmprojects\brimob-be\venv\lib\site-packages\mysql\connector\cursor_cext.py", line 263, in execute
+    stmt = RE_PY_PARAM.sub(psub, stmt)
+  File "c:\users\renow\pycharmprojects\brimob-be\venv\lib\site-packages\mysql\connector\cursor_cext.py", line 68, in __call__
+    raise errors.ProgrammingError(
+mysql.connector.errors.ProgrammingError: Not enough parameters for the SQL statement
+2022-03-24 20:01:45,410 INFO werkzeug Thread-1 (process_request_thread) : 127.0.0.1 - - [24/Mar/2022 20:01:45] "[35m[1mPOST /cc/simpan_user HTTP/1.1[0m" 500 -
+2022-03-24 20:02:01,738 INFO werkzeug Thread-2 (process_request_thread) : 127.0.0.1 - - [24/Mar/2022 20:02:01] "POST /cc/simpan_user HTTP/1.1" 200 -
+2022-03-24 20:02:14,284 ERROR main Thread-3 (process_request_thread) : Exception on /cc/simpan_user [POST]
+Traceback (most recent call last):
+  File "c:\users\renow\pycharmprojects\brimob-be\venv\lib\site-packages\mysql\connector\cursor_cext.py", line 66, in __call__
+    return self.params[index]
+IndexError: tuple index out of range
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\users\renow\pycharmprojects\brimob-be\venv\lib\site-packages\flask\app.py", line 2073, in wsgi_app
+    response = self.full_dispatch_request()
+  File "c:\users\renow\pycharmprojects\brimob-be\venv\lib\site-packages\flask\app.py", line 1518, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "c:\users\renow\pycharmprojects\brimob-be\venv\lib\site-packages\flask_cors\extension.py", line 165, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "c:\users\renow\pycharmprojects\brimob-be\venv\lib\site-packages\flask\app.py", line 1516, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "c:\users\renow\pycharmprojects\brimob-be\venv\lib\site-packages\flask\app.py", line 1502, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "C:\Users\renow\PycharmProjects\brimob-be\cc.py", line 123, in simpan_user
+    cursor.execute(query, (username, hashed,level_user,position_id,))
+  File "c:\users\renow\pycharmprojects\brimob-be\venv\lib\site-packages\mysql\connector\cursor_cext.py", line 263, in execute
+    stmt = RE_PY_PARAM.sub(psub, stmt)
+  File "c:\users\renow\pycharmprojects\brimob-be\venv\lib\site-packages\mysql\connector\cursor_cext.py", line 68, in __call__
+    raise errors.ProgrammingError(
+mysql.connector.errors.ProgrammingError: Not enough parameters for the SQL statement
+2022-03-24 20:02:14,286 INFO werkzeug Thread-3 (process_request_thread) : 127.0.0.1 - - [24/Mar/2022 20:02:14] "[35m[1mPOST /cc/simpan_user HTTP/1.1[0m" 500 -
+2022-03-24 20:03:10,249 INFO werkzeug MainThread :  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2022-03-24 20:03:11,497 INFO werkzeug Thread-1 (process_request_thread) : 127.0.0.1 - - [24/Mar/2022 20:03:11] "POST /cc/simpan_user HTTP/1.1" 200 -
