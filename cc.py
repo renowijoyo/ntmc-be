@@ -127,6 +127,50 @@ def simpan_user():
     cursor.close()
     return res
 
+@cc_blueprint.route('/workorder', methods=["POST"])
+@jwt_required()
+def workorder():
+    level_user = request.json.get('level_user')
+    position_id = request.json.get('position_id')
+    start = request.json.get('start')
+    limit = request.json.get('limit')
+    cursor = db.cursor(dictionary=True)
+    res = dict()
+
+    if (level_user == 'superadmin'):
+        query = "SELECT no_pengaduan,nama_pelapor,work_order.position_id, position.position_name,sub_kategori_id,subkategori.sub_kategori,tgl_kontak,tgl_close,status,status_detail.keterangan,idworkorder FROM work_order " \
+                "LEFT JOIN position ON position.id = work_order.position_id " \
+                "LEFT JOIN status_detail ON status_detail.idstatus = work_order.status " \
+                "LEFT JOIN user ON user.iduser = work_order.user_id " \
+                "LEFT JOIN subkategori ON subkategori.idsubkategori = work_order.sub_kategori_id LIMIT %s, %s"
+        cursor.execute(query, (start, limit,))
+        record = cursor.fetchall()
+        res = record
+    # elif (level_user == 'spv'):
+    #     query = "SELECT no_pengaduan,nama_pelapor,work_order.position_id,position.position_name,sub_kategori_id,subkategori.sub_kategori,tgl_kontak,tgl_close,status,status_detail.keterangan,idworkorder FROM work_order " \
+    #             "LEFT JOIN position ON position.id = work_order.position_id " \
+    #             "LEFT JOIN status_detail ON status_detail.idstatus = work_order.status " \
+    #             "LEFT JOIN department ON department.id = position.department_id " \
+    #             "LEFT JOIN region ON region.id = department.region_id " \
+    #             "LEFT JOIN user ON user.iduser = work_order.user_id " \
+    #             "LEFT JOIN subkategori ON subkategori.idsubkategori = work_order.sub_kategori_id " \
+    #             "WHERE region.id = %s LIMIT %s, %s "
+    #     cursor.execute(query, (region, start, limit, ))
+    #     record = cursor.fetchall()
+    #     res = record
+    else:
+        query = "SELECT no_pengaduan,nama_pelapor,work_order.position_id,position.position_name,sub_kategori_id,subkategori.sub_kategori,tgl_kontak,tgl_close,status,status_detail.keterangan,idworkorder FROM work_order " \
+                "LEFT JOIN position ON position.id = work_order.position_id " \
+                "LEFT JOIN status_detail ON status_detail.idstatus = work_order.status " \
+                "LEFT JOIN user ON user.iduser = work_order.user_id " \
+                "LEFT JOIN subkategori ON subkategori.idsubkategori = work_order.sub_kategori_id " \
+                "WHERE work_order.position_id = %s LIMIT %s, %s "
+        cursor.execute(query, (position_id, start, limit, ))
+        record = cursor.fetchall()
+        res = record
+    cursor.close()
+    return jsonify(res)
+
 
 
 

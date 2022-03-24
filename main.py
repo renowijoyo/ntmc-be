@@ -78,50 +78,6 @@ def test():
 
 
 
-@app.route('/datatable', methods=["POST"])
-@jwt_required()
-def datatable():
-    level_user = request.json.get('level_user')
-    polda = request.json.get('polda')
-    satwil = request.json.get('satwil')
-    start = request.json.get('start')
-    limit = request.json.get('limit')
-    cursor = db.cursor(dictionary=True)
-    res = dict()
-
-    if (level_user == 'superadmin'):
-        query = "SELECT no_pengaduan,nama_pelapor,work_order.satwil_id, satwil.satwil,sub_kategori_id,subkategori.sub_kategori,tgl_kontak,tgl_close,status,status_detail.keterangan,idworkorder FROM work_order " \
-                "LEFT JOIN satwil ON satwil.idsatwil = work_order.satwil_id " \
-                "LEFT JOIN status_detail ON status_detail.idstatus = work_order.status " \
-                "LEFT JOIN user ON user.iduser = work_order.user_id " \
-                "LEFT JOIN subkategori ON subkategori.idsubkategori = work_order.sub_kategori_id LIMIT %s, %s"
-        cursor.execute(query, (start, limit,))
-        record = cursor.fetchall()
-        res = record
-    elif (level_user == 'spv'):
-        query = "SELECT no_pengaduan,nama_pelapor,work_order.satwil_id,satwil.satwil,sub_kategori_id,subkategori.sub_kategori,tgl_kontak,tgl_close,status,status_detail.keterangan,idworkorder FROM work_order " \
-                "LEFT JOIN satwil ON satwil.idsatwil = work_order.satwil_id " \
-                "LEFT JOIN status_detail ON status_detail.idstatus = work_order.status " \
-                "LEFT JOIN polda ON polda.idpolda = satwil.polda_id " \
-                "LEFT JOIN user ON user.iduser = work_order.user_id " \
-                "LEFT JOIN subkategori ON subkategori.idsubkategori = work_order.sub_kategori_id " \
-                "WHERE polda.idpolda = %s LIMIT %s, %s "
-        cursor.execute(query, (polda, start, limit, ))
-        record = cursor.fetchall()
-        res = record
-    else:
-        query = "SELECT no_pengaduan,nama_pelapor,work_order.satwil_id,satwil.satwil,sub_kategori_id,subkategori.sub_kategori,tgl_kontak,tgl_close,status,status_detail.keterangan,idworkorder FROM work_order " \
-                "LEFT JOIN satwil ON satwil.idsatwil = work_order.satwil_id " \
-                "LEFT JOIN status_detail ON status_detail.idstatus = work_order.status " \
-                "LEFT JOIN user ON user.iduser = work_order.user_id " \
-                "LEFT JOIN subkategori ON subkategori.idsubkategori = work_order.sub_kategori_id " \
-                "WHERE work_order.satwil_id = %s LIMIT %s, %s "
-        cursor.execute(query, (satwil, start, limit, ))
-        record = cursor.fetchall()
-        res = record
-    cursor.close()
-    return jsonify(res)
-
 
 
 
