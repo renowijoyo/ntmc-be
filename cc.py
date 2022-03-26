@@ -173,6 +173,7 @@ def workorder():
     return jsonify(res)
 
 @cc_blueprint.route('/users', methods=["POST"])
+@jwt_required()
 def users():
     cursor = db.cursor(dictionary=True)
     query = "SELECT iduser, username, level_user FROM user"
