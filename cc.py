@@ -138,6 +138,7 @@ def workorder():
     res = dict()
 
     if (level_user == 'superadmin'):
+        print("superadmin")
         query = "SELECT no_pengaduan,nama_pelapor,work_order.position_id, position.position_name,sub_kategori_id,subkategori.sub_kategori,tgl_kontak,tgl_close,status,status_detail.keterangan,idworkorder FROM work_order " \
                 "LEFT JOIN position ON position.id = work_order.position_id " \
                 "LEFT JOIN status_detail ON status_detail.idstatus = work_order.status " \
@@ -170,6 +171,53 @@ def workorder():
         res = record
     cursor.close()
     return jsonify(res)
+
+@cc_blueprint.route('/users', methods=["POST"])
+def users():
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT iduser, username, level_user FROM user"
+    cursor.execute(query)
+    record = cursor.fetchall()
+    valid = 0
+
+    res = dict()
+    res = record
+    cursor.close()
+    return jsonify(res)
+
+
+@cc_blueprint.route('/user_setpass', methods=["POST"])
+def user_setpass():
+    username = request.json.get("username", None)
+    password = request.json.get("password", None)
+    ol_password = request.json.get('ol_password')
+
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT iduser, username, password FROM user WHERE username = %s"
+    cursor.execute(query, (username,))
+    record = cursor.fetchall()
+    valid = 0
+    if (len(record) > 0):
+        salt = bcrypt.gensalt()
+        hashed = bcrypt.hashpw(password.encode(), salt)
+
+        if bcrypt.checkpw(ol_password.encode(), (record[0]['password']).encode()):
+            valid = 1
+
+            query = "UPDATE user SET password =  %s WHERE username = %s"
+            cursor.execute(query, (hashed, username,))
+            db.commit()
+        else:
+            valid = 0
+
+    else:
+        valid = 0
+
+    res = dict()
+    res['valid'] = valid
+    cursor.close()
+    return res
+
 
 
 
