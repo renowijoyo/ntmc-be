@@ -180,7 +180,7 @@ def laporan_add():
 
 
 @cc_blueprint.route('/laporan', methods=["POST"])
-@jwt_required()
+# @jwt_required()
 def laporan():
     level_user = request.json.get('level_user')
     position_id = request.json.get('position_id')
@@ -191,10 +191,11 @@ def laporan():
 
     if (level_user == 'superadmin'):
         print("superadmin")
-        query = "SELECT no_laporan,user_id,user.position_id, position.position_name,sub_kategori_id,subkategori.sub_kategori, " \
+        query = "SELECT no_laporan,user_id, user_data.nama, user.position_id, position.position_name,sub_kategori_id,subkategori.sub_kategori, " \
                 "tgl_submitted,tgl_approved,status,status_detail.keterangan,laporan.id FROM laporan " \
                 "LEFT JOIN status_detail ON status_detail.idstatus = laporan.status " \
                 "LEFT JOIN user ON user.iduser = laporan.user_id " \
+                "LEFT JOIN user_data ON user_data.iduser = laporan.user_id " \
                 "LEFT JOIN position ON position.id = user.position_id " \
                 "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan.sub_kategori_id LIMIT %s, %s"
         cursor.execute(query, (start, limit,))
