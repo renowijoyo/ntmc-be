@@ -180,7 +180,7 @@ def laporan_add():
 
 
 @cc_blueprint.route('/laporan', methods=["POST"])
-# @jwt_required()
+@jwt_required()
 def laporan():
     level_user = request.json.get('level_user')
     position_id = request.json.get('position_id')
