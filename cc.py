@@ -192,7 +192,7 @@ def laporan():
     if (level_user == 'superadmin'):
         print("superadmin")
         query = "SELECT no_laporan,user_id, user_data.nama, user.position_id, position.position_name,sub_kategori_id,subkategori.sub_kategori, " \
-                "tgl_submitted,tgl_approved,status,status_detail.keterangan,laporan.id FROM laporan " \
+                "tgl_submitted,tgl_approved,status,status_detail.keterangan,laporan.id, laporan.laporan_text, laporan.lat_pelapor, laporan.long_pelapor FROM laporan " \
                 "LEFT JOIN status_detail ON status_detail.idstatus = laporan.status " \
                 "LEFT JOIN user ON user.iduser = laporan.user_id " \
                 "LEFT JOIN user_data ON user_data.iduser = laporan.user_id " \
@@ -215,10 +215,11 @@ def laporan():
     #     record = cursor.fetchall()
     #     res = record
     else:
-        query = "SELECT no_laporan,user_id,user.position_id, position.position_name,sub_kategori_id,subkategori.sub_kategori, " \
-                "tgl_submitted,tgl_approved,status,status_detail.keterangan,laporan.id FROM laporan " \
+        query = "SELECT no_laporan,user_id, user_data.nama, user.position_id, position.position_name,sub_kategori_id,subkategori.sub_kategori, " \
+                "tgl_submitted,tgl_approved,status,status_detail.keterangan,laporan.id, laporan.laporan_text, laporan.lat_pelapor, laporan.long_pelapor FROM laporan " \
                 "LEFT JOIN status_detail ON status_detail.idstatus = laporan.status " \
                 "LEFT JOIN user ON user.iduser = laporan.user_id " \
+                "LEFT JOIN user_data ON user_data.iduser = laporan.user_id " \
                 "LEFT JOIN position ON position.id = user.position_id " \
                 "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan.sub_kategori_id " \
                 "WHERE laporan.position_id = %s LIMIT %s, %s "
@@ -276,7 +277,37 @@ def user_setpass():
     return res
 
 
+@cc_blueprint.route('/laporan_filter', methods=["POST"])
+@jwt_required()
+def laporan_filter():
+    level_user = request.json.get('level_user')
+    position_id = request.json.get('position_id')
+    start = request.json.get('start')
+    limit = request.json.get('limit')
 
+    sub_kategori_id = request.json.get('sub_kategori_id')
+    status = request.json.get('status')
+    # tgl_submit = request.json.get('tgl_submit')
+    # tgl_approve = request.json.get('tgl_approve')
+
+    cursor = db.cursor(dictionary=True)
+    res = dict()
+
+    query = "SELECT no_laporan,user_id,user.position_id, position.position_name,sub_kategori_id,subkategori.sub_kategori, " \
+            "tgl_submitted,tgl_approved,status,status_detail.keterangan,laporan.id, laporan.text FROM laporan " \
+            "LEFT JOIN status_detail ON status_detail.idstatus = laporan.status " \
+            "LEFT JOIN user ON user.iduser = laporan.user_id " \
+            "LEFT JOIN position ON position.id = user.position_id " \
+            "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan.sub_kategori_id " \
+            "WHERE laporan.position_id = %s AND laporan.sub_kategori_id = %s AND laporan.status = %s and LIMIT %s, %s "
+
+    cursor.execute(query, (position_id, sub_kategori_id, status, start, limit,))
+    record = cursor.fetchall()
+    res = record
+    print(res)
+
+    cursor.close()
+    return jsonify(res)
 
 
 
