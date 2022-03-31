@@ -108,6 +108,11 @@ def simpan_user():
     password = request.json.get('password')
     level_user = request.json.get('level_user')
     position_id = request.json.get('position_id')
+    nama = request.json.get('nama')
+    telepon = request.json.get('telepon')
+    alamat = request.json.get('alamat')
+    email = request.json.get('email')
+    ktp = request.json.get('ktp')
 
     cursor = db.cursor(dictionary=True)
     query = "SELECT username,password FROM user WHERE username = %s"
@@ -117,17 +122,24 @@ def simpan_user():
 
     salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(password.encode(), salt)
-
+    res = dict()
     if (len(record) > 0):
         valid = 2
+        res['errorMessage'] = "username existed"
     else:
         valid = 1
         query = "INSERT INTO user (username, password, level_user, position_id " \
                 ") " \
                 "VALUES (%s, %s, %s, %s)"
         cursor.execute(query, (username, hashed, level_user, position_id,))
+
+        query = "INSERT INTO user_data (iduser, nama, telepon, alamat, email, ktp " \
+                ") " \
+                "VALUES (%s, %s, %s, %s, %s, %s)"
+        cursor.execute(query, (cursor.lastrowid, nama, telepon, alamat, email, ktp,))
+
         db.commit()
-    res = dict()
+
     res['valid'] = valid
     cursor.close()
     return res
