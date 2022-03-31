@@ -188,6 +188,30 @@ def laporan_add():
     return jsonify(result)
 
 
+@cc_blueprint.route('/position', methods=["get"])
+def position():
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT position.id as 'position_id', position.position_name, department.id as 'department_id', department.department_name,  region.id as 'region_id', region.region_name from position " \
+            "LEFT JOIN department ON department.id = position.department_id " \
+            "LEFT JOIN region ON region.id = department.region_id "
+    cursor.execute(query,)
+    record = cursor.fetchall()
+    cursor.close()
+    res = dict()
+    res = record
+    return jsonify(res)
+
+@cc_blueprint.route('/subkategori', methods=["get"])
+def subkategori():
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT idsubkategori, sub_kategori, icon,  nomor, kategori_id, kategori.kategori from subkategori " \
+            "LEFT JOIN kategori ON kategori.idkategori = subkategori.kategori_id "
+    cursor.execute(query,)
+    record = cursor.fetchall()
+    cursor.close()
+    res = dict()
+    res = record
+    return jsonify(res)
 
 
 
