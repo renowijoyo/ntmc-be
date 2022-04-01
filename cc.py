@@ -102,6 +102,7 @@ def authenticate_user(username, password):
 
     return res
 
+
 @cc_blueprint.route('/simpan_user', methods=["POST"])
 def simpan_user():
     username = request.json.get('username')

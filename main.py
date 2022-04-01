@@ -26,6 +26,7 @@ from flask_jwt_extended import JWTManager
 
 from mobile import mobile_blueprint
 from cc import cc_blueprint
+from admin import admin_blueprint
 from sqlalchemy import create_engine
 
 from flask import Blueprint
@@ -38,6 +39,7 @@ app = Flask(__name__)
 CORS(app)
 app.register_blueprint(mobile_blueprint)
 app.register_blueprint(cc_blueprint)
+app.register_blueprint(admin_blueprint)
 
 logging.basicConfig(filename='record.log', level=logging.DEBUG, format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 
