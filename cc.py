@@ -268,14 +268,16 @@ def laporan():
     return jsonify(res)
 
 @cc_blueprint.route('/users', methods=["POST"])
-@jwt_required()
+# @jwt_required()
 def users():
+
     cursor = db.cursor(dictionary=True)
-    query = "SELECT iduser, username, level_user FROM user"
+    query = "SELECT user.iduser, username, level_user, order_license, position_id, user_data.nama, user_data.telepon, " \
+            "user_data.alamat, user_data.email, user_data.ktp FROM user LEFT JOIN user_data ON user_data.iduser = user.iduser "
+
     cursor.execute(query)
     record = cursor.fetchall()
     valid = 0
-
     res = dict()
     res = record
     cursor.close()
