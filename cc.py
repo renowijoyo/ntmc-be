@@ -180,10 +180,11 @@ def laporan_add():
         # reverting changes because of exception
         cursor.rollback()
         result['result'] = 'failed'
+        result['valid'] = 2
     finally:
         cursor.close()
-        print("connection is closed")
         result['result'] = 'sucess'
+        result['valid'] = 1
 
     return jsonify(result)
 
