@@ -34,7 +34,7 @@ admin_blueprint = Blueprint('admin_blueprint', __name__, url_prefix="/admin")
 def update_user():
     print("admin/updateuser")
     username = request.json.get('username')
-    password = request.json.get('password')
+    # password = request.json.get('password')
     level_user = request.json.get('level_user')
     position_id = request.json.get('position_id')
     order_license = request.json.get('order_license')
@@ -43,19 +43,19 @@ def update_user():
     alamat = request.json.get('alamat')
     email = request.json.get('email')
     ktp = request.json.get('ktp')
-    print("2")
     cursor = db.cursor(dictionary=True)
-    query = "SELECT iduser,username FROM user WHERE username = %s"
+    query = "SELECT iduser,username, password FROM user WHERE username = %s"
     cursor.execute(query, (username,))
     record = cursor.fetchall()
     valid = 0
 
-    salt = bcrypt.gensalt()
-    hashed = bcrypt.hashpw(password.encode(), salt)
+    # salt = bcrypt.gensalt()
+    # hashed = bcrypt.hashpw(password.encode(), salt)
+
     res = dict()
     if (len(record) > 0):
         valid = 1
-        print(record[0])
+        hashed = record[0]['password']
 
         query = "REPLACE INTO user (iduser, username, password, level_user, order_license, position_id " \
                 ") " \
@@ -66,9 +66,15 @@ def update_user():
                 ") " \
                 "VALUES (%s, %s, %s, %s, %s, %s)"
         cursor.execute(query, (cursor.lastrowid, nama, telepon, alamat, email, ktp,))
-        print("5")
         db.commit()
-
+        res['username'] = username
+        res['level_user'] = level_user
+        res['position_id'] = position_id
+        res['alamat'] = alamat
+        res['nama'] = nama
+        res['ktp'] = ktp
+        res['telepon'] = telepon
+        res['email'] = email
     else:
         valid = 2
         res['errorMessage'] = "username does not exist - create first"
