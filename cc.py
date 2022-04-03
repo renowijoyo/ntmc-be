@@ -350,5 +350,299 @@ def laporan_filter():
     return jsonify(res)
 
 
+@cc_blueprint.route('/load_video_banner')
+def load_video_banner():
+
+    cursor = db.cursor()
+    ## defining the Query
+    query = "SELECT * FROM apps_video_banner WHERE id = '1'"
+    query2 = "SELECT * FROM app_link_banner WHERE id = '1'"
+    ## getting records from the table
+    cursor.execute(query)
+
+    ## fetching all records from the 'cursor' object
+    # records = cursor.fetchall()
+    record = cursor.fetchone()
+    cursor.execute(query2)
+    record_link = cursor.fetchone()
+    cursor.close()
+    ## Showing the data
+    # for record in records:
+    #     print(record)
+    # print(record)
+    res = dict()
+    res['you_1'] = record[1]
+    res['you_2'] = record[3]
+    res['you_3'] = record[5]
+    res['you_tit1'] = record[2]
+    res['you_tit2'] = record[4]
+    res['you_tit3'] = record[6]
+    res['banner_twitter'] = record[7]
+    res['banner_news'] = record[8]
+    res['twitter_embed'] = record[9]
+    res['news_embed'] = record[10]
+    res['link_title'] = record_link[1]
+    res['link_banner'] = record_link[2]
+    res['link_reff'] = record_link[3]
+    res['link_title_2'] = record_link[4]
+    res['link_banner_2'] = record_link[5]
+    res['link_reff_2'] = record_link[6]
+    return json.dumps(res)
 
 
+@cc_blueprint.route('/load_banner_news')
+def load_banner_news():
+
+    cursor = db.cursor()
+
+    ## defining the Query
+    query = "SELECT * FROM apps_video_banner WHERE id = '1'"
+
+    ## getting records from the table
+    cursor.execute(query)
+    record = cursor.fetchone()
+    cursor.close()
+
+    ## Showing the data
+    # for record in records:
+    #     print(record)
+    # print(record)
+    res = dict()
+    res2 = dict()
+    res['id'] = record[0]
+    res['youtube_1'] = record[1]
+    res['title_youtube_1'] = record[2]
+    res['youtube_2'] = record[3]
+    res['title_youtube_2'] = record[4]
+    res['youtube_3'] = record[5]
+    res['title_youtube_3'] = record[6]
+    res['banner_twitter'] = record[7]
+    res['banner_news'] = record[8]
+    res['twitter_embed'] = record[9]
+    res['news_embed'] = record[10]
+    res2['list'] = res
+    return json.dumps(res2)
+
+
+
+@cc_blueprint.route('/user_get_history', methods=["POST"])
+@jwt_required()
+def user_get_history():
+    id = get_jwt_identity()
+
+    cursor = db.cursor(dictionary=True)
+
+    query = "SELECT no_laporan, sub_kategori_id, subkategori.sub_kategori, laporan_text, DATE_FORMAT(tgl_submitted, '%Y-%m-%d %T') as tgl_submitted FROM laporan " \
+            "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan.sub_kategori_id " \
+            "WHERE user_id = %s ORDER BY tgl_submitted DESC "
+    print("syaalala")
+    ## getting records from the table
+    cursor.execute(query, (id,))
+    record = cursor.fetchall()
+    cursor.close()
+
+    res = dict()
+    res['list'] = record
+    res['valid'] = 1
+
+    return res
+
+
+
+@cc_blueprint.route('/user_get_picturesolve',methods=["POST"])
+@jwt_required()
+def user_get_picturesolve():
+    id = request.json.get('id')
+    cursor = db.cursor(dictionary=True)
+    # get the last rate & feedback - the latest ID
+    query = "SELECT problem,solve FROM work_order_image WHERE work_order_id = %s ORDER BY idworkorderimage DESC"
+    cursor.execute(query, (id,))
+    record = cursor.fetchall()
+    res = dict()
+    res['list'] = record
+    res['valid'] = 1
+    cursor.close()
+    return res
+
+
+
+@cc_blueprint.route('/warga_get_mail', methods=["POST"])
+@jwt_required()
+def warga_get_mail():
+    username = request.json.get('username', None)
+#originalnya ada 3 query execution di satu API call ini
+    cursor = db.cursor(dictionary=True)
+    # query = "SELECT id_user_mobile, nama FROM user_mobile WHERE email = %s"
+    # query2 = "SELECT id_user_mobile FROM work_order WHERE id_user_mobile = '5513'"
+    query3 = "SELECT * from work_order WHERE id_user_mobile IN (select id_user_mobile from user_mobile where email = %s)"
+
+    cursor.execute(query3, (username,))
+    record = cursor.fetchall()
+
+    res = dict()
+    res['list'] = record
+    res['valid'] = 0
+
+    if (cursor.rowcount > 0) :
+        query4 = "SELECT no_pengaduan AS 'NoPengaduan'," \
+                 "idworkorder AS 'IdWorkOrder'," \
+                 "nama_pelapor AS 'NamePelapor'," \
+                 "telp_pelapor AS 'TelpPelapor'," \
+                 "alamat_pelapor AS 'AlamatPelapor'," \
+                 "lat_pelapor AS 'LatPelapor'," \
+                 "long_pelapor AS 'LonPelapor'," \
+                 "tgl_kontak AS 'TanggalKontak'," \
+                 "tgl_received AS 'Tanggal Received'," \
+                 "tgl_on_process AS 'Tanggal On Process'," \
+                 "tgl_close AS 'Tanggal Selesai'," \
+                 "problem AS 'Picture'," \
+                 "status AS 'StatusLaporan', " \
+                 "TIMESTAMPDIFF(Hour,tgl_kontak,tgl_close) AS 'Durasi (Jam)', " \
+                 "TIMESTAMPDIFF(Minute,tgl_kontak,tgl_close) AS 'Durasi (Menit)', " \
+                 "TIMESTAMPDIFF(Second,tgl_kontak,tgl_close) AS 'Durasi (Detik)', " \
+                 "position.position_name AS 'Position', " \
+                 "department.department_name AS 'Department', " \
+                 "region.region_name AS 'Region', " \
+                 "kategori.kategori AS 'Kategori', " \
+                 "subkategori.sub_kategori AS 'SubKategori', " \
+                 "user.username AS 'User Creator', " \
+                 "pengaduan AS 'Pengaduan', IF(STATUS=1,'Open', IF(STATUS=2,'Received', IF(STATUS=3,'On Process', IF(STATUS=4,'Done','')))) AS STATUS " \
+                 "from work_order LEFT JOIN position ON position.id = work_order.position_id  " \
+                 "LEFT JOIN department ON department.id = position.department_id " \
+                 "LEFT JOIN region ON region.id = department.region_id " \
+                 "LEFT JOIN work_order_image ON work_order_image.work_order_id = work_order.idworkorder " \
+                 "LEFT JOIN subkategori ON subkategori.idsubkategori = work_order.sub_kategori_id " \
+                 "LEFT JOIN kategori ON kategori.idkategori = subkategori.kategori_id " \
+                 "LEFT JOIN user ON user.iduser = work_order.user_id " \
+                 "WHERE work_order.id_user_mobile = %s ORDER BY idworkorder DESC"
+        cursor.execute(query4, (res['list'][0]['id_user_mobile'],))
+        record = cursor.fetchall()
+        res['list'] = record
+        res['sitrep'] = len(record)
+        res['valid'] = 1
+    res['sitrep'] = len(record)
+    cursor.close()
+    return res
+
+@cc_blueprint.route('/user_get_category')
+def user_get_category():
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT idsubkategori AS 'id', sub_kategori AS 'name', icon, nomor FROM subkategori WHERE kategori_id = %s ORDER BY nomor ASC"
+    cursor.execute(query, ('1',))
+    record = cursor.fetchall()
+    res = dict()
+    res['list'] = record
+    res['valid'] = 1
+    cursor.close()
+    return res
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@cc_blueprint.route('/save_token',methods=["POST"])
+@jwt_required()
+def save_token():
+    username = request.json.get('username')
+    token = request.json.get('token')
+
+
+    stamp2 = datetime.now()
+
+    stamp = stamp2.strftime("%Y-%m-%d %H:%M:%S")
+
+    cursor = db.cursor(dictionary=True)
+    # get the last rate & feedback - the latest ID
+    query = "INSERT INTO notif_token (username, token, stamp) VALUES (%s, %s, %s)"
+    cursor.execute(query, (username, token, stamp,))
+    db.commit()
+
+    # record = cursor.fetchall()
+    res = dict()
+    # res['list'] = record
+    res['valid'] = 1
+    cursor.close()
+    return res
+
+@cc_blueprint.route('/user_idle', methods=["POST"])
+@jwt_required()
+def user_idle():
+    username = request.json.get('username', None)
+    if (username == "") :
+        valid = 0
+        name = ""
+    else :
+        cursor = db.cursor(dictionary=True)
+        query = "SELECT id_user_mobile, nama FROM user_mobile WHERE email = %s"
+        cursor.execute(query, (username,))
+        record = cursor.fetchall()
+        if (len(record) > 0) :
+            valid = 1
+            name = record[0]['nama']
+        else :
+            valid = 0
+            name = ""
+
+
+    res = dict()
+    res['name'] = name
+    res['valid'] = valid
+    cursor.close()
+    return res
+
+
+
+
+@cc_blueprint.route('/verify', methods=["POST"])
+@jwt_required()
+def verify():
+    email = request.json.get('email')
+    passwd = request.json.get('pass')
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT id_user_mobile,password FROM user_mobile WHERE email = %s"
+    cursor.execute(query, (email,))
+    record = cursor.fetchall()
+    cursor.close()
+    valid = 0
+
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(passwd.encode(), salt)
+
+    if bcrypt.checkpw(passwd.encode(), (record[0]['password']).encode()):
+        print("match")
+    else:
+        print("does not match")
+    return 'valid'
+
+
+
+@cc_blueprint.route('/user_upload_ktp', methods=["POST"])
+@jwt_required()
+def warga_upload_ktp():
+    email = request.json.get('email')
+    passwd = request.json.get('pass')
+
+@cc_blueprint.route('/user_upload_photo', methods=["POST"])
+@jwt_required()
+def warga_upload_photo():
+    email = request.json.get('email')
+    passwd = request.json.get('pass')
+
+@cc_blueprint.route('/user_upload_video', methods=["POST"])
+@jwt_required()
+def warga_upload_video():
+    email = request.json.get('email')
+    passwd = request.json.get('pass')
