@@ -25,83 +25,30 @@ import bcrypt
 dbObj = DBConfig()
 db = dbObj.connect()
 
-mobile_blueprint = Blueprint('mobile_blueprint', __name__, url_prefix="/mobile")
+ntmc_mobile_blueprint = Blueprint('ntmc_mobile_blueprint', __name__, url_prefix="/ntmc_mobile")
 
 
-@mobile_blueprint.route('/load_video_banner')
-def load_video_banner():
 
-    cursor = db.cursor()
-    ## defining the Query
-    query = "SELECT * FROM apps_video_banner WHERE id = '1'"
-    query2 = "SELECT * FROM app_link_banner WHERE id = '1'"
-    ## getting records from the table
-    cursor.execute(query)
+@ntmc_mobile_blueprint.route('/ntmc_warga_get_history', methods=["POST"])
+@jwt_required()
+def ntmc_warga_get_history():
+    id = request.json.get('id', None)
 
-    ## fetching all records from the 'cursor' object
-    # records = cursor.fetchall()
-    record = cursor.fetchone()
-    cursor.execute(query2)
-    record_link = cursor.fetchone()
-    cursor.close()
-    ## Showing the data
-    # for record in records:
-    #     print(record)
-    # print(record)
-    res = dict()
-    res['you_1'] = record[1]
-    res['you_2'] = record[3]
-    res['you_3'] = record[5]
-    res['you_tit1'] = record[2]
-    res['you_tit2'] = record[4]
-    res['you_tit3'] = record[6]
-    res['banner_twitter'] = record[7]
-    res['banner_news'] = record[8]
-    res['twitter_embed'] = record[9]
-    res['news_embed'] = record[10]
-    res['link_title'] = record_link[1]
-    res['link_banner'] = record_link[2]
-    res['link_reff'] = record_link[3]
-    res['link_title_2'] = record_link[4]
-    res['link_banner_2'] = record_link[5]
-    res['link_reff_2'] = record_link[6]
-    return json.dumps(res)
+    cursor = db.cursor(dictionary=True)
 
+    query = "SELECT detail_penanganan, nama_petugas, DATE_FORMAT(tanggal, '%Y-%m-%d %T') tanggal FROM penanganan WHERE work_order_id = %s ORDER BY tanggal DESC"
 
-@mobile_blueprint.route('/load_banner_news')
-def load_banner_news():
-
-    cursor = db.cursor()
-
-    ## defining the Query
-    query = "SELECT * FROM apps_video_banner WHERE id = '1'"
 
     ## getting records from the table
-    cursor.execute(query)
-    record = cursor.fetchone()
+    cursor.execute(query, (id,))
+    record = cursor.fetchall()
     cursor.close()
 
-    ## Showing the data
-    # for record in records:
-    #     print(record)
-    # print(record)
     res = dict()
-    res2 = dict()
-    res['id'] = record[0]
-    res['youtube_1'] = record[1]
-    res['title_youtube_1'] = record[2]
-    res['youtube_2'] = record[3]
-    res['title_youtube_2'] = record[4]
-    res['youtube_3'] = record[5]
-    res['title_youtube_3'] = record[6]
-    res['banner_twitter'] = record[7]
-    res['banner_news'] = record[8]
-    res['twitter_embed'] = record[9]
-    res['news_embed'] = record[10]
-    res2['list'] = res
-    return json.dumps(res2)
+    res['list'] = record
+    res['valid'] = 1
 
-
+    return res
 
 @mobile_blueprint.route('/user_get_history', methods=["POST"])
 @jwt_required()
@@ -125,7 +72,137 @@ def user_get_history():
 
     return res
 
+@mobile_blueprint.route('/ntmc_check_rate', methods=["POST"])
+@jwt_required()
+def ntmc_check_rate():
+    id = request.json.get('idworkorder', None)
+    cursor = db.cursor(dictionary=True)
+    # get the last rate & feedback - the latest ID
+    query = "SELECT id, rate, feedback FROM report_rate WHERE idworkorder = %s ORDER BY id DESC"
 
+    cursor.execute(query, (id,))
+    record = cursor.fetchall()
+    res = dict()
+    if len(record) > 0:
+        res['rate'] = record[0]['rate']
+        res['feedback'] = record[0]['feedback']
+    else:
+        res['rate'] = 0
+        res['feedback'] = ""
+    cursor.close()
+    return res
+
+@mobile_blueprint.route('/user_login', methods=["POST"])
+def user_login():
+    # username = request.args.get('username')
+    # password = request.args.get('password')
+    username = request.json.get("username", None)
+    password = request.json.get("password", None)
+    res = authenticate_user(username, password)
+    # cursor.close()
+    return res
+
+def authenticate_user(username, password):
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT iduser,username,password, level_user, position_id, position.position_name as 'position_name', department.id as 'department_id', department.department_name as 'department_name', " \
+            "region.id as 'region_id', region.region_name as 'region_name' FROM user " \
+            "LEFT JOIN position ON position.id = user.position_id " \
+            "LEFT JOIN department ON department.id = position.department_id "\
+            "LEFT JOIN region ON region.id = department.region_id "\
+            "WHERE username = %s"
+    cursor.execute(query, (username,))
+    record = cursor.fetchall()
+    cursor.close()
+    level_user = ''
+    position_id = ''
+    position_name = ''
+    region_id = ''
+    region_name = ''
+    department_id = ''
+    department_name = ''
+
+    valid = 0
+    res = dict()
+    if (len(record) > 0):
+        salt = bcrypt.gensalt()
+        hashed = bcrypt.hashpw(password.encode(), salt)
+
+        if bcrypt.checkpw(password.encode(), (record[0]['password']).encode()):
+            valid = 1
+            token = username
+            access_token = create_access_token(identity=record[0]['iduser'])
+            name = record[0]['username']
+            level_user = record[0]['level_user']
+            position_id = record[0]['position_id']
+            position_name = record[0]['position_name']
+            department_id = record[0]['department_id']
+            department_name = record[0]['department_name']
+            region_id = record[0]['region_id']
+            region_name = record[0]['region_name']
+            print(record[0])
+            res['valid'] = valid
+            res['response'] = 'success'
+            res['username'] = name
+            res['level_user'] = level_user
+            res['position_id'] = position_id
+            res['position_name'] = position_name
+            res['department_id'] = department_id
+            res['department_name'] = department_name
+            res['region_id'] = region_id
+            res['region_name'] = region_name
+            res['token'] = token
+
+            return jsonify(token=access_token, name=name, level_user=level_user, position_id=position_id, position_name=position_name,
+                           department_id=department_id, department_name=department_name, region_id=region_id,region_name=region_name, valid=valid)
+        else:
+            valid = 2
+            res['valid'] = valid
+            res['response'] = 'password does not match'
+    else:
+        valid = 2
+        res['valid'] = valid
+        res['response'] = 'username does not exist'
+
+
+
+    return res
+
+
+def ntmc_authenticate(username, password):
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT id_user_mobile,nama, password FROM user_mobile WHERE email = %s"
+    cursor.execute(query, (username,))
+    record = cursor.fetchall()
+    cursor.close()
+    valid = ''
+    name = ''
+    token = ''
+    valid = 0
+    if (len(record) > 0):
+        salt = bcrypt.gensalt()
+        hashed = bcrypt.hashpw(password.encode(), salt)
+
+        if bcrypt.checkpw(password.encode(), (record[0]['password']).encode()):
+            valid = 1
+            token = username
+            access_token = create_access_token(identity=username)
+            name = record[0]['nama']
+            return jsonify(token=access_token, name=name, valid=valid)
+
+        else:
+            valid = 2
+            token = ""
+            name = ""
+    else:
+        valid = 2
+        token = ""
+        name = ""
+    res = dict()
+    res['valid'] = valid
+    res['name'] = name
+    res['token'] = token
+
+    return res
 
 @mobile_blueprint.route('/warga_get_picturesolve',methods=["POST"])
 @jwt_required()
@@ -142,6 +219,26 @@ def warga_get_picturesolve():
     cursor.close()
     return res
 
+
+
+@mobile_blueprint.route('/ntmc_rate_this', methods=["POST"])
+@jwt_required()
+def ntmc_rate_this():
+    idworkorder = request.json.get('idworkorder', None)
+    rate = request.json.get('rate', None)
+    feedback = request.json.get('feedback', None)
+
+    cursor = db.cursor(dictionary=True)
+    # get the last rate & feedback - the latest ID
+    query = "INSERT INTO report_rate (idworkorder, rate, feedback) VALUES (%s, %s, %s)"
+    cursor.execute(query, (idworkorder, rate, feedback,))
+    db.commit()
+    cursor.close()
+    # record = cursor.fetchall()
+    res = dict()
+    # res['list'] = record
+    res['valid'] = 1
+    return res
 
 
 @mobile_blueprint.route('/warga_get_mail', methods=["POST"])
