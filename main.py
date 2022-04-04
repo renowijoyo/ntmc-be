@@ -45,7 +45,7 @@ app.register_blueprint(admin_blueprint)
 logging.basicConfig(filename='record.log', level=logging.DEBUG, format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 
 UPLOAD_FOLDER = './uploads/'
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'mp4'}
 
 # Setup the Flask-JWT-Extended extension
 app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
@@ -73,7 +73,7 @@ MRun = MRun()
 # app_link_banner = db.Table('app_linkS_banner', metadata, autoload=True, autoload_with=engine)
 
 
-@app.route('/upload', methods=['GET', 'POST'])
+@app.route('/upload', methods=['POST'])
 @jwt_required()
 def upload_file():
     res = dict()
@@ -98,7 +98,7 @@ def upload_file():
             ts = time.time()
             newfilename = str(user_id) + "-" + os.path.splitext(str(ts))[0] + os.path.splitext(filename)[1]
 
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], newfilename))
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], newfilename ))
             res['valid'] = '2'
             # res['thumb_path'] ='https://ccntmc.1500669.com/ntmc_upload/'.$uploadfile
             return res
