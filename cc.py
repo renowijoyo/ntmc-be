@@ -11,6 +11,8 @@ from flask import jsonify
 from flask import request
 from flask_cors import CORS
 
+from werkzeug.utils import secure_filename
+
 from datetime import datetime
 import hashlib
 import bcrypt
@@ -28,6 +30,7 @@ dbObj = DBConfig()
 db = dbObj.connect()
 
 cc_blueprint = Blueprint('cc_blueprint', __name__, url_prefix="/cc")
+
 
 
 @cc_blueprint.route('/login_user', methods=["POST"])
