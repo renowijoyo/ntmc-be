@@ -264,6 +264,20 @@ def laporan():
     cursor.close()
     return jsonify(res)
 
+@cc_blueprint.route('/ebooks', methods=["GET"])
+def ebooks():
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT idebook, filename, tanggal FROM ebook"
+
+    cursor.execute(query)
+    record = cursor.fetchall()
+    valid = 0
+    res = dict()
+    res = record
+    cursor.close()
+    return jsonify(res)
+
+
 
 @cc_blueprint.route('/regions', methods=["GET"])
 # @jwt_required()
