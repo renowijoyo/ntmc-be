@@ -366,7 +366,7 @@ def laporan_map():
             "LEFT JOIN department ON department.id = position.department_id " \
             "LEFT JOIN region ON region.id = department.region_id " \
             "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan.sub_kategori_id " \
-            "WHERE laporan.sub_kategori_id IN (%s) and region.id IN (%s)"
+            "WHERE laporan.sub_kategori_id IN (%s) OR region.id IN (%s)"
     res = dict()
     cursor.execute(query, (subkategori, region,))
     record = cursor.fetchall()
