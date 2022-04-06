@@ -210,17 +210,7 @@ def position():
     res = record
     return jsonify(res)
 
-@cc_blueprint.route('/subkategori', methods=["get"])
-def subkategori():
-    cursor = db.cursor(dictionary=True)
-    query = "SELECT idsubkategori, sub_kategori, icon,  nomor, kategori_id, kategori.kategori from subkategori " \
-            "LEFT JOIN kategori ON kategori.idkategori = subkategori.kategori_id "
-    cursor.execute(query,)
-    record = cursor.fetchall()
-    cursor.close()
-    res = dict()
-    res = record
-    return jsonify(res)
+
 
 
 
@@ -323,9 +313,38 @@ def user_setpass():
     cursor.close()
     return res
 
+@cc_blueprint.route('/laporan_map', methods=["POST"])
+def laporan_map():
+    level_user = request.json.get('level_user')
+    start = request.json.get('start')
+    regions = request.json.get('regions')
+    subkategoris = request.json.get('subkategoris')
+    # for region in regions:
+    cursor = db.cursor(dictionary=True)
+    # print(regions)
+    # print(str(regions)[1:-1])
+    region = str(regions)[1:-1]
+    subkategori = str(subkategoris)[1:-1]
+    # print(subkategoris)
+    # subkategoris = "1,2"
+    query = "SELECT laporan.no_laporan,laporan.user_id,region.id as 'region_id', region.region_name, department.id as 'department_id', department.department_name, user.position_id as 'position_id', position.position_name, " \
+            "laporan.sub_kategori_id as 'sub_kategori_id',subkategori.sub_kategori, " \
+            "laporan.tgl_submitted,laporan.tgl_approved,laporan.status as 'status', status_detail.keterangan as 'status_keterangan',laporan.id as 'laporan_id', laporan.laporan_text FROM laporan " \
+            "LEFT JOIN status_detail ON status_detail.idstatus = laporan.status " \
+            "LEFT JOIN user ON user.iduser = laporan.user_id " \
+            "LEFT JOIN position ON position.id = user.position_id " \
+            "LEFT JOIN department ON department.id = position.department_id " \
+            "LEFT JOIN region ON region.id = department.region_id " \
+            "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan.sub_kategori_id " \
+            "WHERE laporan.sub_kategori_id IN (%s) and region.id IN (%s)"
+    res = dict()
+    cursor.execute(query, (region, subkategori,))
+    record = cursor.fetchall()
+    res = record
+    return jsonify(res)
+
 
 @cc_blueprint.route('/laporan_filter', methods=["POST"])
-@jwt_required()
 def laporan_filter():
     level_user = request.json.get('level_user')
     position_id = request.json.get('position_id')
@@ -531,19 +550,29 @@ def warga_get_mail():
     cursor.close()
     return res
 
-@cc_blueprint.route('/user_get_category')
-def user_get_category():
+# @cc_blueprint.route('/user_get_category')
+# def user_get_category():
+#     cursor = db.cursor(dictionary=True)
+#     query = "SELECT idsubkategori AS 'id', sub_kategori AS 'name', icon, nomor FROM subkategori WHERE kategori_id = %s ORDER BY nomor ASC"
+#     cursor.execute(query, ('1',))
+#     record = cursor.fetchall()
+#     res = dict()
+#     res['list'] = record
+#     res['valid'] = 1
+#     cursor.close()
+#     return res
+
+@cc_blueprint.route('/subkategori', methods=["get"])
+def subkategori():
     cursor = db.cursor(dictionary=True)
-    query = "SELECT idsubkategori AS 'id', sub_kategori AS 'name', icon, nomor FROM subkategori WHERE kategori_id = %s ORDER BY nomor ASC"
-    cursor.execute(query, ('1',))
+    query = "SELECT idsubkategori, sub_kategori, icon,  nomor, kategori_id, kategori.kategori from subkategori " \
+            "LEFT JOIN kategori ON kategori.idkategori = subkategori.kategori_id "
+    cursor.execute(query,)
     record = cursor.fetchall()
-    res = dict()
-    res['list'] = record
-    res['valid'] = 1
     cursor.close()
-    return res
-
-
+    res = dict()
+    res = record
+    return jsonify(res)
 
 
 @cc_blueprint.route('/uploads/<name>')
