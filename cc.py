@@ -368,7 +368,7 @@ def laporan_map():
             "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan.sub_kategori_id " \
             "WHERE laporan.sub_kategori_id IN (%s) and region.id IN (%s)"
     res = dict()
-    cursor.execute(query, (region, subkategori,))
+    cursor.execute(query, (subkategori, region,))
     record = cursor.fetchall()
     res = record
     return jsonify(res)
