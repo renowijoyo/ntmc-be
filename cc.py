@@ -357,7 +357,7 @@ def laporan_map():
     subkategori = str(subkategoris)[1:-1]
     # print(subkategoris)
     # subkategoris = "1,2"
-    query = "SELECT laporan.no_laporan,laporan.user_id,region.id as 'region_id', region.region_name, department.id as 'department_id', department.department_name, user.position_id as 'position_id', position.position_name, " \
+    query = "SELECT laporan.no_laporan,laporan.user_id,laporan.lat_pelapor, laporan.long_pelapor, region.id as 'region_id', region.region_name, department.id as 'department_id', department.department_name, user.position_id as 'position_id', position.position_name, " \
             "laporan.sub_kategori_id as 'sub_kategori_id',subkategori.sub_kategori, " \
             "laporan.tgl_submitted,laporan.tgl_approved,laporan.status as 'status', status_detail.keterangan as 'status_keterangan',laporan.id as 'laporan_id', laporan.laporan_text FROM laporan " \
             "LEFT JOIN status_detail ON status_detail.idstatus = laporan.status " \
