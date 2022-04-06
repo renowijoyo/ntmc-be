@@ -264,6 +264,22 @@ def laporan():
     cursor.close()
     return jsonify(res)
 
+
+@cc_blueprint.route('/regions', methods=["GET"])
+# @jwt_required()
+def regions():
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT id, region_name, image FROM region"
+
+    cursor.execute(query)
+    record = cursor.fetchall()
+    valid = 0
+    res = dict()
+    res = record
+    cursor.close()
+    return jsonify(res)
+
+
 @cc_blueprint.route('/users', methods=["POST"])
 # @jwt_required()
 def users():
