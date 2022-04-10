@@ -230,11 +230,13 @@ def laporan():
 
     if (level_user == 'superadmin'):
         print("superadmin")
-        query = "SELECT no_laporan,user_id, user_data.nama, user.position_id, position.position_name,sub_kategori_id,subkategori.sub_kategori, " \
-                "tgl_submitted,tgl_approved,status,status_detail.keterangan,laporan.id, laporan.laporan_text, laporan.lat_pelapor, laporan.long_pelapor FROM laporan " \
+        query = "SELECT no_laporan, user_id, user_data.nama, user.position_id, position.position_name,sub_kategori_id,subkategori.sub_kategori, laporan.laporan_subcategory_id, laporan_subcategory.name, laporan_subcategory.description, " \
+                "kesatuan_region_id, tgl_submitted,tgl_approved,laporan.status,status_detail.keterangan,laporan.id, laporan.laporan_total, " \
+                "laporan.laporan_text, laporan.lat_pelapor, laporan.long_pelapor FROM laporan " \
                 "LEFT JOIN status_detail ON status_detail.idstatus = laporan.status " \
                 "LEFT JOIN user ON user.iduser = laporan.user_id " \
                 "LEFT JOIN user_data ON user_data.iduser = laporan.user_id " \
+                "LEFT JOIN laporan_subcategory ON laporan_subcategory.id = laporan.laporan_subcategory_id " \
                 "LEFT JOIN position ON position.id = user.position_id " \
                 "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan.sub_kategori_id LIMIT %s, %s"
         cursor.execute(query, (start, limit,))
@@ -254,11 +256,12 @@ def laporan():
     #     record = cursor.fetchall()
     #     res = record
     else:
-        query = "SELECT no_laporan,user_id, user_data.nama, user.position_id, position.position_name,sub_kategori_id,subkategori.sub_kategori, " \
-                "tgl_submitted,tgl_approved,status,status_detail.keterangan,laporan.id, laporan.laporan_text, laporan.lat_pelapor, laporan.long_pelapor FROM laporan " \
+        query = "SELECT no_laporan, tgl_laporan, user_id, user_data.nama, user.position_id, position.position_name,sub_kategori_id,subkategori.sub_kategori, laporan.laporan_subcategory_id, laporan_subcategory.name, laporan_subcategory.description, " \
+                "kesatuan_region_id, tgl_submitted,tgl_approved,laporan.status,status_detail.keterangan,laporan.id, laporan.laporan_total,laporan.laporan_text, laporan.lat_pelapor, laporan.long_pelapor FROM laporan " \
                 "LEFT JOIN status_detail ON status_detail.idstatus = laporan.status " \
                 "LEFT JOIN user ON user.iduser = laporan.user_id " \
                 "LEFT JOIN user_data ON user_data.iduser = laporan.user_id " \
+                "LEFT JOIN laporan_subcategory ON laporan_subcategory.id = laporan.laporan_subcategory_id " \
                 "LEFT JOIN position ON position.id = user.position_id " \
                 "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan.sub_kategori_id " \
                 "WHERE laporan.position_id = %s LIMIT %s, %s "
