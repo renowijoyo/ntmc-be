@@ -166,18 +166,21 @@ def laporan_add():
     user_id = get_jwt_identity()
     # user_id = '1'
     no_laporan = request.json.get('no_laporan')
+    tgl_laporan = request.json.get('tgl_laporan')
     lat_pelapor = request.json.get('lat_pelapor')
     long_pelapor = request.json.get('long_pelapor')
     laporan_text = request.json.get('laporan_text')
+    laporan_total = request.json.get('laporan_total')
     sub_kategori_id = request.json.get('sub_kategori_id')
+    laporan_subcategory_id = request.json.get('laporan_subcategory_id')
     status = request.json.get('status')
     formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
     # tgl_approved = request.json.get('tgl_approved')
 
-
-    query = "INSERT INTO laporan (no_laporan, user_id, lat_pelapor, long_pelapor, sub_kategori_id, laporan_text, status, tgl_submitted) " \
-            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-    cursor.execute(query, (no_laporan, user_id, lat_pelapor, long_pelapor, sub_kategori_id, laporan_text, status, formatted_date))
+    query = "INSERT INTO laporan (no_laporan, tgl_laporan, user_id, lat_pelapor, long_pelapor, sub_kategori_id, " \
+            "laporan_subcategory_id, laporan_text, laporan_total, status, tgl_submitted) " \
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    cursor.execute(query, (no_laporan, tgl_laporan, user_id, lat_pelapor, long_pelapor, sub_kategori_id,laporan_subcategory_id, laporan_text, laporan_total, status, formatted_date))
     record = cursor.fetchone()
 
     result = dict()
@@ -190,8 +193,9 @@ def laporan_add():
         result['result'] = 'failed'
         result['valid'] = 2
     finally:
+
         cursor.close()
-        result['result'] = 'sucess'
+        result['result'] = 'success'
         result['valid'] = 1
 
     return jsonify(result)
@@ -278,6 +282,22 @@ def ebooks():
     return jsonify(res)
 
 
+@cc_blueprint.route('/laporan_subcategory', methods=["POST"])
+# @jwt_required()
+def laporan_subcategory():
+    print("laporan subcat")
+    group = request.json.get("group", None)
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT id, name, description, laporan_subcategory.group FROM laporan_subcategory where laporan_subcategory.group = %s"
+
+    cursor.execute(query,(group,))
+    record = cursor.fetchall()
+    valid = 0
+    res = dict()
+    res = record
+    cursor.close()
+    return jsonify(res)
+
 
 @cc_blueprint.route('/regions', methods=["GET"])
 # @jwt_required()
@@ -358,6 +378,7 @@ def laporan_map():
     subkategori = str(subkategoris)[1:-1]
     tuple_regions = tuple(regions)
     s = tuple(subkategoris)
+
     query = "SELECT laporan.no_laporan,laporan.user_id,laporan.lat_pelapor, laporan.long_pelapor, region.id as 'region_id', region.region_name, department.id as 'department_id', department.department_name, user.position_id as 'position_id', position.position_name, " \
             "laporan.sub_kategori_id as 'sub_kategori_id',subkategori.sub_kategori, " \
             "laporan.tgl_submitted,laporan.tgl_approved,laporan.status as 'status', status_detail.keterangan as 'status_keterangan',laporan.id as 'laporan_id', laporan.laporan_text FROM laporan " \
@@ -367,9 +388,10 @@ def laporan_map():
             "LEFT JOIN department ON department.id = position.department_id " \
             "LEFT JOIN region ON region.id = department.region_id " \
             "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan.sub_kategori_id " \
-            "WHERE laporan.sub_kategori_id IN (%s) OR region.id IN (%s)"
+            "WHERE laporan.sub_kategori_id IN %(ids)s" % {"ids": tuple(subkategoris)}
     res = dict()
-    cursor.execute(query, (subkategori, region,))
+    # cursor.execute(query)
+    cursor.execute(query)
     record = cursor.fetchall()
     res = record
     return jsonify(res)
