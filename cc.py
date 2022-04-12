@@ -163,7 +163,7 @@ def simpan_user():
 def get_laporan_no():
     #format laporan 2022/bulan/subkategori
     sub_kategori_id = request.json.get('sub_kategori_id')
-    no_laporan_string = str(date.today().year) + "/" + str(date.today().month) + "/" + str(sub_kategori_id)
+    no_laporan_string = str(date.today().year) + "/" + str(date.today().month) + "/" + str(date.today().date) + "/" + str(sub_kategori_id)
     print(no_laporan_string)
     result = dict()
     status = "approved"
