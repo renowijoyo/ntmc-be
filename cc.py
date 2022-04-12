@@ -211,6 +211,44 @@ def get_laporan_no():
     return jsonify(result)
 
 
+
+@cc_blueprint.route('/laporan_approve', methods=["POST"])
+@jwt_required()
+def laporan_approve():
+    cursor = db.cursor(dictionary=True)
+    user_id = get_jwt_identity()
+    no_laporan = request.json.get('no_laporan')
+    approved = "approved"
+    formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+    query = "UPDATE laporan_published SET status =  %s, date_approved = %s, approved_by = %s WHERE no_laporan = %s"
+    cursor.execute(query, (approved, formatted_date, user_id, no_laporan,))
+    result = dict()
+    try:
+        db.commit()
+    except mysql.connector.Error as error:
+        print("Failed to update record to database rollback: {}".format(error))
+        # reverting changes because of exception
+        cursor.rollback()
+        result['result'] = 'failed'
+        result['valid'] = 2
+    finally:
+
+        cursor.close()
+        result['result'] = 'success'
+        result['valid'] = 1
+
+    return jsonify(result)
+
+@cc_blueprint.route('/laporan_published', methods=["GET"])
+def laporan_published():
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT id, no_laporan, approved_by, date_submitted, date_approved, status FROM laporan_published"
+    cursor.execute(query)
+    record = cursor.fetchall()
+    result = dict()
+    result = record
+    return jsonify(result)
+
 @cc_blueprint.route('/laporan_add', methods=["POST"])
 @jwt_required()
 def laporan_add():
