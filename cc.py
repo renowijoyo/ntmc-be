@@ -162,12 +162,32 @@ def simpan_user():
 # @jwt_required()
 def get_laporan_no():
     #format laporan 2022/bulan/subkategori
-    sub_kategori_id = request.json.get('sub_kategori_id')
-    no_laporan_string = str(date.today().year) + "/" + str(date.today().month) + "/" + str(date.today().date) + "/" + str(sub_kategori_id)
-    print(no_laporan_string)
-    result = dict()
-    status = "approved"
     cursor = db.cursor(dictionary=True)
+    result = dict()
+    sub_kategori_id = request.json.get('sub_kategori_id')
+    query_a = "SELECT idsubkategori, kategori_id, kategori.kategori, sub_kategori FROM subkategori " \
+              "LEFT JOIN kategori ON kategori.idkategori = subkategori.kategori_id " \
+              "WHERE idsubkategori = %s"
+    cursor.execute(query_a, (sub_kategori_id,))
+    record = cursor.fetchone()
+    if record is None:
+        result['valid'] = 0
+        result['status'] = 'wrong sub_kategori_id'
+        return jsonify(result)
+
+    print(record)
+    if(record['kategori_id'] == 1) :
+        print("ini yg pertama")
+        no_laporan_string = str(date.today().year) + "/" + str(date.today().month) + "/" + str(date.today().strftime("%d")) + "/" + str(sub_kategori_id)
+    elif (record['kategori_id'] == 2) :
+        print("ini yg kedua")
+        no_laporan_string = str(date.today().year) + "/" + str(date.today().month) + "/" + str(sub_kategori_id)
+    else :
+        print(record['kategori_id'])
+        no_laporan_string = str(date.today().year) + "/" + str(sub_kategori_id)
+    print(no_laporan_string)
+
+
     query = "SELECT id, no_laporan, approved_by, date_submitted, date_approved, status FROM laporan_published WHERE no_laporan = %s"
     cursor.execute(query, (no_laporan_string,))
     record = cursor.fetchall()
