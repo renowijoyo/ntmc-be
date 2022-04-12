@@ -1,5 +1,6 @@
 from flask import Blueprint
 import time
+from datetime import date
 import os
 import json
 from dbconfig import DBConfig
@@ -157,6 +158,37 @@ def simpan_user():
 # def laporan_image_upload():
 #     # response = requests.post(URL, data=img, headers=headers)
 
+@cc_blueprint.route('/get_laporan_no', methods=["POST"])
+# @jwt_required()
+def get_laporan_no():
+    #format laporan 2022/bulan/subkategori
+    sub_kategori_id = request.json.get('sub_kategori_id')
+    no_laporan_string = str(date.today().year) + "/" + str(date.today().month) + "/" + str(sub_kategori_id)
+    print(no_laporan_string)
+    result = dict()
+    status = "approved"
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT id, no_laporan, approved_by, date_submitted, date_approved, status FROM laporan_published WHERE no_laporan = %s"
+    cursor.execute(query, (no_laporan_string,))
+    record = cursor.fetchall()
+    cursor.close()
+    if (len(record) > 0):
+        if record[0]['status'] == 'approved' :
+            valid = 2
+            result['no_laporan'] = ''
+            result['status'] = "laporan approved"
+        else :
+            valid = 1
+            result['status'] = 'laporan submitted'
+            result['no_laporan'] = no_laporan_string
+    else:
+        valid = 1
+        result['status'] = 'no laporan yet'
+        result['no_laporan'] = no_laporan_string
+    result['valid'] = valid
+
+
+    return jsonify(result)
 
 
 @cc_blueprint.route('/laporan_add', methods=["POST"])
@@ -213,7 +245,6 @@ def position():
     res = dict()
     res = record
     return jsonify(res)
-
 
 
 
