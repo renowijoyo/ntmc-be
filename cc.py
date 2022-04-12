@@ -872,3 +872,18 @@ def warga_upload_photo():
 def warga_upload_video():
     email = request.json.get('email')
     passwd = request.json.get('pass')
+
+
+@cc_blueprint.route('/laporan_review', methods=["POST"])
+def laporan_review():
+    cursor = db.cursor(dictionary=True)
+    no_laporan = request.json.get('no_laporan')
+    query = "SELECT laporan.id, laporan.no_laporan, laporan_published.status, laporan.sub_kategori_id, laporan.laporan_subcategory_id FROM laporan " \
+            "LEFT JOIN laporan_published ON laporan_published.no_laporan = laporan.no_laporan " \
+            "WHERE laporan.no_laporan = %s"
+    cursor.execute(query, (str(no_laporan),))
+    record = cursor.fetchall()
+    cursor.close()
+    result = dict()
+    result = record
+    return jsonify(result)
