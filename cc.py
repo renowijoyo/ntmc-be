@@ -746,6 +746,9 @@ def upload_file():
             flash('No file part')
             return redirect(request.url)
         file = request.files['file']
+        laporan_no = request.form['laporan_no']
+        laporan_subcategory_id = request.form['laporan_subcategory_id']
+        # print(request.form['laporan_no'])
         # If the user does not select a file, the browser submits an
         # empty file without a filename.
         if file.filename == '':
@@ -755,10 +758,16 @@ def upload_file():
             filename = secure_filename(file.filename)
             print(os.path.join(app.config['UPLOAD_FOLDER']))
             ts = time.time()
-            newfilename = str(user_id) + "-" + os.path.splitext(str(ts))[0] + os.path.splitext(filename)[1]
+            newfilename = str(laporan_no) + "-" + str(laporan_subcategory_id) + "-" + str(user_id) + "-" + os.path.splitext(str(ts))[0] + os.path.splitext(filename)[1]
 
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], newfilename ))
-            res['valid'] = '2'
+            cursor = db.cursor(dictionary=True)
+            # get the last rate & feedback - the latest ID
+            formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+            query = "INSERT INTO file_uploads (file_name, file_type, laporan_no, laporan_subcategory_id, user_id, date_submitted) VALUES (%s, %s, %s, %s, %s, %s)"
+            cursor.execute(query, (newfilename, "file", laporan_no, laporan_subcategory_id, user_id, formatted_date,))
+            db.commit()
+            res['valid'] = '1'
             # res['thumb_path'] ='https://ccntmc.1500669.com/ntmc_upload/'.$uploadfile
             return res
             # return redirect(url_for('download_file', name=newfilename))
