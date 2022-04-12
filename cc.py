@@ -191,7 +191,7 @@ def get_laporan_no():
     query = "SELECT id, no_laporan, approved_by, date_submitted, date_approved, status FROM laporan_published WHERE no_laporan = %s"
     cursor.execute(query, (no_laporan_string,))
     record = cursor.fetchall()
-    cursor.close()
+
     if (len(record) > 0):
         if record[0]['status'] == 'approved' :
             valid = 2
@@ -202,12 +202,18 @@ def get_laporan_no():
             result['status'] = 'laporan submitted'
             result['no_laporan'] = no_laporan_string
     else:
+        formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+        query = "INSERT INTO laporan_published (no_laporan, date_submitted, status " \
+                ") " \
+                "VALUES (%s, %s, %s)"
+        cursor.execute(query, (no_laporan_string, formatted_date, "submitted",))
+        db.commit()
         valid = 1
-        result['status'] = 'no laporan yet'
+        result['status'] = 'new laporan submitted'
         result['no_laporan'] = no_laporan_string
     result['valid'] = valid
 
-
+    cursor.close()
     return jsonify(result)
 
 
