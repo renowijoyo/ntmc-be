@@ -248,7 +248,8 @@ def laporan_approve():
 @cc_blueprint.route('/laporan_published', methods=["GET"])
 def laporan_published():
     cursor = db.cursor(dictionary=True)
-    query = "SELECT id, no_laporan, approved_by, date_submitted, date_approved, status FROM laporan_published"
+    query = "SELECT id, no_laporan, approved_by, user.username, date_submitted, date_approved, status FROM laporan_published " \
+            "LEFT JOIN user ON user.iduser = laporan_published.approved_by "
     cursor.execute(query)
     record = cursor.fetchall()
     result = dict()
