@@ -893,8 +893,11 @@ def warga_upload_video():
 def laporan_review():
     cursor = db.cursor(dictionary=True)
     no_laporan = request.json.get('no_laporan')
-    query = "SELECT laporan.id, laporan.no_laporan, laporan_published.status, laporan.sub_kategori_id, laporan.laporan_subcategory_id FROM laporan " \
+    query = "SELECT laporan.id, laporan.no_laporan, laporan_published.status, laporan.sub_kategori_id, subkategori.sub_kategori, " \
+            "laporan.laporan_subcategory_id, laporan_subcategory.name FROM laporan " \
             "LEFT JOIN laporan_published ON laporan_published.no_laporan = laporan.no_laporan " \
+            "LEFT JOIN laporan_subcategory ON laporan_subcategory.id = laporan.laporan_subcategory_id " \
+            "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan.sub_kategori_id " \
             "WHERE laporan.no_laporan = %s"
     cursor.execute(query, (str(no_laporan),))
     record = cursor.fetchall()
