@@ -46,6 +46,7 @@ def login_user():
     return res
 
 def authenticate_user(username, password):
+    db.reconnect()
     cursor = db.cursor(dictionary=True)
     query = "SELECT iduser,username,password, level_user, position_id, position.position_name as 'position_name', department.id as 'department_id', department.department_name as 'department_name', " \
             "region.id as 'region_id', region.region_name as 'region_name' FROM user " \
@@ -122,7 +123,7 @@ def simpan_user():
     alamat = request.json.get('alamat')
     email = request.json.get('email')
     ktp = request.json.get('ktp')
-
+    db.reconnect()
     cursor = db.cursor(dictionary=True)
     query = "SELECT username,password FROM user WHERE username = %s"
     cursor.execute(query, (username,))
@@ -162,6 +163,7 @@ def simpan_user():
 # @jwt_required()
 def get_laporan_no():
     #format laporan 2022/bulan/subkategori
+    db.reconnect()
     cursor = db.cursor(dictionary=True)
     result = dict()
     sub_kategori_id = request.json.get('sub_kategori_id')
@@ -221,6 +223,7 @@ def get_laporan_no():
 @cc_blueprint.route('/laporan_approve', methods=["POST"])
 @jwt_required()
 def laporan_approve():
+    db.reconnect()
     cursor = db.cursor(dictionary=True)
     user_id = get_jwt_identity()
     no_laporan = request.json.get('no_laporan')
@@ -247,6 +250,7 @@ def laporan_approve():
 
 @cc_blueprint.route('/laporan_published', methods=["GET"])
 def laporan_published():
+    db.reconnect()
     cursor = db.cursor(dictionary=True)
     query = "SELECT id, no_laporan, approved_by, user.username, date_submitted, date_approved, status FROM laporan_published " \
             "LEFT JOIN user ON user.iduser = laporan_published.approved_by "
@@ -259,6 +263,7 @@ def laporan_published():
 @cc_blueprint.route('/laporan_add', methods=["POST"])
 @jwt_required()
 def laporan_add():
+    db.reconnect()
     cursor = db.cursor(dictionary=True)
     user_id = get_jwt_identity()
     # user_id = '1'
@@ -300,6 +305,7 @@ def laporan_add():
 
 @cc_blueprint.route('/position', methods=["get"])
 def position():
+    db.reconnect()
     cursor = db.cursor(dictionary=True)
     query = "SELECT position.id as 'position_id', position.position_name, department.id as 'department_id', department.department_name,  region.id as 'region_id', region.region_name from position " \
             "LEFT JOIN department ON department.id = position.department_id " \
@@ -317,6 +323,7 @@ def position():
 @cc_blueprint.route('/laporan', methods=["POST"])
 @jwt_required()
 def laporan():
+    db.reconnect()
     level_user = request.json.get('level_user')
     position_id = request.json.get('position_id')
     start = request.json.get('start')
@@ -369,6 +376,7 @@ def laporan():
 
 @cc_blueprint.route('/ebooks', methods=["GET"])
 def ebooks():
+    db.reconnect()
     cursor = db.cursor(dictionary=True)
     query = "SELECT idebook, filename, tanggal FROM ebook"
 
@@ -386,6 +394,7 @@ def ebooks():
 def laporan_subcategory():
     print("laporan subcat")
     group = request.json.get("group", None)
+    db.reconnect()
     cursor = db.cursor(dictionary=True)
     query = "SELECT id, name, description, laporan_subcategory.group FROM laporan_subcategory where laporan_subcategory.group = %s"
 
@@ -401,6 +410,7 @@ def laporan_subcategory():
 @cc_blueprint.route('/regions', methods=["GET"])
 # @jwt_required()
 def regions():
+    db.reconnect()
     cursor = db.cursor(dictionary=True)
     query = "SELECT id, region_name, image FROM region"
 
@@ -416,7 +426,7 @@ def regions():
 @cc_blueprint.route('/users', methods=["POST"])
 # @jwt_required()
 def users():
-
+    db.reconnect()
     cursor = db.cursor(dictionary=True)
     query = "SELECT user.iduser, username, level_user, order_license, position_id, user_data.nama, user_data.telepon, " \
             "user_data.alamat, user_data.email, user_data.ktp FROM user LEFT JOIN user_data ON user_data.iduser = user.iduser "
@@ -435,7 +445,7 @@ def user_setpass():
     username = request.json.get("username", None)
     password = request.json.get("password", None)
     ol_password = request.json.get('ol_password')
-
+    db.reconnect()
     cursor = db.cursor(dictionary=True)
     query = "SELECT iduser, username, password FROM user WHERE username = %s"
     cursor.execute(query, (username,))
@@ -469,6 +479,7 @@ def laporan_map():
     regions = request.json.get('regions')
     subkategoris = request.json.get('subkategoris')
     # for region in regions:
+    db.reconnect()
     cursor = db.cursor(dictionary=True)
     # print(regions)
     # print(str(regions)[1:-1])
@@ -507,7 +518,7 @@ def laporan_filter():
     status = request.json.get('status')
     # tgl_submit = request.json.get('tgl_submit')
     # tgl_approve = request.json.get('tgl_approve')
-
+    db.reconnect()
     cursor = db.cursor(dictionary=True)
     res = dict()
 
@@ -530,7 +541,7 @@ def laporan_filter():
 
 @cc_blueprint.route('/load_video_banner')
 def load_video_banner():
-
+    db.reconnect()
     cursor = db.cursor()
     ## defining the Query
     query = "SELECT * FROM apps_video_banner WHERE id = '1'"
@@ -570,7 +581,7 @@ def load_video_banner():
 
 @cc_blueprint.route('/load_banner_news')
 def load_banner_news():
-
+    db.reconnect()
     cursor = db.cursor()
 
     ## defining the Query
@@ -607,7 +618,7 @@ def load_banner_news():
 @jwt_required()
 def user_get_history():
     id = get_jwt_identity()
-
+    db.reconnect()
     cursor = db.cursor(dictionary=True)
 
     query = "SELECT no_laporan, sub_kategori_id, subkategori.sub_kategori, laporan_text, DATE_FORMAT(tgl_submitted, '%Y-%m-%d %T') as tgl_submitted FROM laporan " \
@@ -631,6 +642,7 @@ def user_get_history():
 @jwt_required()
 def user_get_picturesolve():
     id = request.json.get('id')
+    db.reconnect()
     cursor = db.cursor(dictionary=True)
     # get the last rate & feedback - the latest ID
     query = "SELECT problem,solve FROM work_order_image WHERE work_order_id = %s ORDER BY idworkorderimage DESC"
@@ -653,7 +665,7 @@ def warga_get_mail():
     # query = "SELECT id_user_mobile, nama FROM user_mobile WHERE email = %s"
     # query2 = "SELECT id_user_mobile FROM work_order WHERE id_user_mobile = '5513'"
     query3 = "SELECT * from work_order WHERE id_user_mobile IN (select id_user_mobile from user_mobile where email = %s)"
-
+    db.reconnect()
     cursor.execute(query3, (username,))
     record = cursor.fetchall()
 
@@ -716,6 +728,7 @@ def warga_get_mail():
 
 @cc_blueprint.route('/subkategori', methods=["get"])
 def subkategori():
+    db.reconnect()
     cursor = db.cursor(dictionary=True)
     query = "SELECT idsubkategori, sub_kategori, icon,  nomor, kategori_id, kategori.kategori from subkategori " \
             "LEFT JOIN kategori ON kategori.idkategori = subkategori.kategori_id "
@@ -768,6 +781,7 @@ def upload_file():
             newfilename = str(laporan_no) + "-" + str(laporan_subcategory_id) + "-" + str(user_id) + "-" + os.path.splitext(str(ts))[0] + os.path.splitext(filename)[1]
 
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], newfilename ))
+            db.reconnect()
             cursor = db.cursor(dictionary=True)
             # get the last rate & feedback - the latest ID
             formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
@@ -805,7 +819,7 @@ def save_token():
     stamp2 = datetime.now()
 
     stamp = stamp2.strftime("%Y-%m-%d %H:%M:%S")
-
+    db.reconnect()
     cursor = db.cursor(dictionary=True)
     # get the last rate & feedback - the latest ID
     query = "INSERT INTO notif_token (username, token, stamp) VALUES (%s, %s, %s)"
@@ -827,6 +841,7 @@ def user_idle():
         valid = 0
         name = ""
     else :
+        db.reconnect()
         cursor = db.cursor(dictionary=True)
         query = "SELECT id_user_mobile, nama FROM user_mobile WHERE email = %s"
         cursor.execute(query, (username,))
@@ -853,6 +868,7 @@ def user_idle():
 def verify():
     email = request.json.get('email')
     passwd = request.json.get('pass')
+    db.reconnect()
     cursor = db.cursor(dictionary=True)
     query = "SELECT id_user_mobile,password FROM user_mobile WHERE email = %s"
     cursor.execute(query, (email,))
@@ -892,6 +908,7 @@ def warga_upload_video():
 
 @cc_blueprint.route('/laporan_review', methods=["POST"])
 def laporan_review():
+    db.reconnect()
     cursor = db.cursor(dictionary=True)
     no_laporan = request.json.get('no_laporan')
     query = "SELECT laporan.id, laporan.no_laporan, laporan_published.status, laporan.sub_kategori_id, subkategori.sub_kategori, " \
