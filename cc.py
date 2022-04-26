@@ -930,7 +930,8 @@ def laporan_print():
     cursor = db.cursor(dictionary=True)
     no_laporan = request.json.get('no_laporan')
     query = "SELECT laporan.id, laporan.no_laporan, laporan_published.status, laporan.sub_kategori_id, subkategori.sub_kategori, " \
-            "laporan.laporan_subcategory_id, laporan_subcategory.name FROM laporan " \
+            "laporan.laporan_subcategory_id, laporan_subcategory.name, laporan_published.date_submitted, " \
+            "laporan_published.date_approved FROM laporan " \
             "LEFT JOIN laporan_published ON laporan_published.no_laporan = laporan.no_laporan " \
             "LEFT JOIN laporan_subcategory ON laporan_subcategory.id = laporan.laporan_subcategory_id " \
             "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan.sub_kategori_id " \
