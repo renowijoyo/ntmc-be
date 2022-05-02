@@ -942,3 +942,45 @@ def laporan_print():
     result = dict()
     result = record
     return jsonify(result)
+
+@cc_blueprint.route('/laporan_print_filter', methods=["POST"])
+def laporan_print_filter():
+    db.reconnect()
+    cursor = db.cursor(dictionary=True)
+    date_submitted = request.json.get('date_submitted')
+    date_approved = request.json.get('date_approved')
+    status = request.json.get('status')
+
+    where_query = ""
+    query = "SELECT laporan.id, laporan.no_laporan, laporan_published.status, laporan.sub_kategori_id, subkategori.sub_kategori, " \
+            "laporan.laporan_subcategory_id, laporan_subcategory.name, laporan_published.date_submitted, " \
+            "laporan_published.date_approved FROM laporan " \
+            "LEFT JOIN laporan_published ON laporan_published.no_laporan = laporan.no_laporan " \
+            "LEFT JOIN laporan_subcategory ON laporan_subcategory.id = laporan.laporan_subcategory_id " \
+            "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan.sub_kategori_id"
+
+    if status != "" :
+        status_exist = True
+        where_query = where_query + ' WHERE laporan_published.status = "' +status +'"'
+    if date_submitted != "":
+        submitted_exist = True
+        if (status_exist) :
+            where_query = where_query + ' AND DATE(laporan_published.date_submitted) =  DATE("'+ date_submitted +'")'
+        else :
+            where_query = where_query + ' WHERE DATE(laporan_published.date_submitted) =  DATE("'+ date_submitted +'")'
+    if date_approved != "":
+        approved_exist = True
+        if (status_exist or submitted_exist):
+            where_query = where_query + ' AND DATE(laporan_published.date_approved) = DATE("'+ date_approved +'")'
+        else :
+            where_query = where_query + ' WHERE DATE(laporan_published.date_approved) = DATE("'+ date_approved +'")'
+
+    query = query + where_query
+    print (query)
+    cursor.execute(query,)
+    # cursor.execute(query, (str(no_laporan),))
+    record = cursor.fetchall()
+    cursor.close()
+    result = dict()
+    result = record
+    return jsonify(result)
