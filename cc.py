@@ -905,6 +905,26 @@ def warga_upload_video():
     email = request.json.get('email')
     passwd = request.json.get('pass')
 
+@cc_blueprint.route('/laporan_data_review', methods=["POST"])
+def laporan_data_review():
+    db.reconnect()
+    cursor = db.cursor(dictionary=True)
+    date = request.json.get('date')
+    subkategoriid = request.json.get('sub_kategori_id')
+    # subkategori = request.json.get('subkategori')
+    query = "SELECT laporan.id, laporan.no_laporan, laporan_published.status, laporan.sub_kategori_id, subkategori.sub_kategori, " \
+            "laporan.laporan_subcategory_id, laporan_subcategory.name FROM laporan " \
+            "LEFT JOIN laporan_published ON laporan_published.no_laporan = laporan.no_laporan " \
+            "LEFT JOIN laporan_subcategory ON laporan_subcategory.id = laporan.laporan_subcategory_id " \
+            "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan.sub_kategori_id " \
+            "WHERE DATE(laporan_published.date_submitted) =  DATE('"+ date +"')  AND laporan.sub_kategori_id =  " + subkategoriid
+    cursor.execute(query,)
+    record = cursor.fetchall()
+    cursor.close()
+    result = dict()
+    result = record
+    return jsonify(result)
+
 
 @cc_blueprint.route('/laporan_review', methods=["POST"])
 def laporan_review():
