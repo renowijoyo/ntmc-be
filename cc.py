@@ -1019,3 +1019,23 @@ def get_laporan_data_list():
     result = dict()
     result = record
     return jsonify(result)
+
+@cc_blueprint.route('/get_position_list', methods=["GET"])
+def get_position_list():
+    db.reconnect()
+    cursor = db.cursor(dictionary=True)
+    # sub_category_id = request.json.get('sub_kategori_id')
+    query = "select region_name, department_name, position_name, position.id from position LEFT JOIN department on position.department_id = department.id LEFT JOIN region on department.region_id = region.id"
+    cursor.execute(query,)
+    record = cursor.fetchall()
+    cursor.close()
+    result = dict()
+    temp = dict()
+
+    for x in record:
+        # result[x['id']] = result
+        temp['id'] = x['id']
+        temp['name'] = x['region_name'] + ":" + x['department_name'] + ":" + x['position_name']
+        result
+    print(result)
+    return jsonify(result)
