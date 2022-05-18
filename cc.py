@@ -1006,8 +1006,8 @@ def laporan_print_filter():
     return jsonify(result)
 
 
-@cc_blueprint.route('/get_position', methods=["POST"])
-def get_position():
+@cc_blueprint.route('/get_laporan_data_list', methods=["POST"])
+def get_laporan_data_list():
     db.reconnect()
     cursor = db.cursor(dictionary=True)
     sub_category_id = request.json.get('sub_kategori_id')
