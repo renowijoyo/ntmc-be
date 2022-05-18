@@ -1004,3 +1004,18 @@ def laporan_print_filter():
     result = dict()
     result = record
     return jsonify(result)
+
+
+@cc_blueprint.route('/get_position', methods=["POST"])
+def get_position():
+    db.reconnect()
+    cursor = db.cursor(dictionary=True)
+    sub_category_id = request.json.get('sub_kategori_id')
+    query = "SELECT name, description FROM laporan_subcategory " \
+            "WHERE sub_category_id = %s"
+    cursor.execute(query,(sub_category_id,))
+    record = cursor.fetchall()
+    cursor.close()
+    result = dict()
+    result = record
+    return jsonify(result)
