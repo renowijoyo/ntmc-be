@@ -1031,11 +1031,12 @@ def get_position_list():
     cursor.close()
     result = dict()
     temp = dict()
-
+    # result = record
+    result = [];
     for x in record:
         # result[x['id']] = result
         temp['id'] = x['id']
         temp['name'] = x['region_name'] + ":" + x['department_name'] + ":" + x['position_name']
-        result
-    print(result)
+        result.append(temp)
+    # print(result)
     return jsonify(result)
