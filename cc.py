@@ -912,17 +912,23 @@ def laporan_data_review():
     date = request.json.get('date')
     subkategoriid = request.json.get('sub_kategori_id')
     # subkategori = request.json.get('subkategori')
-    query = "SELECT laporan.id, laporan.no_laporan, laporan_published.status, laporan.sub_kategori_id, subkategori.sub_kategori, " \
+    query = "SELECT laporan.id, laporan.no_laporan, laporan_published.status, laporan.laporan_total, laporan.sub_kategori_id, subkategori.sub_kategori, " \
             "laporan.laporan_subcategory_id, laporan_subcategory.name FROM laporan " \
             "LEFT JOIN laporan_published ON laporan_published.no_laporan = laporan.no_laporan " \
             "LEFT JOIN laporan_subcategory ON laporan_subcategory.id = laporan.laporan_subcategory_id " \
             "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan.sub_kategori_id " \
-            "WHERE DATE(laporan_published.date_submitted) =  DATE('"+ date +"')  AND laporan.sub_kategori_id =  " + subkategoriid
+            "WHERE DATE(laporan_published.date_submitted) =  DATE('"+ date +"')  AND laporan.sub_kategori_id =  " + subkategoriid + " GROUP BY laporan.laporan_subcategory_id"
     cursor.execute(query,)
     record = cursor.fetchall()
     cursor.close()
     result = dict()
     result = record
+    temp = dict()
+    # result = [];
+    # for x in record:
+    #     print(x['id'])
+    #     temp['id'] = x['id']
+    #     result.append(temp)
     return jsonify(result)
 
 
