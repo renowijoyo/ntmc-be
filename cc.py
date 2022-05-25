@@ -84,6 +84,20 @@ def tracker():
     cursor.close()
     return result
 
+
+@cc_blueprint.route('/get_tracker_devices', methods=["GET"])
+def get_tracker_devices():
+    db.reconnect()
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT device_id, device_name, device_type, status, tracker_video.video_url FROM tracker_device LEFT JOIN " \
+            "tracker_video on tracker_video.tracker_device_id = tracker_device.device_id"
+    cursor.execute(query)
+    record = cursor.fetchall()
+    result = dict()
+    result = record
+    return jsonify(result)
+
+
 @cc_blueprint.route('/get_tracker_device', methods=["POST"])
 def get_tracker_device():
     tracker_device_id = request.json.get("tracker_device_id", None)
