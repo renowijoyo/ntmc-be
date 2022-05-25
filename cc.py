@@ -154,19 +154,54 @@ def simpan_user():
     cursor.close()
     return res
 
+@cc_blueprint.route('/get_user_info', methods=["POST"])
+@jwt_required()
+def get_user_info():
+    db.reconnect()
+    user_id = get_jwt_identity()
+    # user_id = "2680"
+    cursor = db.cursor(dictionary=True)
+    result = dict()
+    print(user_id)
+    query = "select iduser, username, user.position_id, position.position_name, position.department_id, department.id as 'department_id', department.department_name, region.id as 'region_id', region.region_name from user " \
+            "LEFT JOIN position ON position.id = user.position_id " \
+            "LEFT JOIN department ON department.id = position.department_id " \
+            "LEFT JOIN region ON region.id = department.region_id " \
+            "where iduser = %s"
+    cursor.execute(query, (user_id,))
+    record = cursor.fetchone()
+    # print(record)
+    # result = record
+    return record
+
+
 # @cc_blueprint.route('/laporan_image_upload', methods=["POST"])
 # @jwt_required()
 # def laporan_image_upload():
 #     # response = requests.post(URL, data=img, headers=headers)
 
 @cc_blueprint.route('/get_laporan_no', methods=["POST"])
-# @jwt_required()
+@jwt_required()
 def get_laporan_no():
-    #format laporan 2022/bulan/subkategori
+    #format laporan 2022/bulan/region(kesatuanid)/subkategori
     db.reconnect()
+    user_id = get_jwt_identity()
+
     cursor = db.cursor(dictionary=True)
     result = dict()
     sub_kategori_id = request.json.get('sub_kategori_id')
+    # print(user_id)
+    user_info = get_user_info()
+    # print(user_info['username'])
+    if user_info['region_id'] is None:
+        result['valid'] = 0
+        result['status'] = 'no region set for this user'
+        return jsonify(result)
+    # query_0 = "select iduser, username, position_id from USER where iduser = %s"
+    # cursor.execute(query_0, (user_id,))
+    # record = cursor.fetchone()
+
+
     query_a = "SELECT idsubkategori, kategori_id, kategori.kategori, sub_kategori FROM subkategori " \
               "LEFT JOIN kategori ON kategori.idkategori = subkategori.kategori_id " \
               "WHERE idsubkategori = %s"
@@ -180,13 +215,13 @@ def get_laporan_no():
     print(record)
     if(record['kategori_id'] == 1) :
         print("ini yg pertama")
-        no_laporan_string = str(date.today().year) + "/" + str(date.today().month) + "/" + str(date.today().strftime("%d")) + "/" + str(sub_kategori_id)
+        no_laporan_string = str(date.today().year) + "/" + str(date.today().month) + "/" + str(date.today().strftime("%d")) + "/" + str(sub_kategori_id) + "/" + str(user_info['region_id'])
     elif (record['kategori_id'] == 2) :
         print("ini yg kedua")
-        no_laporan_string = str(date.today().year) + "/" + str(date.today().month) + "/" + str(sub_kategori_id)
+        no_laporan_string = str(date.today().year) + "/" + str(date.today().month) + "/" + str(sub_kategori_id) + "/" + str(user_info['region_id'])
     else :
         print(record['kategori_id'])
-        no_laporan_string = str(date.today().year) + "/" + str(sub_kategori_id)
+        no_laporan_string = str(date.today().year) + "/" + str(sub_kategori_id) + "/" + str(user_info['region_id'])
     print(no_laporan_string)
 
 
@@ -922,13 +957,27 @@ def laporan_data_review():
     record = cursor.fetchall()
     cursor.close()
     result = dict()
-    result = record
+    # result = record
     temp = dict()
     # result = [];
-    # for x in record:
-    #     print(x['id'])
-    #     temp['id'] = x['id']
-    #     result.append(temp)
+    data_array = []
+    nolaporan = ''
+    subkategorinama = ''
+    for x in record:
+        temp = dict()
+        temp['id'] = x['id']
+        temp['laporan_subcategory_id'] = x['laporan_subcategory_id']
+        temp['name'] = x['name']
+        temp['laporan_total'] = x['laporan_total']
+        nolaporan = x['no_laporan']
+        subkategorinama = x['sub_kategori']
+        # print(x['id'])
+        data_array.append(temp)
+    print(data_array)
+    result['data'] = record
+    result['sub_kategori_id'] = subkategoriid
+    result['sub_kategori_nama'] = subkategorinama
+
     return jsonify(result)
 
 
