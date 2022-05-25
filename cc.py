@@ -38,6 +38,53 @@ cc_blueprint = Blueprint('cc_blueprint', __name__, url_prefix="/cc")
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
+
+
+
+
+
+
+
+
+# /?id=D59B0CA08F49&lat=-6.2410&lon=106.8189&hdop=73&altitude=47&speed=0.0
+
+@cc_blueprint.route('/tracker', methods=["GET"])
+def tracker():
+    id = request.args.get("id", None)
+    lat = request.args.get("lat", None)
+    lon = request.args.get("lon", None)
+    hdop = request.args.get("hdop", None)
+    altitude = request.args.get("altitude", None)
+    speed = request.args.get("speed", None)
+
+    db.reconnect()
+    cursor = db.cursor(dictionary=True)
+
+    query = "INSERT INTO tracker_loc (tracker_device_id, lat, lon, hdop, altitude,speed) VALUES (%s, %s, %s, %s, %s, %s)"
+    cursor.execute(query, (id, lat, lon, hdop, altitude, speed))
+
+    # print("here")
+    result = dict()
+    try:
+        db.commit()
+    except mysql.connector.Error as error:
+        print("Failed to update record to database rollback: {}".format(error))
+        # reverting changes because of exception
+        cursor.rollback()
+        result['result'] = 'failed'
+        result['valid'] = 2
+    finally:
+
+        cursor.close()
+        result['result'] = 'success'
+        result['valid'] = 1
+
+    cursor.close()
+    return result
+
+
 @cc_blueprint.route('/login_user', methods=["POST"])
 def login_user():
     username = request.json.get("username", None)
