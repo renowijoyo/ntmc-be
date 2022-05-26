@@ -1150,7 +1150,7 @@ def get_laporan_data_list():
     db.reconnect()
     cursor = db.cursor(dictionary=True)
     sub_category_id = request.json.get('sub_kategori_id')
-    query = "SELECT name, description FROM laporan_subcategory " \
+    query = "SELECT id, name, description FROM laporan_subcategory " \
             "WHERE sub_category_id = %s"
     cursor.execute(query,(sub_category_id,))
     record = cursor.fetchall()
@@ -1179,3 +1179,40 @@ def get_position_list():
         result.append(temp)
     # print(result)
     return jsonify(result)
+
+@cc_blueprint.route('/submit_laporan_data_list', methods=["POST"])
+@jwt_required()
+def submit_laporan_data_list():
+    data = request.json.get('data')
+    lat_pelapor = request.json.get('lat_pelapor')
+    long_pelapor = request.json.get('long_pelapor')
+    no_laporan = request.json.get('no_laporan')
+    sub_kategori_id = request.json.get('sub_kategori_id')
+    user_id = get_jwt_identity()
+    print(data)
+    db.reconnect()
+    cursor = db.cursor(dictionary=True)
+
+    for x in data:
+        x['laporan_subcategory_id']
+        query = "INSERT INTO laporan (no_laporan, user_id, lat_pelapor, long_pelapor, laporan_subcategory_id, laporan_total, laporan_text) VALUES (%s, %s, %s, %s, %s, %s, %s) " \
+                "ON DUPLICATE KEY UPDATE lat_pelapor = %s, long_pelapor = %s, laporan_total = %s, laporan_text = %s"
+        cursor.execute(query, (no_laporan, user_id, lat_pelapor, long_pelapor, x['laporan_subcategory_id'],x['laporan_total'],x['laporan_text'],lat_pelapor, long_pelapor,x['laporan_total'],x['laporan_text']))
+
+    result = dict()
+    try:
+        db.commit()
+    except mysql.connector.Error as error:
+        print("Failed to update record to database rollback: {}".format(error))
+        # reverting changes because of exception
+        cursor.rollback()
+        result['result'] = 'failed'
+        result['valid'] = 2
+    finally:
+
+        cursor.close()
+        result['result'] = 'success'
+        result['valid'] = 1
+
+    cursor.close()
+    return result
