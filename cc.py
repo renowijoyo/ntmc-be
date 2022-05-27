@@ -379,6 +379,37 @@ def laporan_published():
     result = record
     return jsonify(result)
 
+@cc_blueprint.route('/get_laporan_pdf', methods=["POST"])
+# @jwt_required()
+def get_laporan_pdf():
+    db.reconnect()
+    cursor = db.cursor(dictionary=True)
+    # user_id = get_jwt_identity()
+    no_laporan = request.json.get('no_laporan')
+    sub_kategori_id = request.json.get('sub_kategori_id')
+    query = "SELECT id, no_laporan, approved_by date_submitted, date_approved, status FROM laporan_published "
+    cursor.execute(query)
+    record = cursor.fetchone()
+
+    result = dict()
+    if (record['status'] != "approved") :
+        print('jere 2')
+        result['result'] = 'not yet approved'
+        result['download_url'] = None
+        result['valid'] = 0
+    else :
+        result['result'] = 'success'
+        result['download_url'] = 'http://202.sekian sekian sekian'
+        result['valid'] = 1
+
+    print(result)
+    return jsonify(result)
+
+
+
+
+
+
 @cc_blueprint.route('/laporan_add', methods=["POST"])
 @jwt_required()
 def laporan_add():
