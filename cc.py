@@ -15,7 +15,7 @@ from flask import request, flash, request, redirect, url_for
 from flask_cors import CORS
 
 from werkzeug.utils import secure_filename
-
+from os.path import exists
 from datetime import datetime
 import hashlib
 import bcrypt
@@ -33,11 +33,15 @@ import bcrypt
 dbObj = DBConfig()
 db = dbObj.connect()
 UPLOAD_FOLDER = './uploads/'
+DOWNLOAD_FOLDER = './downloads/'
+DOWNLOAD_LAPORAN_FOLDER = './downloads/laporan/'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'mp4'}
 cc_blueprint = Blueprint('cc_blueprint', __name__, url_prefix="/cc")
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['UPLOAD_LAPORAN_FOLDER'] = DOWNLOAD_LAPORAN_FOLDER
+app.config['DOWNLOAD_FOLDER'] = DOWNLOAD_FOLDER
 
 
 
@@ -894,11 +898,79 @@ def subkategori():
 def download_file(name):
     return send_from_directory(app.config["UPLOAD_FOLDER"], name)
 
+@cc_blueprint.route('/downloads/laporan/<kategori_id>/<name>')
+def download_file_laporan(kategori_id, name):
+    res = dict()
+    dirName = "downloads/laporan/" + kategori_id
+    try:
+        # Create target Directory
+        os.mkdir(dirName)
+        print("Directory ", dirName, " Created ")
+    except FileExistsError:
+        print("Directory ", dirName, " already exists")
+
+    path_to_file = app.config["DOWNLOAD_FOLDER"] + "laporan/" + kategori_id + '/'
+    file_exists = exists(path_to_file + name)
+    print("here")
+    if file_exists :
+        return send_from_directory(path_to_file, name)
+    else :
+        res['valid'] = 0
+        res['error'] = "file does not exist"
+        return res
 
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@cc_blueprint.route('/upload_laporan', methods=["POST"])
+@jwt_required()
+def upload_laporan():
+    res = dict()
+    user_id = get_jwt_identity()
+    newfilename = ''
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            print('no file part')
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        laporan_no = request.form['laporan_no']
+        laporan_subcategory_id = request.form['laporan_subcategory_id']
+        # print(request.form['laporan_no'])
+        # If the user does not select a file, the browser submits an
+        # empty file without a filename.
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            print(os.path.join(app.config['UPLOAD_FOLDER']))
+            ts = time.time()
+            newfilename = str(laporan_no) + "-" + str(laporan_subcategory_id) + "-" + str(user_id) + "-" + os.path.splitext(str(ts))[0] + os.path.splitext(filename)[1]
+
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], newfilename ))
+
+
+            res['valid'] = '1'
+            # res['thumb_path'] ='https://ccntmc.1500669.com/ntmc_upload/'.$uploadfile
+            return res
+            # return redirect(url_for('download_file', name=newfilename))
+    return '''
+    <!doctype html>
+    <title>Upload new File</title>
+    <h1>Upload new File</h1>
+    <form method=post enctype=multipart/form-data>
+      <input type=file name=file>
+      <input type=submit value=Upload>
+    </form>
+    '''
+
+
+
+
 
 
 
