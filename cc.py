@@ -328,10 +328,10 @@ def get_laporan_no():
             result['no_laporan'] = no_laporan_string
     else:
         formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
-        query = "INSERT INTO laporan_published (no_laporan, date_submitted, status " \
+        query = "INSERT INTO laporan_published (no_laporan, laporan_subcategory_id, date_submitted, status " \
                 ") " \
-                "VALUES (%s, %s, %s)"
-        cursor.execute(query, (no_laporan_string, formatted_date, "submitted",))
+                "VALUES (%s, %s, %s, %s)"
+        cursor.execute(query, (no_laporan_string,sub_kategori_id, formatted_date, "submitted",))
         db.commit()
         valid = 1
         result['status'] = 'new laporan submitted'
@@ -375,7 +375,7 @@ def laporan_approve():
 def laporan_published():
     db.reconnect()
     cursor = db.cursor(dictionary=True)
-    query = "SELECT id, no_laporan, approved_by, user.username, date_submitted, date_approved, status FROM laporan_published " \
+    query = "SELECT id, no_laporan, laporan_subcateogry_id, approved_by, user.username, date_submitted, date_approved, status FROM laporan_published " \
             "LEFT JOIN user ON user.iduser = laporan_published.approved_by "
     cursor.execute(query)
     record = cursor.fetchall()
