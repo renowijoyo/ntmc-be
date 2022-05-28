@@ -303,13 +303,13 @@ def get_laporan_no():
     print(record)
     if(record['kategori_id'] == 1) :
         print("ini yg pertama")
-        no_laporan_string = str(date.today().year) + "/" + str(date.today().month) + "/" + str(date.today().strftime("%d")) + "/" + str(sub_kategori_id) + "/" + str(user_info['region_id'])
+        no_laporan_string = str(date.today().year) + "-" + str(date.today().month) + "-" + str(date.today().strftime("%d")) + "-" + str(sub_kategori_id) + "-" + str(user_info['region_id'])
     elif (record['kategori_id'] == 2) :
         print("ini yg kedua")
-        no_laporan_string = str(date.today().year) + "/" + str(date.today().month) + "/" + str(sub_kategori_id) + "/" + str(user_info['region_id'])
+        no_laporan_string = str(date.today().year) + "-" + str(date.today().month) + "-" + str(sub_kategori_id) + "-" + str(user_info['region_id'])
     else :
         print(record['kategori_id'])
-        no_laporan_string = str(date.today().year) + "/" + str(sub_kategori_id) + "/" + str(user_info['region_id'])
+        no_laporan_string = str(date.today().year) + "-" + str(sub_kategori_id) + "-" + str(user_info['region_id'])
     print(no_laporan_string)
 
 
