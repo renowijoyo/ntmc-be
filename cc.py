@@ -937,7 +937,7 @@ def upload_laporan():
             flash('No file part')
             return redirect(request.url)
         file = request.files['file']
-        laporan_no = request.form['laporan_no']
+        # laporan_no = request.form['laporan_no']
         laporan_subcategory_id = request.form['laporan_subcategory_id']
         # print(request.form['laporan_no'])
         # If the user does not select a file, the browser submits an
@@ -947,11 +947,11 @@ def upload_laporan():
             return redirect(request.url)
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            print(os.path.join(app.config['UPLOAD_FOLDER']))
+            print(os.path.join(app.config['UPLOAD_LAPORAN_FOLDER']))
             ts = time.time()
-            newfilename = str(laporan_no) + "-" + str(laporan_subcategory_id) + "-" + str(user_id) + "-" + os.path.splitext(str(ts))[0] + os.path.splitext(filename)[1]
-
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], newfilename ))
+            # newfilename = str(laporan_no) + "-" + str(laporan_subcategory_id) + "-" + str(user_id) + "-" + os.path.splitext(str(ts))[0] + os.path.splitext(filename)[1]
+            newfilename = os.path.splitext(filename)[1]
+            file.save(os.path.join(app.config['UPLOAD_LAPORAN_FOLDER'] + laporan_subcategory_id + "/", filename ))
 
 
             res['valid'] = '1'
