@@ -26,6 +26,7 @@ from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
 
 from mobile import mobile_blueprint
+from ntmc_mobile import ntmc_mobile_blueprint
 from cc import cc_blueprint
 from admin import admin_blueprint
 from sqlalchemy import create_engine
@@ -39,6 +40,7 @@ import logging
 app = Flask(__name__)
 CORS(app)
 app.register_blueprint(mobile_blueprint)
+app.register_blueprint(ntmc_mobile_blueprint)
 app.register_blueprint(cc_blueprint)
 app.register_blueprint(admin_blueprint)
 

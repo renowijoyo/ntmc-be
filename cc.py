@@ -20,6 +20,9 @@ from datetime import datetime
 import hashlib
 import bcrypt
 
+import pdfkit
+
+
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
@@ -268,78 +271,78 @@ def get_user_info():
 # def laporan_image_upload():
 #     # response = requests.post(URL, data=img, headers=headers)
 
-@cc_blueprint.route('/get_laporan_no', methods=["POST"])
-@jwt_required()
-def get_laporan_no():
-    #format laporan 2022/bulan/region(kesatuanid)/subkategori
-    db.reconnect()
-    user_id = get_jwt_identity()
-
-    cursor = db.cursor(dictionary=True)
-    result = dict()
-    sub_kategori_id = request.json.get('sub_kategori_id')
-    # print(user_id)
-    user_info = get_user_info()
-    # print(user_info['username'])
-    if user_info['region_id'] is None:
-        result['valid'] = 0
-        result['status'] = 'no region set for this user'
-        return jsonify(result)
-    # query_0 = "select iduser, username, position_id from USER where iduser = %s"
-    # cursor.execute(query_0, (user_id,))
-    # record = cursor.fetchone()
-
-
-    query_a = "SELECT idsubkategori, kategori_id, kategori.kategori, sub_kategori FROM subkategori " \
-              "LEFT JOIN kategori ON kategori.idkategori = subkategori.kategori_id " \
-              "WHERE idsubkategori = %s"
-    cursor.execute(query_a, (sub_kategori_id,))
-    record = cursor.fetchone()
-    if record is None:
-        result['valid'] = 0
-        result['status'] = 'wrong sub_kategori_id'
-        return jsonify(result)
-
-    print(record)
-    if(record['kategori_id'] == 1) :
-        print("ini yg pertama")
-        no_laporan_string = str(date.today().year) + "-" + str(date.today().month) + "-" + str(date.today().strftime("%d")) + "-" + str(sub_kategori_id) + "-" + str(user_info['region_id'])
-    elif (record['kategori_id'] == 2) :
-        print("ini yg kedua")
-        no_laporan_string = str(date.today().year) + "-" + str(date.today().month) + "-" + str(sub_kategori_id) + "-" + str(user_info['region_id'])
-    else :
-        print(record['kategori_id'])
-        no_laporan_string = str(date.today().year) + "-" + str(sub_kategori_id) + "-" + str(user_info['region_id'])
-    print(no_laporan_string)
-
-
-    query = "SELECT id, no_laporan, approved_by, date_submitted, date_approved, status FROM laporan_published WHERE no_laporan = %s"
-    cursor.execute(query, (no_laporan_string,))
-    record = cursor.fetchall()
-
-    if (len(record) > 0):
-        if record[0]['status'] == 'approved' :
-            valid = 2
-            result['no_laporan'] = ''
-            result['status'] = "laporan approved"
-        else :
-            valid = 1
-            result['status'] = 'laporan submitted'
-            result['no_laporan'] = no_laporan_string
-    else:
-        formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
-        query = "INSERT INTO laporan_published (no_laporan, laporan_subcategory_id, date_submitted, status " \
-                ") " \
-                "VALUES (%s, %s, %s, %s)"
-        cursor.execute(query, (no_laporan_string,sub_kategori_id, formatted_date, "submitted",))
-        db.commit()
-        valid = 1
-        result['status'] = 'new laporan submitted'
-        result['no_laporan'] = no_laporan_string
-    result['valid'] = valid
-
-    cursor.close()
-    return jsonify(result)
+# @cc_blueprint.route('/get_laporan_no[DEPRECATED]', methods=["POST"])
+# @jwt_required()
+# def get_laporan_no():
+#     #format laporan 2022/bulan/region(kesatuanid)/subkategori
+#     db.reconnect()
+#     user_id = get_jwt_identity()
+#
+#     cursor = db.cursor(dictionary=True)
+#     result = dict()
+#     sub_kategori_id = request.json.get('sub_kategori_id')
+#     # print(user_id)
+#     user_info = get_user_info()
+#     # print(user_info['username'])
+#     if user_info['region_id'] is None:
+#         result['valid'] = 0
+#         result['status'] = 'no region set for this user'
+#         return jsonify(result)
+#     # query_0 = "select iduser, username, position_id from USER where iduser = %s"
+#     # cursor.execute(query_0, (user_id,))
+#     # record = cursor.fetchone()
+#
+#
+#     query_a = "SELECT idsubkategori, kategori_id, kategori.kategori, sub_kategori FROM subkategori " \
+#               "LEFT JOIN kategori ON kategori.idkategori = subkategori.kategori_id " \
+#               "WHERE idsubkategori = %s"
+#     cursor.execute(query_a, (sub_kategori_id,))
+#     record = cursor.fetchone()
+#     if record is None:
+#         result['valid'] = 0
+#         result['status'] = 'wrong sub_kategori_id'
+#         return jsonify(result)
+#
+#     print(record)
+#     if(record['kategori_id'] == 1) :
+#         print("ini yg pertama")
+#         no_laporan_string = str(date.today().year) + "-" + str(date.today().month) + "-" + str(date.today().strftime("%d")) + "-" + str(sub_kategori_id) + "-" + str(user_info['region_id'])
+#     elif (record['kategori_id'] == 2) :
+#         print("ini yg kedua")
+#         no_laporan_string = str(date.today().year) + "-" + str(date.today().month) + "-" + str(sub_kategori_id) + "-" + str(user_info['region_id'])
+#     else :
+#         print(record['kategori_id'])
+#         no_laporan_string = str(date.today().year) + "-" + str(sub_kategori_id) + "-" + str(user_info['region_id'])
+#     print(no_laporan_string)
+#
+#
+#     query = "SELECT id, no_laporan, approved_by, date_submitted, date_approved, status FROM laporan_published WHERE no_laporan = %s"
+#     cursor.execute(query, (no_laporan_string,))
+#     record = cursor.fetchall()
+#
+#     if (len(record) > 0):
+#         if record[0]['status'] == 'approved' :
+#             valid = 2
+#             result['no_laporan'] = ''
+#             result['status'] = "laporan approved"
+#         else :
+#             valid = 1
+#             result['status'] = 'laporan submitted'
+#             result['no_laporan'] = no_laporan_string
+#     else:
+#         formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+#         query = "INSERT INTO laporan_published (no_laporan, laporan_subcategory_id, date_submitted, status " \
+#                 ") " \
+#                 "VALUES (%s, %s, %s, %s)"
+#         cursor.execute(query, (no_laporan_string,sub_kategori_id, formatted_date, "submitted",))
+#         db.commit()
+#         valid = 1
+#         result['status'] = 'new laporan submitted'
+#         result['no_laporan'] = no_laporan_string
+#     result['valid'] = valid
+#
+#     cursor.close()
+#     return jsonify(result)
 
 
 
@@ -410,55 +413,55 @@ def get_laporan_pdf():
     return jsonify(result)
 
 
+#
+#
+#
+#
+# @cc_blueprint.route('/laporan_add_DEPRECATED', methods=["POST"])
+# @jwt_required()
+# def laporan_add():
+#     db.reconnect()
+#     cursor = db.cursor(dictionary=True)
+#     user_id = get_jwt_identity()
+#     # user_id = '1'
+#     no_laporan = request.json.get('no_laporan')
+#     tgl_laporan = request.json.get('tgl_laporan')
+#     lat_pelapor = request.json.get('lat_pelapor')
+#     long_pelapor = request.json.get('long_pelapor')
+#     laporan_text = request.json.get('laporan_text')
+#     laporan_total = request.json.get('laporan_total')
+#     sub_kategori_id = request.json.get('sub_kategori_id')
+#     laporan_subcategory_id = request.json.get('laporan_subcategory_id')
+#     status = request.json.get('status')
+#     formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+#     # tgl_approved = request.json.get('tgl_approved')
+#
+#     query = "INSERT INTO laporan (no_laporan, tgl_laporan, user_id, lat_pelapor, long_pelapor, sub_kategori_id, " \
+#             "laporan_subcategory_id, laporan_text, laporan_total, status, tgl_submitted) " \
+#             "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+#     cursor.execute(query, (no_laporan, tgl_laporan, user_id, lat_pelapor, long_pelapor, sub_kategori_id,laporan_subcategory_id, laporan_text, laporan_total, status, formatted_date))
+#     record = cursor.fetchone()
+#
+#     result = dict()
+#     try:
+#         db.commit()
+#     except mysql.connector.Error as error:
+#         print("Failed to update record to database rollback: {}".format(error))
+#         # reverting changes because of exception
+#         cursor.rollback()
+#         result['result'] = 'failed'
+#         result['valid'] = 2
+#     finally:
+#
+#         cursor.close()
+#         result['result'] = 'success'
+#         result['valid'] = 1
+#
+#     return jsonify(result)
+#
 
-
-
-
-@cc_blueprint.route('/laporan_add', methods=["POST"])
-@jwt_required()
-def laporan_add():
-    db.reconnect()
-    cursor = db.cursor(dictionary=True)
-    user_id = get_jwt_identity()
-    # user_id = '1'
-    no_laporan = request.json.get('no_laporan')
-    tgl_laporan = request.json.get('tgl_laporan')
-    lat_pelapor = request.json.get('lat_pelapor')
-    long_pelapor = request.json.get('long_pelapor')
-    laporan_text = request.json.get('laporan_text')
-    laporan_total = request.json.get('laporan_total')
-    sub_kategori_id = request.json.get('sub_kategori_id')
-    laporan_subcategory_id = request.json.get('laporan_subcategory_id')
-    status = request.json.get('status')
-    formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
-    # tgl_approved = request.json.get('tgl_approved')
-
-    query = "INSERT INTO laporan (no_laporan, tgl_laporan, user_id, lat_pelapor, long_pelapor, sub_kategori_id, " \
-            "laporan_subcategory_id, laporan_text, laporan_total, status, tgl_submitted) " \
-            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-    cursor.execute(query, (no_laporan, tgl_laporan, user_id, lat_pelapor, long_pelapor, sub_kategori_id,laporan_subcategory_id, laporan_text, laporan_total, status, formatted_date))
-    record = cursor.fetchone()
-
-    result = dict()
-    try:
-        db.commit()
-    except mysql.connector.Error as error:
-        print("Failed to update record to database rollback: {}".format(error))
-        # reverting changes because of exception
-        cursor.rollback()
-        result['result'] = 'failed'
-        result['valid'] = 2
-    finally:
-
-        cursor.close()
-        result['result'] = 'success'
-        result['valid'] = 1
-
-    return jsonify(result)
-
-
-@cc_blueprint.route('/position', methods=["get"])
-def position():
+@cc_blueprint.route('/position_list', methods=["get"])
+def position_list():
     db.reconnect()
     cursor = db.cursor(dictionary=True)
     query = "SELECT position.id as 'position_id', position.position_name, department.id as 'department_id', department.department_name,  region.id as 'region_id', region.region_name from position " \
@@ -500,18 +503,7 @@ def laporan():
         record = cursor.fetchall()
         res = record
         print(res)
-    # elif (level_user == 'spv'):
-    #     query = "SELECT no_pengaduan,nama_pelapor,work_order.position_id,position.position_name,sub_kategori_id,subkategori.sub_kategori,tgl_kontak,tgl_close,status,status_detail.keterangan,idworkorder FROM work_order " \
-    #             "LEFT JOIN position ON position.id = work_order.position_id " \
-    #             "LEFT JOIN status_detail ON status_detail.idstatus = work_order.status " \
-    #             "LEFT JOIN department ON department.id = position.department_id " \
-    #             "LEFT JOIN region ON region.id = department.region_id " \
-    #             "LEFT JOIN user ON user.iduser = work_order.user_id " \
-    #             "LEFT JOIN subkategori ON subkategori.idsubkategori = work_order.sub_kategori_id " \
-    #             "WHERE region.id = %s LIMIT %s, %s "
-    #     cursor.execute(query, (region, start, limit, ))
-    #     record = cursor.fetchall()
-    #     res = record
+
     else:
         query = "SELECT no_laporan, tgl_laporan, user_id, user_data.nama, user.position_id, position.position_name,sub_kategori_id,subkategori.sub_kategori, laporan.laporan_subcategory_id, laporan_subcategory.name, laporan_subcategory.description, " \
                 "kesatuan_region_id, tgl_submitted,tgl_approved,laporan.status,status_detail.keterangan,laporan.id, laporan.laporan_total,laporan.laporan_text, laporan.lat_pelapor, laporan.long_pelapor FROM laporan " \
@@ -561,20 +553,6 @@ def laporan_subcategory():
     return jsonify(res)
 
 
-@cc_blueprint.route('/regions', methods=["GET"])
-# @jwt_required()
-def regions():
-    db.reconnect()
-    cursor = db.cursor(dictionary=True)
-    query = "SELECT id, region_name, image FROM region"
-
-    cursor.execute(query)
-    record = cursor.fetchall()
-    valid = 0
-    res = dict()
-    res = record
-    cursor.close()
-    return jsonify(res)
 
 
 @cc_blueprint.route('/users', methods=["POST"])
@@ -768,27 +746,27 @@ def load_banner_news():
 
 
 
-@cc_blueprint.route('/user_get_history', methods=["POST"])
-@jwt_required()
-def user_get_history():
-    id = get_jwt_identity()
-    db.reconnect()
-    cursor = db.cursor(dictionary=True)
-
-    query = "SELECT no_laporan, sub_kategori_id, subkategori.sub_kategori, laporan_text, DATE_FORMAT(tgl_submitted, '%Y-%m-%d %T') as tgl_submitted FROM laporan " \
-            "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan.sub_kategori_id " \
-            "WHERE user_id = %s ORDER BY tgl_submitted DESC "
-    print("syaalala")
-    ## getting records from the table
-    cursor.execute(query, (id,))
-    record = cursor.fetchall()
-    cursor.close()
-
-    res = dict()
-    res['list'] = record
-    res['valid'] = 1
-
-    return res
+# @cc_blueprint.route('/user_get_history', methods=["POST"])
+# @jwt_required()
+# def user_get_history():
+#     id = get_jwt_identity()
+#     db.reconnect()
+#     cursor = db.cursor(dictionary=True)
+#
+#     query = "SELECT no_laporan, sub_kategori_id, subkategori.sub_kategori, laporan_text, DATE_FORMAT(tgl_submitted, '%Y-%m-%d %T') as tgl_submitted FROM laporan " \
+#             "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan.sub_kategori_id " \
+#             "WHERE user_id = %s ORDER BY tgl_submitted DESC "
+#     print("syaalala")
+#     ## getting records from the table
+#     cursor.execute(query, (id,))
+#     record = cursor.fetchall()
+#     cursor.close()
+#
+#     res = dict()
+#     res['list'] = record
+#     res['valid'] = 1
+#
+#     return res
 
 
 
@@ -880,8 +858,8 @@ def warga_get_mail():
 #     cursor.close()
 #     return res
 
-@cc_blueprint.route('/subkategori', methods=["get"])
-def subkategori():
+@cc_blueprint.route('/laporan_subkategori_list', methods=["get"])
+def laporan_subkategori_list():
     db.reconnect()
     cursor = db.cursor(dictionary=True)
     query = "SELECT idsubkategori, sub_kategori, icon,  nomor, kategori_id, kategori.kategori from subkategori " \
@@ -1262,6 +1240,7 @@ def get_laporan_data_list():
     result = record
     return jsonify(result)
 
+
 @cc_blueprint.route('/get_region_list', methods=["GET"])
 def get_region_list():
     db.reconnect()
@@ -1273,38 +1252,29 @@ def get_region_list():
     cursor.close()
     result = dict()
     result = record
-    # temp = dict()
-    # # result = record
-    # result = [];
-    # for x in record:
-    #     # result[x['id']] = result
-    #     temp['id'] = x['id']
-    #     temp['name'] = x['region_name'] + ":" + x['department_name'] + ":" + x['position_name']
-    #     result.append(temp)
-    # # print(result)
     return jsonify(result)
 
 
-@cc_blueprint.route('/get_position_list', methods=["GET"])
-def get_position_list():
-    db.reconnect()
-    cursor = db.cursor(dictionary=True)
-    # sub_category_id = request.json.get('sub_kategori_id')
-    query = "select region_name, department_name, position_name, position.id from position LEFT JOIN department on position.department_id = department.id LEFT JOIN region on department.region_id = region.id"
-    cursor.execute(query,)
-    record = cursor.fetchall()
-    cursor.close()
-    result = dict()
-    temp = dict()
-    # result = record
-    result = [];
-    for x in record:
-        # result[x['id']] = result
-        temp['id'] = x['id']
-        temp['name'] = x['region_name'] + ":" + x['department_name'] + ":" + x['position_name']
-        result.append(temp)
-    # print(result)
-    return jsonify(result)
+# @cc_blueprint.route('/get_position_list', methods=["GET"])
+# def get_position_list():
+#     db.reconnect()
+#     cursor = db.cursor(dictionary=True)
+#     # sub_category_id = request.json.get('sub_kategori_id')
+#     query = "select region_name, department_name, position_name, position.id from position LEFT JOIN department on position.department_id = department.id LEFT JOIN region on department.region_id = region.id"
+#     cursor.execute(query,)
+#     record = cursor.fetchall()
+#     cursor.close()
+#     result = dict()
+#     temp = dict()
+#     # result = record
+#     result = [];
+#     for x in record:
+#         # result[x['id']] = result
+#         temp['id'] = x['id']
+#         temp['name'] = x['region_name'] + ":" + x['department_name'] + ":" + x['position_name']
+#         result.append(temp)
+#     # print(result)
+#     return jsonify(result)
 
 @cc_blueprint.route('/submit_laporan_data_list', methods=["POST"])
 @jwt_required()
@@ -1312,33 +1282,43 @@ def submit_laporan_data_list():
     data = request.json.get('data')
     lat_pelapor = request.json.get('lat_pelapor')
     long_pelapor = request.json.get('long_pelapor')
-    no_laporan = request.json.get('no_laporan')
+    tgl_laporan = request.json.get('tgl_laporan')
     sub_kategori_id = request.json.get('sub_kategori_id')
+    region_id = request.json.get('region_id')
+    department_id = request.json.get('department_id')
     user_id = get_jwt_identity()
     print(data)
+    formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
     db.reconnect()
     cursor = db.cursor(dictionary=True)
-
     for x in data:
-        x['laporan_subcategory_id']
-        query = "INSERT INTO laporan (no_laporan, user_id, lat_pelapor, long_pelapor, laporan_subcategory_id, laporan_total, laporan_text) VALUES (%s, %s, %s, %s, %s, %s, %s) " \
+        query = "INSERT INTO data_laporan (tgl_laporan, user_id, lat_pelapor, long_pelapor, data_laporan_subcategory_id, laporan_total, laporan_text, tgl_submitted) VALUES (%s,%s, %s, %s, %s, %s, %s, %s) " \
                 "ON DUPLICATE KEY UPDATE lat_pelapor = %s, long_pelapor = %s, laporan_total = %s, laporan_text = %s"
-        cursor.execute(query, (no_laporan, user_id, lat_pelapor, long_pelapor, x['laporan_subcategory_id'],x['laporan_total'],x['laporan_text'],lat_pelapor, long_pelapor,x['laporan_total'],x['laporan_text']))
-
+        cursor.execute(query, (tgl_laporan, user_id, lat_pelapor, long_pelapor, x['data_laporan_subcategory_id'],x['laporan_total'],x['laporan_text'], formatted_date, lat_pelapor, long_pelapor,x['laporan_total'],x['laporan_text']))
     result = dict()
+    print(tgl_laporan)
     try:
+        print("here 999")
         db.commit()
     except mysql.connector.Error as error:
+        print("here error")
         print("Failed to update record to database rollback: {}".format(error))
         # reverting changes because of exception
         cursor.rollback()
         result['result'] = 'failed'
         result['valid'] = 2
     finally:
-
+        print("here success")
         cursor.close()
         result['result'] = 'success'
         result['valid'] = 1
 
     cursor.close()
     return result
+
+@cc_blueprint.route('/print_pdf', methods=["GET"])
+def print_pdf():
+    print("inside print pdf")
+    pdfkit.from_url('http://google.com', 'out.pdf')
+    print("inside aaaaaaaaaaaaaa print pdf")
+    return "ok"

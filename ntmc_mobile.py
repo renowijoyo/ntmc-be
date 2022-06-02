@@ -50,7 +50,7 @@ def ntmc_warga_get_history():
 
     return res
 
-@mobile_blueprint.route('/user_get_history', methods=["POST"])
+@ntmc_mobile_blueprint.route('/user_get_history', methods=["POST"])
 @jwt_required()
 def user_get_history():
     id = get_jwt_identity()
@@ -72,7 +72,7 @@ def user_get_history():
 
     return res
 
-@mobile_blueprint.route('/ntmc_check_rate', methods=["POST"])
+@ntmc_mobile_blueprint.route('/ntmc_check_rate', methods=["POST"])
 @jwt_required()
 def ntmc_check_rate():
     id = request.json.get('idworkorder', None)
@@ -92,7 +92,7 @@ def ntmc_check_rate():
     cursor.close()
     return res
 
-@mobile_blueprint.route('/user_login', methods=["POST"])
+@ntmc_mobile_blueprint.route('/user_login', methods=["POST"])
 def user_login():
     # username = request.args.get('username')
     # password = request.args.get('password')
@@ -204,7 +204,7 @@ def ntmc_authenticate(username, password):
 
     return res
 
-@mobile_blueprint.route('/warga_get_picturesolve',methods=["POST"])
+@ntmc_mobile_blueprint.route('/warga_get_picturesolve',methods=["POST"])
 @jwt_required()
 def warga_get_picturesolve():
     id = request.json.get('id')
@@ -221,7 +221,7 @@ def warga_get_picturesolve():
 
 
 
-@mobile_blueprint.route('/ntmc_rate_this', methods=["POST"])
+@ntmc_mobile_blueprint.route('/ntmc_rate_this', methods=["POST"])
 @jwt_required()
 def ntmc_rate_this():
     idworkorder = request.json.get('idworkorder', None)
@@ -241,7 +241,7 @@ def ntmc_rate_this():
     return res
 
 
-@mobile_blueprint.route('/warga_get_mail', methods=["POST"])
+@ntmc_mobile_blueprint.route('/warga_get_mail', methods=["POST"])
 @jwt_required()
 def warga_get_mail():
     username = request.json.get('username', None)
@@ -299,7 +299,7 @@ def warga_get_mail():
     cursor.close()
     return res
 
-@mobile_blueprint.route('/warga_get_category')
+@ntmc_mobile_blueprint.route('/warga_get_category')
 def warga_get_category():
     cursor = db.cursor(dictionary=True)
     query = "SELECT idsubkategori AS 'id', sub_kategori AS 'name', icon, nomor FROM subkategori WHERE kategori_id = %s ORDER BY nomor ASC"
@@ -311,7 +311,7 @@ def warga_get_category():
     cursor.close()
     return res
 
-@mobile_blueprint.route('/save_token',methods=["POST"])
+@ntmc_mobile_blueprint.route('/save_token',methods=["POST"])
 @jwt_required()
 def save_token():
     username = request.json.get('username')
@@ -335,7 +335,7 @@ def save_token():
     cursor.close()
     return res
 
-@mobile_blueprint.route('/warga_idle', methods=["POST"])
+@ntmc_mobile_blueprint.route('/warga_idle', methods=["POST"])
 @jwt_required()
 def warga_idle():
     username = request.json.get('username', None)
@@ -362,7 +362,7 @@ def warga_idle():
     return res
 
 
-@mobile_blueprint.route('/warga_save_report', methods=["POST"])
+@ntmc_mobile_blueprint.route('/warga_save_report', methods=["POST"])
 @jwt_required()
 def warga_save_report():
     username = request.json.get("username", None)
@@ -404,7 +404,7 @@ def warga_save_report():
     cursor.close()
     return res
 
-@mobile_blueprint.route('/warga_setpass', methods=["POST"])
+@ntmc_mobile_blueprint.route('/warga_setpass', methods=["POST"])
 @jwt_required()
 def warga_setpass():
     username = request.json.get("username", None)
@@ -439,10 +439,13 @@ def warga_setpass():
 
 
 
+@ntmc_mobile_blueprint.route('/test', methods=["GET"])
+def test():
+    print("test")
+    return "test"
 
 
-
-@mobile_blueprint.route('/verify', methods=["POST"])
+@ntmc_mobile_blueprint.route('/verify', methods=["POST"])
 @jwt_required()
 def verify():
     email = request.json.get('email')
@@ -463,7 +466,7 @@ def verify():
         print("does not match")
     return 'valid'
 
-@mobile_blueprint.route('/warga_reg', methods=["POST"])
+@ntmc_mobile_blueprint.route('/warga_reg', methods=["POST"])
 def warga_reg():
     email = request.json.get('email')
     passwd = request.json.get('pass')
@@ -497,19 +500,19 @@ def warga_reg():
     return res
 
 
-@mobile_blueprint.route('/warga_upload_ktp', methods=["POST"])
+@ntmc_mobile_blueprint.route('/warga_upload_ktp', methods=["POST"])
 @jwt_required()
 def warga_upload_ktp():
     email = request.json.get('email')
     passwd = request.json.get('pass')
 
-@mobile_blueprint.route('/warga_upload_photo', methods=["POST"])
+@ntmc_mobile_blueprint.route('/warga_upload_photo', methods=["POST"])
 @jwt_required()
 def warga_upload_photo():
     email = request.json.get('email')
     passwd = request.json.get('pass')
 
-@mobile_blueprint.route('/warga_upload_video', methods=["POST"])
+@ntmc_mobile_blueprint.route('/warga_upload_video', methods=["POST"])
 @jwt_required()
 def warga_upload_video():
     email = request.json.get('email')
