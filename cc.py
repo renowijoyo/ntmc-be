@@ -1255,6 +1255,31 @@ def get_laporan_data_list():
     return jsonify(result)
 
 
+@cc_blueprint.route('/load_laporan_data_list', methods=["POST"])
+def load_laporan_data_list():
+    db.reconnect()
+    cursor = db.cursor(dictionary=True)
+    sub_category_id = request.json.get('sub_kategori_id')
+    tgl_laporan = request.json.get('tgl_laporan')
+    region_id = request.json.get('region_id')
+
+    query = "SELECT data_laporan.id, data_laporan.tgl_laporan, laporan_published.no_laporan, laporan_published.status, subkategori.sub_kategori, " \
+            "data_laporan.data_laporan_subcategory_id, laporan_subcategory.name, data_laporan.laporan_total, data_laporan.laporan_text, laporan_published.date_submitted FROM data_laporan " \
+            "LEFT JOIN laporan_published ON DATE(laporan_published.tgl_laporan) = DATE(data_laporan.tgl_laporan) " \
+            "LEFT JOIN laporan_subcategory ON laporan_subcategory.id = data_laporan.data_laporan_subcategory_id " \
+            "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan_subcategory.sub_category_id " \
+            "WHERE DATE(laporan_published.tgl_laporan) = DATE(%s) AND laporan_published.laporan_subcategory_id = %s AND data_laporan.region_id = %s"
+
+
+    cursor.execute(query,(tgl_laporan, sub_category_id, region_id,))
+    record = cursor.fetchall()
+    print("load laporan")
+    cursor.close()
+    result = dict()
+    result = record
+    return jsonify(result)
+
+
 @cc_blueprint.route('/get_region_list', methods=["GET"])
 def get_region_list():
     db.reconnect()
