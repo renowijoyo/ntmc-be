@@ -1,6 +1,6 @@
 from flask import Blueprint
 import json
-from dbconfig import DBConfig
+from ntmcdbconfig import DBConfig
 from flask import Flask, request
 from flask_jwt import JWT
 from werkzeug.security import safe_str_cmp
@@ -29,11 +29,11 @@ ntmc_mobile_blueprint = Blueprint('ntmc_mobile_blueprint', __name__, url_prefix=
 
 
 
-@ntmc_mobile_blueprint.route('/ntmc_warga_get_history', methods=["POST"])
-@jwt_required()
-def ntmc_warga_get_history():
+@ntmc_mobile_blueprint.route('/warga_get_history', methods=["POST"])
+# @jwt_required()
+def warga_get_history():
     id = request.json.get('id', None)
-
+    db.reconnect()
     cursor = db.cursor(dictionary=True)
 
     query = "SELECT detail_penanganan, nama_petugas, DATE_FORMAT(tanggal, '%Y-%m-%d %T') tanggal FROM penanganan WHERE work_order_id = %s ORDER BY tanggal DESC"
@@ -49,6 +49,9 @@ def ntmc_warga_get_history():
     res['valid'] = 1
 
     return res
+
+
+
 
 @ntmc_mobile_blueprint.route('/user_get_history', methods=["POST"])
 @jwt_required()
@@ -72,10 +75,11 @@ def user_get_history():
 
     return res
 
-@ntmc_mobile_blueprint.route('/ntmc_check_rate', methods=["POST"])
-@jwt_required()
-def ntmc_check_rate():
+@ntmc_mobile_blueprint.route('/check_rate', methods=["POST"])
+# @jwt_required()
+def check_rate():
     id = request.json.get('idworkorder', None)
+    db.reconnect()
     cursor = db.cursor(dictionary=True)
     # get the last rate & feedback - the latest ID
     query = "SELECT id, rate, feedback FROM report_rate WHERE idworkorder = %s ORDER BY id DESC"
@@ -92,10 +96,17 @@ def ntmc_check_rate():
     cursor.close()
     return res
 
+
+@ntmc_mobile_blueprint.route('/warga_login', methods=["POST"])
+def warga_login():
+    username = request.json.get("username", None)
+    password = request.json.get("password", None)
+    res = ntmc_old_authenticate(username, password)
+    # cursor.close()
+    return res
+
 @ntmc_mobile_blueprint.route('/user_login', methods=["POST"])
 def user_login():
-    # username = request.args.get('username')
-    # password = request.args.get('password')
     username = request.json.get("username", None)
     password = request.json.get("password", None)
     res = authenticate_user(username, password)
@@ -167,6 +178,34 @@ def authenticate_user(username, password):
 
     return res
 
+def ntmc_old_authenticate(username, password):
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT id_user_mobile,nama, password FROM user_mobile WHERE email = %s AND password = %s"
+    cursor.execute(query, (username, password,))
+    record = cursor.fetchall()
+    cursor.close()
+    valid = ''
+    name = ''
+    token = ''
+    valid = 0
+    if (len(record) > 0):
+        valid = 1
+        token = username
+        access_token = create_access_token(identity=username)
+        name = record[0]['nama']
+        return jsonify(token=access_token, name=name, valid=valid)
+
+    else:
+        valid = 2
+        token = ""
+        name = ""
+    res = dict()
+    res['valid'] = valid
+    res['name'] = name
+    res['token'] = token
+
+    return res
+
 
 def ntmc_authenticate(username, password):
     cursor = db.cursor(dictionary=True)
@@ -205,7 +244,7 @@ def ntmc_authenticate(username, password):
     return res
 
 @ntmc_mobile_blueprint.route('/warga_get_picturesolve',methods=["POST"])
-@jwt_required()
+# @jwt_required()
 def warga_get_picturesolve():
     id = request.json.get('id')
     cursor = db.cursor(dictionary=True)
@@ -221,19 +260,20 @@ def warga_get_picturesolve():
 
 
 
-@ntmc_mobile_blueprint.route('/ntmc_rate_this', methods=["POST"])
-@jwt_required()
-def ntmc_rate_this():
+@ntmc_mobile_blueprint.route('/rate_this', methods=["POST"])
+# @jwt_required()
+def rate_this():
+    db.reconnect()
     idworkorder = request.json.get('idworkorder', None)
     rate = request.json.get('rate', None)
     feedback = request.json.get('feedback', None)
-
     cursor = db.cursor(dictionary=True)
     # get the last rate & feedback - the latest ID
     query = "INSERT INTO report_rate (idworkorder, rate, feedback) VALUES (%s, %s, %s)"
     cursor.execute(query, (idworkorder, rate, feedback,))
     db.commit()
     cursor.close()
+    # print("ha")
     # record = cursor.fetchall()
     res = dict()
     # res['list'] = record
@@ -242,8 +282,9 @@ def ntmc_rate_this():
 
 
 @ntmc_mobile_blueprint.route('/warga_get_mail', methods=["POST"])
-@jwt_required()
+# @jwt_required()
 def warga_get_mail():
+    db.reconnect()
     username = request.json.get('username', None)
 #originalnya ada 3 query execution di satu API call ini
     cursor = db.cursor(dictionary=True)
@@ -253,7 +294,6 @@ def warga_get_mail():
 
     cursor.execute(query3, (username,))
     record = cursor.fetchall()
-
     res = dict()
     res['list'] = record
     res['valid'] = 0
@@ -275,16 +315,12 @@ def warga_get_mail():
                  "TIMESTAMPDIFF(Hour,tgl_kontak,tgl_close) AS 'Durasi (Jam)', " \
                  "TIMESTAMPDIFF(Minute,tgl_kontak,tgl_close) AS 'Durasi (Menit)', " \
                  "TIMESTAMPDIFF(Second,tgl_kontak,tgl_close) AS 'Durasi (Detik)', " \
-                 "position.position_name AS 'Position', " \
-                 "department.department_name AS 'Department', " \
-                 "region.region_name AS 'Region', " \
+                 "satwil.satwil AS 'Satuan Wilayah', " \
                  "kategori.kategori AS 'Kategori', " \
                  "subkategori.sub_kategori AS 'SubKategori', " \
                  "user.username AS 'User Creator', " \
                  "pengaduan AS 'Pengaduan', IF(STATUS=1,'Open', IF(STATUS=2,'Received', IF(STATUS=3,'On Process', IF(STATUS=4,'Done','')))) AS STATUS " \
-                 "from work_order LEFT JOIN position ON position.id = work_order.position_id  " \
-                 "LEFT JOIN department ON department.id = position.department_id " \
-                 "LEFT JOIN region ON region.id = department.region_id " \
+                 "from work_order LEFT JOIN satwil ON satwil.idsatwil = work_order.satwil_id  " \
                  "LEFT JOIN work_order_image ON work_order_image.work_order_id = work_order.idworkorder " \
                  "LEFT JOIN subkategori ON subkategori.idsubkategori = work_order.sub_kategori_id " \
                  "LEFT JOIN kategori ON kategori.idkategori = subkategori.kategori_id " \
@@ -312,7 +348,7 @@ def warga_get_category():
     return res
 
 @ntmc_mobile_blueprint.route('/save_token',methods=["POST"])
-@jwt_required()
+# @jwt_required()
 def save_token():
     username = request.json.get('username')
     token = request.json.get('token')
@@ -326,12 +362,21 @@ def save_token():
     # get the last rate & feedback - the latest ID
     query = "INSERT INTO notif_token (username, token, stamp) VALUES (%s, %s, %s)"
     cursor.execute(query, (username, token, stamp,))
-    db.commit()
-
-    # record = cursor.fetchall()
     res = dict()
-    # res['list'] = record
-    res['valid'] = 1
+    try:
+        db.commit()
+    except mysql.connector.Error as error:
+        print("here error")
+        print("Failed to update record to database rollback: {}".format(error))
+        # reverting changes because of exception
+        cursor.rollback()
+        res['result'] = 'failed'
+        res['valid'] = 2
+    finally:
+        print("here success")
+        cursor.close()
+        res['result'] = 'success'
+        res['valid'] = 1
     cursor.close()
     return res
 
@@ -354,7 +399,6 @@ def warga_idle():
             valid = 0
             name = ""
 
-
     res = dict()
     res['name'] = name
     res['valid'] = valid
@@ -363,7 +407,7 @@ def warga_idle():
 
 
 @ntmc_mobile_blueprint.route('/warga_save_report', methods=["POST"])
-@jwt_required()
+# @jwt_required()
 def warga_save_report():
     username = request.json.get("username", None)
     address = request.json.get("address", None)
@@ -439,12 +483,6 @@ def warga_setpass():
 
 
 
-@ntmc_mobile_blueprint.route('/test', methods=["GET"])
-def test():
-    print("test")
-    return "test"
-
-
 @ntmc_mobile_blueprint.route('/verify', methods=["POST"])
 @jwt_required()
 def verify():
@@ -500,6 +538,7 @@ def warga_reg():
     return res
 
 
+
 @ntmc_mobile_blueprint.route('/warga_upload_ktp', methods=["POST"])
 @jwt_required()
 def warga_upload_ktp():
@@ -517,5 +556,97 @@ def warga_upload_photo():
 def warga_upload_video():
     email = request.json.get('email')
     passwd = request.json.get('pass')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@ntmc_mobile_blueprint.route('/load_banner_news')
+def load_banner_news():
+    db.reconnect()
+    cursor = db.cursor()
+
+    ## defining the Query
+    query = "SELECT * FROM apps_video_banner WHERE id = '1'"
+
+    ## getting records from the table
+    cursor.execute(query)
+    record = cursor.fetchone()
+    cursor.close()
+
+    ## Showing the data
+    # for record in records:
+    #     print(record)
+    # print(record)
+    res = dict()
+    res2 = dict()
+    res['id'] = record[0]
+    res['youtube_1'] = record[1]
+    res['title_youtube_1'] = record[2]
+    res['youtube_2'] = record[3]
+    res['title_youtube_2'] = record[4]
+    res['youtube_3'] = record[5]
+    res['title_youtube_3'] = record[6]
+    res['banner_twitter'] = record[7]
+    res['banner_news'] = record[8]
+    res['twitter_embed'] = record[9]
+    res['news_embed'] = record[10]
+    res2['list'] = res
+    return json.dumps(res2)
+
+
+
+
+
+
+
+
+@ntmc_mobile_blueprint.route('/load_video_banner')
+def load_video_banner():
+    db.reconnect()
+    cursor = db.cursor()
+    ## defining the Query
+    query = "SELECT * FROM apps_video_banner WHERE id = '1'"
+    query2 = "SELECT * FROM app_link_banner WHERE id = '1'"
+    ## getting records from the table
+    cursor.execute(query)
+
+    ## fetching all records from the 'cursor' object
+    # records = cursor.fetchall()
+    record = cursor.fetchone()
+    cursor.execute(query2)
+    record_link = cursor.fetchone()
+    cursor.close()
+    ## Showing the data
+    # for record in records:
+    #     print(record)
+    # print(record)
+    res = dict()
+    res['you_1'] = record[1]
+    res['you_2'] = record[3]
+    res['you_3'] = record[5]
+    res['you_tit1'] = record[2]
+    res['you_tit2'] = record[4]
+    res['you_tit3'] = record[6]
+    res['banner_twitter'] = record[7]
+    res['banner_news'] = record[8]
+    res['twitter_embed'] = record[9]
+    res['news_embed'] = record[10]
+    res['link_title'] = record_link[1]
+    res['link_banner'] = record_link[2]
+    res['link_reff'] = record_link[3]
+    res['link_title_2'] = record_link[4]
+    res['link_banner_2'] = record_link[5]
+    res['link_reff_2'] = record_link[6]
+    return json.dumps(res)
 
 

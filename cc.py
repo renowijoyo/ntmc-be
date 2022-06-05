@@ -613,28 +613,40 @@ def laporan_map():
     # for region in regions:
     db.reconnect()
     cursor = db.cursor(dictionary=True)
-    # print(regions)
-    # print(str(regions)[1:-1])
+    print(regions)
+    # print(str(regions)[1:-1])/
     region = str(regions)[1:-1]
 
     subkategori = str(subkategoris)[1:-1]
     tuple_regions = tuple(regions)
     s = tuple(subkategoris)
+    regs = ""
+    if (len(s) == 1) :
+        regs = "(" + str(s[0]) + ")"
+        print(regs)
+    else :
+        regs = s
 
-    query = "SELECT laporan.no_laporan,laporan.user_id,laporan.lat_pelapor, laporan.long_pelapor, region.id as 'region_id', region.region_name, department.id as 'department_id', department.department_name, user.position_id as 'position_id', position.position_name, " \
-            "laporan.sub_kategori_id as 'sub_kategori_id',subkategori.sub_kategori, " \
-            "laporan.tgl_submitted,laporan.tgl_approved,laporan.status as 'status', status_detail.keterangan as 'status_keterangan',laporan.id as 'laporan_id', laporan.laporan_text FROM laporan " \
-            "LEFT JOIN status_detail ON status_detail.idstatus = laporan.status " \
-            "LEFT JOIN user ON user.iduser = laporan.user_id " \
-            "LEFT JOIN position ON position.id = user.position_id " \
-            "LEFT JOIN department ON department.id = position.department_id " \
-            "LEFT JOIN region ON region.id = department.region_id " \
-            "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan.sub_kategori_id " \
-            "WHERE laporan.sub_kategori_id IN %(ids)s" % {"ids": tuple(subkategoris)}
+    # query = "SELECT data_laporan.user_id, data_laporan.lat_pelapor, data_laporan.long_pelapor, " \
+    #         "region.id as 'region_id', region.region_name, department.id as 'department_id', department.department_name, user.position_id as 'position_id', position.position_name, " \
+    #         "data_laporan.data_laporan_subcategory_id as 'sub_kategori_id',subkategori.sub_kategori, " \
+    #         "data_laporan.tgl_laporan, data_laporan.tgl_submitted ,data_laporan.tgl_approved,data_laporan.status as 'status', status_detail.keterangan as 'status_keterangan', " \
+    #         "data_laporan.id as 'laporan_id', data_laporan.laporan_text " \
+    #         "FROM data_laporan " \
+    #         "LEFT JOIN status_detail ON status_detail.idstatus = data_laporan.status " \
+    #         "LEFT JOIN user ON user.iduser = data_laporan.user_id " \
+    #         "LEFT JOIN position ON position.id = user.position_id " \
+    #         "LEFT JOIN department ON department.id = position.department_id " \
+    #         "LEFT JOIN region ON region.id = department.region_id " \
+    #         "LEFT JOIN subkategori ON subkategori.idsubkategori = data_laporan.data_laporan_subcategory_id " \
+    #         "WHERE data_laporan.data_laporan_subcategory_id IN %(ids)s" % {"ids": tuple(subkategoris)}
+
+    query = "SELECT data_laporan.user_id, data_laporan.lat_pelapor, data_laporan.long_pelapor FROM data_laporan WHERE data_laporan.data_laporan_subcategory_id IN  %(ids)s" % {"ids": regs}
+    print("sampai")
     res = dict()
-    # cursor.execute(query)
     cursor.execute(query)
     record = cursor.fetchall()
+    print("sampai sini")
     res = record
     return jsonify(res)
 
@@ -1319,6 +1331,5 @@ def submit_laporan_data_list():
 @cc_blueprint.route('/print_pdf', methods=["GET"])
 def print_pdf():
     print("inside print pdf")
-    pdfkit.from_url('http://google.com', 'out.pdf')
-    print("inside aaaaaaaaaaaaaa print pdf")
+    pdfkit.from_url('http://http://202.67.10.238/dist-brimob/report/1/2022-1-1-2-2', 'laporan_siskamtibmas_2022-1-3-4-55.pdf')
     return "ok"
