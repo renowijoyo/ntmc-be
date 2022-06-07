@@ -1331,9 +1331,9 @@ def submit_laporan_data_list():
     db.reconnect()
     cursor = db.cursor(dictionary=True)
     for x in data:
-        query = "INSERT INTO data_laporan (tgl_laporan, user_id, lat_pelapor, long_pelapor, data_laporan_subcategory_id, laporan_total, laporan_text, tgl_submitted) VALUES (%s,%s, %s, %s, %s, %s, %s, %s) " \
+        query = "INSERT INTO data_laporan (tgl_laporan, user_id, lat_pelapor, long_pelapor, region_id, department_id, data_laporan_subcategory_id, laporan_total, laporan_text, tgl_submitted) VALUES (%s,%s, %s, %s, %s, %s, %s, %s, %s, %s) " \
                 "ON DUPLICATE KEY UPDATE lat_pelapor = %s, long_pelapor = %s, laporan_total = %s, laporan_text = %s"
-        cursor.execute(query, (tgl_laporan, user_id, lat_pelapor, long_pelapor, x['data_laporan_subcategory_id'],x['laporan_total'],x['laporan_text'], formatted_date, lat_pelapor, long_pelapor,x['laporan_total'],x['laporan_text']))
+        cursor.execute(query, (tgl_laporan, user_id, lat_pelapor, long_pelapor, region_id, department_id, x['data_laporan_subcategory_id'],x['laporan_total'],x['laporan_text'], formatted_date, lat_pelapor, long_pelapor,x['laporan_total'],x['laporan_text']))
     result = dict()
     print(tgl_laporan)
     try:
