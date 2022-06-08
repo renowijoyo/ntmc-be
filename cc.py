@@ -1157,6 +1157,65 @@ def laporan_data_review():
 
     return jsonify(result)
 
+@cc_blueprint.route('/create_laporan', methods=["POST"])
+def create_laporan():
+    db.reconnect()
+    cursor = db.cursor(dictionary=True)
+    tgl_laporan = request.json.get('tgl_laporan')
+    subkategoriid = request.json.get('sub_kategori_id')
+    region_id = request.json.get('region_id')
+    department_id = request.json.get('department_id')
+
+    result = dict()
+    tgl_laporan_datetime_object = datetime.strptime(tgl_laporan, '%Y-%m-%d %H:%M:%S')
+
+    query_a = "SELECT idsubkategori, kategori_id, kategori.kategori, sub_kategori FROM subkategori " \
+              "LEFT JOIN kategori ON kategori.idkategori = subkategori.kategori_id " \
+              "WHERE idsubkategori = %s"
+    cursor.execute(query_a, (subkategoriid,))
+    record = cursor.fetchone()
+    if record is None:
+        result['valid'] = 0
+        result['status'] = 'wrong sub_kategori_id'
+        return jsonify(result)
+
+
+
+    if(record['kategori_id'] == 1) :
+        print("ini yg pertama")
+        no_laporan_string = str(date.today().year) + "-" + str(tgl_laporan_datetime_object.month) + "-" + str(tgl_laporan_datetime_object.strftime("%d")) + "-" + str(subkategoriid) + "-" + str(region_id)
+    elif (record['kategori_id'] == 2) :
+        print("ini yg kedua")
+        no_laporan_string = str(date.today().year) + "-" + str(date.today().month) + "-" + str(subkategoriid) + "-" + str(region_id)
+    else :
+        print(record['kategori_id'])
+        no_laporan_string = str(date.today().year) + "-" + str(subkategoriid) + "-" + str(region_id)
+    print(no_laporan_string)
+    formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+    query = "INSERT IGNORE INTO laporan_published (no_laporan, tgl_laporan, region_id, department_id, laporan_subcategory_id, date_submitted) VALUES (%s,%s, %s, %s, %s, %s)"
+    try:
+        print("in try")
+        cursor.execute(query,(no_laporan_string, tgl_laporan, region_id, department_id, subkategoriid, formatted_date,))
+        db.commit()
+        result = dict()
+        print(tgl_laporan)
+        print("here 999")
+        result['result'] = 'success'
+        result['valid'] = 1
+    except mysql.connector.Error as err:
+        print("Something went wrong: {}".format(err))
+        # print("Failed to update record to database rollback: {}".format(error))
+        # reverting changes because of exception
+        cursor.rollback()
+        result['result'] = 'failed'
+        result['valid'] = 2
+    finally:
+        cursor.close()
+
+
+    cursor.close()
+
+    return jsonify(result)
 
 @cc_blueprint.route('/laporan_review', methods=["POST"])
 def laporan_review():
