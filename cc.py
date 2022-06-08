@@ -378,7 +378,7 @@ def laporan_approve():
 def laporan_published():
     db.reconnect()
     cursor = db.cursor(dictionary=True)
-    query = "SELECT id, no_laporan, laporan_subcategory_id, approved_by, user.username, date_submitted, date_approved, status FROM laporan_published " \
+    query = "SELECT no_laporan, laporan_subcategory_id, approved_by, user.username, date_submitted, date_approved, status FROM laporan_published " \
             "LEFT JOIN user ON user.iduser = laporan_published.approved_by "
     cursor.execute(query)
     record = cursor.fetchall()
