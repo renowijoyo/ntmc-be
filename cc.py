@@ -1223,9 +1223,11 @@ def laporan_review():
     cursor = db.cursor(dictionary=True)
     no_laporan = request.json.get('no_laporan')
 
+
     query = "SELECT data_laporan.id, data_laporan.tgl_laporan, laporan_published.no_laporan, laporan_published.status, laporan_subcategory.sub_category_id, subkategori.sub_kategori, " \
             "data_laporan.data_laporan_subcategory_id, laporan_subcategory.name, data_laporan.laporan_total, data_laporan.laporan_text, laporan_published.date_submitted FROM data_laporan " \
-            "LEFT JOIN laporan_published ON DATE(laporan_published.tgl_laporan) = DATE(data_laporan.tgl_laporan) " \
+            "LEFT JOIN laporan_published ON DATE(laporan_published.tgl_laporan) = DATE(data_laporan.tgl_laporan) AND " \
+            "laporan_published.region_id = data_laporan.region_id and laporan_published.laporan_subcategory_id = data_laporan.data_laporan_subcategory_id " \
             "LEFT JOIN laporan_subcategory ON laporan_subcategory.id = data_laporan.data_laporan_subcategory_id " \
             "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan_subcategory.sub_category_id " \
             "WHERE laporan_published.no_laporan = %s"
