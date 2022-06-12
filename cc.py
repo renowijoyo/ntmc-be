@@ -37,6 +37,8 @@ dbObj = DBConfig()
 db = dbObj.connect()
 UPLOAD_FOLDER = './uploads/'
 UPLOAD_USERPHOTO_FOLDER = './uploads/userphoto/'
+UPLOAD_GIATHARIAN_FOLDER = './uploads/giatharian/'
+UPLOAD_GIATINSIDENTIL_FOLDER = './uploads/giatinsidentil/'
 DOWNLOAD_FOLDER = './downloads/'
 DOWNLOAD_LAPORAN_FOLDER = './downloads/laporan/'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'mp4'}
@@ -47,6 +49,8 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['UPLOAD_LAPORAN_FOLDER'] = DOWNLOAD_LAPORAN_FOLDER
 app.config['UPLOAD_USERPHOTO_FOLDER'] = UPLOAD_USERPHOTO_FOLDER
+app.config['UPLOAD_GIATHARIAN_FOLDER'] = UPLOAD_GIATHARIAN_FOLDER
+app.config['UPLOAD_GIATINSIDENTIL_FOLDER'] = UPLOAD_GIATINSIDENTIL_FOLDER
 
 app.config['DOWNLOAD_FOLDER'] = DOWNLOAD_FOLDER
 
@@ -922,6 +926,59 @@ def allowed_image_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_IMAGE_EXTENSIONS
 
+@cc_blueprint.route('/upload_foto_giat', methods=["POST"])
+# @jwt_required()
+def upload_foto_giat():
+    print("inside upload image")
+    res = dict()
+    # user_id = get_jwt_identity()
+    newfilename = ''
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            print('no file part')
+            flash('No file part')
+            return redirect(request.url)
+
+        file = request.files['file']
+        laporan_no = request.form['laporan_no']
+        laporan_subkategori_id = request.form['laporan_subcategory_id']
+        user_id = request.form['user_id']
+
+        # print(request.form['laporan_no'])
+        # If the user does not select a file, the browser submits an
+        # empty file without a filename.
+        if file.filename == '':
+            print("no selected file")
+            flash('No selected file')
+            return redirect(request.url)
+
+        if file and allowed_image_file(file.filename):
+            print("inside user photo 3")
+            filename = secure_filename(file.filename)
+            # print(os.path.join(app.config['UPLOAD_GIATHARIAN_FOLDER']))
+            ts = time.time()
+            # newfilename = str(user_id) + "-" + str(laporan_subkategori_id) + "-" + str(laporan_no) + "-" + os.path.splitext(str(ts))[0] + os.path.splitext(filename)[1]
+            newfilename = str(user_id) + "-" + str(laporan_subkategori_id) + "-" + str(laporan_no) + ".jpeg"
+            if (laporan_subkategori_id == "4") :
+
+                file.save(os.path.join(app.config['UPLOAD_GIATHARIAN_FOLDER'] + "/" + newfilename ))
+            elif (laporan_subkategori_id == "5") :
+                file.save(os.path.join(app.config['UPLOAD_GIATINSIDENTIL_FOLDER'] + "/" + newfilename))
+
+
+            res['valid'] = '1'
+            return res
+    return '''
+    <!doctype html>
+    <title>Upload new File</title>
+    <h1>Upload new File</h1>
+    <form method=post enctype=multipart/form-data>
+      <input type=file name=file>
+      <input type=submit value=Upload>
+    </form>
+    '''
+
 
 
 @cc_blueprint.route('/upload_userphoto', methods=["POST"])
@@ -958,7 +1015,7 @@ def upload_userphoto():
             # ts = time.time()
             # newfilename = str(laporan_no) + "-" + str(laporan_subcategory_id) + "-" + str(user_id) + "-" + os.path.splitext(str(ts))[0] + os.path.splitext(filename)[1]
             newfilename = os.path.splitext(filename)[1]
-            file.save(os.path.join(app.config['UPLOAD_USERPHOTO_FOLDER'] + "/", user_id + ".jpeg" ))
+            file.save(os.path.join(app.config['UPLOAD_USERPHOTO_FOLDER'] + "/" + user_id + ".jpeg" ))
 
 
             res['valid'] = '1'
