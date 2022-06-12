@@ -8,7 +8,7 @@ from dbconfig import DBConfig
 
 from flask import Flask, request
 from flask_jwt import JWT
-from werkzeug.security import safe_str_cmp
+# from werkzeug.security import safe_.str_cmp
 import mysql.connector as mysql
 import json
 from datetime import datetime
