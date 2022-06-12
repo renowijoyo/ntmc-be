@@ -36,14 +36,18 @@ import bcrypt
 dbObj = DBConfig()
 db = dbObj.connect()
 UPLOAD_FOLDER = './uploads/'
+UPLOAD_USERPHOTO_FOLDER = './uploads/userphoto/'
 DOWNLOAD_FOLDER = './downloads/'
 DOWNLOAD_LAPORAN_FOLDER = './downloads/laporan/'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'mp4'}
+ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 cc_blueprint = Blueprint('cc_blueprint', __name__, url_prefix="/cc")
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['UPLOAD_LAPORAN_FOLDER'] = DOWNLOAD_LAPORAN_FOLDER
+app.config['UPLOAD_USERPHOTO_FOLDER'] = UPLOAD_USERPHOTO_FOLDER
+
 app.config['DOWNLOAD_FOLDER'] = DOWNLOAD_FOLDER
 
 
@@ -913,6 +917,80 @@ def download_file_laporan(kategori_id, name):
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def allowed_image_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_IMAGE_EXTENSIONS
+
+
+
+@cc_blueprint.route('/upload_userphoto', methods=["POST"])
+# @jwt_required()
+def upload_userphoto():
+    print("inside user photo")
+    res = dict()
+    # user_id = get_jwt_identity()
+    newfilename = ''
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            print('no file part')
+            flash('No file part')
+            return redirect(request.url)
+        print("FILE OK")
+        file = request.files['file']
+        # laporan_no = request.form['laporan_no']
+        user_id  = request.form['user_id']
+        # print(request.form['laporan_no'])
+        # If the user does not select a file, the browser submits an
+        # empty file without a filename.
+        if file.filename == '':
+            print("no selected file")
+            flash('No selected file')
+            return redirect(request.url)
+
+        if file and allowed_image_file(file.filename):
+            print("inside user photo 3")
+            filename = secure_filename(file.filename)
+
+            print(os.path.join(app.config['UPLOAD_USERPHOTO_FOLDER']))
+            print("inside user photo 2")
+            # ts = time.time()
+            # newfilename = str(laporan_no) + "-" + str(laporan_subcategory_id) + "-" + str(user_id) + "-" + os.path.splitext(str(ts))[0] + os.path.splitext(filename)[1]
+            newfilename = os.path.splitext(filename)[1]
+            file.save(os.path.join(app.config['UPLOAD_USERPHOTO_FOLDER'] + "/", user_id + ".jpeg" ))
+
+
+            res['valid'] = '1'
+            # res['thumb_path'] ='https://ccntmc.1500669.com/ntmc_upload/'.$uploadfile
+            return res
+            # return redirect(url_for('download_file', name=newfilename))
+    return '''
+    <!doctype html>
+    <title>Upload new File</title>
+    <h1>Upload new File</h1>
+    <form method=post enctype=multipart/form-data>
+      <input type=file name=file>
+      <input type=submit value=Upload>
+    </form>
+    '''
+
+@cc_blueprint.route('/get_userphoto', methods=["POST"])
+def get_userphoto():
+    res = dict()
+    print("here")
+    user_id = request.form['user_id']
+    name = user_id + ".jpeg"
+    path_to_file = app.config["UPLOAD_USERPHOTO_FOLDER"] + '/'
+    file_exists = exists(path_to_file + name)
+    if file_exists :
+        return send_from_directory(path_to_file, name)
+    else :
+        res['valid'] = 0
+        res['error'] = "file does not exist"
+        return res
+
+
 
 @cc_blueprint.route('/upload_laporan', methods=["POST"])
 @jwt_required()
