@@ -1384,7 +1384,7 @@ def get_laporan_data_list():
     db.reconnect()
     cursor = db.cursor(dictionary=True)
     sub_category_id = request.json.get('sub_kategori_id')
-    query = "SELECT id, name, description FROM laporan_subcategory " \
+    query = "SELECT id, name, type, description, laporan_subcategory.group, status FROM laporan_subcategory " \
             "WHERE sub_category_id = %s"
     cursor.execute(query,(sub_category_id,))
     record = cursor.fetchall()
