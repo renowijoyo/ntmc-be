@@ -1360,7 +1360,9 @@ def laporan_giat_list():
     # date_submitted = request.json.get('date_submitted')
     # date_approved = request.json.get('date_approved')
     # status = request.json.get('status')
-    query = "SELECT id, user_id, region_id, department_id, no_laporan, tgl_laporan, lat_pelapor, long_pelapor, laporan_text, laporan_subcategory_id, image_file FROM laporan_giat"
+    query = "SELECT laporan_giat.id, laporan_giat.user_id, laporan_giat.region_id, region.region_name, laporan_giat.department_id, department.department_name, no_laporan, tgl_laporan, lat_pelapor, long_pelapor, laporan_text, laporan_subcategory_id, image_file FROM laporan_giat " \
+            "LEFT JOIN region ON region.id = laporan_giat.region_id " \
+            "LEFT JOIN department ON department.id = laporan_giat.department_id "
     cursor.execute(query)
     record = cursor.fetchall()
     cursor.close()
