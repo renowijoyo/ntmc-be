@@ -926,9 +926,9 @@ def allowed_image_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_IMAGE_EXTENSIONS
 
-@cc_blueprint.route('/upload_foto_giat', methods=["POST"])
+@cc_blueprint.route('/upload_giat_foto', methods=["POST"])
 # @jwt_required()
-def upload_foto_giat():
+def upload_giat_foto():
     print("inside upload image")
     res = dict()
     # user_id = get_jwt_identity()
@@ -959,15 +959,16 @@ def upload_foto_giat():
             # print(os.path.join(app.config['UPLOAD_GIATHARIAN_FOLDER']))
             ts = time.time()
             # newfilename = str(user_id) + "-" + str(laporan_subkategori_id) + "-" + str(laporan_no) + "-" + os.path.splitext(str(ts))[0] + os.path.splitext(filename)[1]
-            newfilename = str(user_id) + "-" + str(laporan_subkategori_id) + "-" + str(laporan_no) + ".jpeg"
+            newfilename = str(user_id) + "-" + str(laporan_subkategori_id) + "-" + str(laporan_no) + os.path.splitext(filename)[1]
             if (laporan_subkategori_id == "4") :
 
-                file.save(os.path.join(app.config['UPLOAD_GIATHARIAN_FOLDER'] + "/" + newfilename ))
+                file.save(os.path.join(app.config['UPLOAD_GIATHARIAN_FOLDER'] + "/" + newfilename.lower()))
             elif (laporan_subkategori_id == "5") :
-                file.save(os.path.join(app.config['UPLOAD_GIATINSIDENTIL_FOLDER'] + "/" + newfilename))
+                file.save(os.path.join(app.config['UPLOAD_GIATINSIDENTIL_FOLDER'] + "/" + newfilename.lower()))
 
 
             res['valid'] = '1'
+            res['filename'] = newfilename.lower()
             return res
     return '''
     <!doctype html>
@@ -1350,6 +1351,42 @@ def create_laporan():
 
     cursor.close()
 
+    return jsonify(result)
+
+@cc_blueprint.route('/laporan_giat_submit', methods=["POST"])
+def laporan_giat_submit():
+    db.reconnect()
+    cursor = db.cursor(dictionary=True)
+    no_laporan = request.json.get('no_laporan')
+    tgl_laporan = request.json.get('tgl_laporan')
+    laporan_subcategory_id = request.json.get('laporan_subcategory_id')
+    laporan_text = request.json.get('laporan_text')
+    user_id = request.json.get('user_id')
+    region_id = request.json.get('region_id')
+    department_id = request.json.get('department_id')
+    lat_pelapor = request.json.get('lat_pelapor')
+    long_pelapor = request.json.get('long_pelapor')
+    image_file = request.json.get('image_file')
+    formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+
+    query = "INSERT INTO laporan_giat (user_id, region_id, department_id, no_laporan, tgl_laporan, laporan_text,  lat_pelapor, long_pelapor, laporan_subcategory_id, image_file, tgl_submitted) VALUES (%s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
+
+    result = dict()
+    print("laporan giat review")
+    cursor.execute(query, (str(user_id),str(region_id),str(department_id),str(no_laporan), tgl_laporan, laporan_text,str(lat_pelapor),str(long_pelapor),str(laporan_subcategory_id),image_file,formatted_date))
+    try:
+        db.commit()
+    except mysql.connector.Error as error:
+        print("Failed to update record to database rollback: {}".format(error))
+        # reverting changes because of exception
+        cursor.rollback()
+        result['result'] = 'failed'
+        result['valid'] = 2
+    finally:
+        print("here success")
+        cursor.close()
+        result['result'] = 'success'
+        result['valid'] = 1
     return jsonify(result)
 
 @cc_blueprint.route('/laporan_review', methods=["POST"])
