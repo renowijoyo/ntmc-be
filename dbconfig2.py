@@ -13,9 +13,9 @@ class DBConfig2:
 
         dbcon = mysql.connect(
             host="202.67.14.247",
-            user="ntmc_brimob_id",
+            user="ntmc_ccntmc",
             passwd="0uH7kc6ceEYt",
-            database="ntmc_ccntmc"
+            database="ntmc_brimob_id"
         )
 
 
