@@ -4,6 +4,7 @@ from datetime import date
 import os
 import json
 from dbconfig import DBConfig
+from dbconfig2 import DBConfig2
 from flask import Flask, request
 from flask_jwt import JWT
 # from werkzeug.security import safe_str_cmp
@@ -34,7 +35,9 @@ from flask import send_from_directory
 import bcrypt
 
 dbObj = DBConfig()
+dbObj2 = DBConfig2()
 db = dbObj.connect()
+db2 = dbObj2.connect()
 UPLOAD_FOLDER = './uploads/'
 UPLOAD_USERPHOTO_FOLDER = './uploads/userphoto/'
 UPLOAD_GIATHARIAN_FOLDER = './uploads/giatharian/'
@@ -74,8 +77,8 @@ def tracker():
     altitude = request.args.get("altitude", None)
     speed = request.args.get("speed", None)
 
-    db.reconnect()
-    cursor = db.cursor(dictionary=True)
+    db2.reconnect()
+    cursor = db2.cursor(dictionary=True)
 
     query = "INSERT INTO tracker_loc (tracker_device_id, lat, lon, hdop, altitude,speed) VALUES (%s, %s, %s, %s, %s, %s)"
     cursor.execute(query, (id, lat, lon, hdop, altitude, speed))
@@ -83,7 +86,7 @@ def tracker():
     # print("here")
     result = dict()
     try:
-        db.commit()
+        db2.commit()
     except mysql.connector.Error as error:
         print("Failed to update record to database rollback: {}".format(error))
         # reverting changes because of exception
@@ -102,8 +105,8 @@ def tracker():
 
 @cc_blueprint.route('/get_tracker_devices', methods=["GET"])
 def get_tracker_devices():
-    db.reconnect()
-    cursor = db.cursor(dictionary=True)
+    db2.reconnect()
+    cursor = db2.cursor(dictionary=True)
     query = "SELECT device_id, device_name, device_type, status, tracker_video.video_url FROM tracker_device LEFT JOIN " \
             "tracker_video on tracker_video.tracker_device_id = tracker_device.device_id"
     cursor.execute(query)
@@ -116,8 +119,8 @@ def get_tracker_devices():
 @cc_blueprint.route('/get_tracker_device', methods=["POST"])
 def get_tracker_device():
     tracker_device_id = request.json.get("tracker_device_id", None)
-    db.reconnect()
-    cursor = db.cursor(dictionary=True)
+    db2.reconnect()
+    cursor = db2.cursor(dictionary=True)
     query = "SELECT device_id, device_name, device_type, status, tracker_video.video_url FROM tracker_device LEFT JOIN " \
             "tracker_video on tracker_video.tracker_device_id = tracker_device.device_id WHERE device_id = %s"
     cursor.execute(query, (tracker_device_id,))
@@ -129,8 +132,8 @@ def get_tracker_device():
 @cc_blueprint.route('/get_tracker_loc', methods=["POST"])
 def get_tracker_loc():
     tracker_device_id = request.json.get("tracker_device_id", None)
-    db.reconnect()
-    cursor = db.cursor(dictionary=True)
+    db2.reconnect()
+    cursor = db2.cursor(dictionary=True)
     query = "SELECT id, tracker_device_id, lat, lon, altitude, hdop, speed FROM tracker_loc WHERE tracker_device_id = %s ORDER BY id DESC"
     cursor.execute(query, (tracker_device_id,))
     record = cursor.fetchone()
