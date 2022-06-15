@@ -118,6 +118,7 @@ def get_tracker_devices():
 
 @cc_blueprint.route('/get_tracker_device', methods=["POST"])
 def get_tracker_device():
+
     tracker_device_id = request.json.get("tracker_device_id", None)
     db2.reconnect()
     cursor = db2.cursor(dictionary=True)
