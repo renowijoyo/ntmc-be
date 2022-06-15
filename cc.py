@@ -177,6 +177,7 @@ def authenticate_user(username, password):
         if bcrypt.checkpw(password.encode(), (record[0]['password']).encode()):
             valid = 1
             token = username
+            iduser = record[0]['iduser']
             access_token = create_access_token(identity=record[0]['iduser'])
             name = record[0]['username']
             level_user = record[0]['level_user']
@@ -189,6 +190,7 @@ def authenticate_user(username, password):
             print(record[0])
             res['valid'] = valid
             res['response'] = 'success'
+            res['iduser'] = iduser
             res['username'] = name
             res['level_user'] = level_user
             res['position_id'] = position_id
