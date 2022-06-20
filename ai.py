@@ -178,6 +178,20 @@ def list_haystack():
     res = record
     return jsonify(res)
 
+@ai_blueprint.route('/remove_haystack', methods=["POST"])
+def remove_haystack():
+    res = dict()
+    ids = request.json.get('ids')
+    db.reconnect()
+    cursor = db.cursor(dictionary=True)
+
+    for id in ids:
+        print(id)
+
+    cursor.close()
+    return res
+
+
 @ai_blueprint.route('/download_haystack/<name>')
 def download_haystack(name):
     return send_from_directory(app.config["UPLOAD_HAYSTACK"], name)
