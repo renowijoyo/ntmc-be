@@ -106,7 +106,7 @@ def upload_portrait():
             return redirect(request.url)
 
         if file and allowed_image_file(file.filename):
-
+            print("here")
             filename = secure_filename(file.filename)
             # print(os.path.join(app.config['UPLOAD_GIATHARIAN_FOLDER']))
             ts = time.time()
@@ -114,8 +114,9 @@ def upload_portrait():
             newfilename = "portrait-" + os.path.splitext(str(ts))[0]
             extension = os.path.splitext(filename)[1]
             newfilename_ext = newfilename.lower() + extension.lower()
+
             file.save(os.path.join(app.config['UPLOAD_PORTRAIT'] + "/" + newfilename.lower() + extension.lower()))
-            file.save(os.path.join(app.config['UPLOAD_ORIGINALPORTRAIT'] + "/" + newfilename_ext))
+            # file.save(os.path.join(app.config['UPLOAD_ORIGINALPORTRAIT'] + "/" + newfilename_ext))
             print(newfilename_ext)
 
             db.reconnect()
@@ -178,18 +179,63 @@ def list_haystack():
     res = record
     return jsonify(res)
 
-@ai_blueprint.route('/remove_haystack', methods=["POST"])
+@ai_blueprint.route('/remove_haystack', methods=["GET", "POST"])
 def remove_haystack():
     res = dict()
-    ids = request.json.get('ids')
+    filenames = request.json.get('filenames')
     db.reconnect()
     cursor = db.cursor(dictionary=True)
 
-    for id in ids:
-        print(id)
+    for filename in filenames:
+        print(filename)
+        query = 'DELETE FROM ai_haystack_uploads WHERE filename = %s'
+        cursor.execute(query, (filename,))
+        db.commit()
+        os.remove(app.config['UPLOAD_HAYSTACK'] + "/" + filename)
 
     cursor.close()
+    res['result'] = 'success'
+    res['valid'] = 1
     return res
+
+@ai_blueprint.route('/remove_portrait', methods=["GET", "POST"])
+def remove_portrait():
+    res = dict()
+    filenames = request.json.get('filenames')
+    db.reconnect()
+    cursor = db.cursor(dictionary=True)
+
+    for filename in filenames:
+        print(filename)
+        query = 'DELETE FROM ai_portrait_uploads WHERE portrait_filename = %s'
+        cursor.execute(query, (filename,))
+        db.commit()
+        os.remove(app.config['UPLOAD_PORTRAIT'] + "/" + filename)
+    cursor.close()
+    res['result'] = 'success'
+    res['valid'] = 1
+    return res
+
+
+@ai_blueprint.route('/remove_original_portrait', methods=["GET", "POST"])
+def remove_original_portrait():
+    res = dict()
+    filenames = request.json.get('filenames')
+    db.reconnect()
+    cursor = db.cursor(dictionary=True)
+
+    for filename in filenames:
+        print(filename)
+        query = 'DELETE FROM ai_portrait_uploads WHERE original_filename = %s'
+        cursor.execute(query, (filename,))
+        db.commit()
+        os.remove(app.config['UPLOAD_PORTRAITORIGINAL'] + "/" + filename)
+    cursor.close()
+    res['result'] = 'success'
+    res['valid'] = 1
+    return res
+
+
 
 
 @ai_blueprint.route('/download_haystack/<name>')
