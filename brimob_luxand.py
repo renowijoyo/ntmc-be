@@ -1,15 +1,54 @@
 #!/usr/bin/env python
 from __future__ import print_function # for compatability with Python 2.x
-import sys
+import sys, math, os.path, base64, pathlib
 from luxand.fsdk import FSDK
 from os import environ, path
 from dotenv import load_dotenv
 import mysql.connector as mysql
+from os.path import exists
 
 class Brimob_Luxand:
     def test(self):
         print("tesT")
-        return "test"
+        return "test dari brimob luxand"
+
+    def create_portrait2(filepath, outpath):
+        print("inside create portrait")
+        basedir = path.abspath(path.dirname(__file__))
+        load_dotenv(path.join(basedir, '.env'))
+        license_key = environ.get('license_key')
+
+        print("Initializing FSDK... ", end='')
+        FSDK.ActivateLibrary(license_key);
+        FSDK.Initialize()
+        print("OK\nLicense info:", FSDK.GetLicenseInfo())
+
+        print("\nLoading file", filepath , "...")
+        file_exists = exists(filepath)
+        if file_exists:
+            print("EXISTS")
+        else:
+            print("NO FILE")
+
+        img = FSDK.Image(filepath)  # create image from file
+        FSDK.SetFaceDetectionParameters(False, False,
+                                        256)  # HandleArbitraryRotations, DetermineFaceRotationAngle, InternalResizeWidth
+        FSDK.SetFaceDetectionThreshold(5)
+
+        print("Detecting face...")
+        try:
+            face = img.DetectFace()  # detect face in the image
+        except:
+            return 0
+
+        maxWidth, maxHeight = 337, 450
+        img = img.Crop(*face.rect).Resize(max((maxWidth + 0.4) / (face.w + 1),
+                                              (maxHeight + 0.4) / (face.w + 1)))  # crop and resize face image inplace
+        img.SaveToFile(outpath, quality=85)  # save face image to file with given compression quality
+
+        print("File '%s' with detected face is created." % outpath)
+        return 1
+
 
     def create_portrait(file):
         print("inside create portrait")

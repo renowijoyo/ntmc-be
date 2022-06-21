@@ -1,40 +1,25 @@
 import os
-
+import os.path
 from flask import Blueprint
-import json
 from dbconfig import DBConfig
-from flask import Flask, request
-from flask_jwt import JWT
 # from werkzeug.security import safe_str_cmp
 import mysql.connector as mysql
-import json
 from flask import Flask
 from flask import jsonify
 from werkzeug.utils import secure_filename
-from os.path import exists
 import time
-from datetime import date
+
 from datetime import datetime
 
-
-from flask_cors import CORS
-# from brimob_luxand import Brimob_Luxand
-from datetime import datetime
-import hashlib
-import bcrypt
-
-from flask_jwt_extended import create_access_token
-from flask_jwt_extended import get_jwt_identity
-from flask_jwt_extended import jwt_required
-from flask_jwt_extended import JWTManager
 
 from flask import send_from_directory
-from flask import request, flash, request, redirect, url_for
+from flask import flash, request, redirect
 from os import environ, path
 from dotenv import load_dotenv
 
-import bcrypt
 
+# sys.path.insert(0, '/luxand')
+from brimob_luxand import Brimob_Luxand
 
 ALLOWED_VIDEO_EXTENSIONS = {'mp4'}
 ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -51,10 +36,6 @@ license_key = environ.get('license_key')
 app.config['UPLOAD_PORTRAIT'] = environ.get('UPLOAD_PORTRAIT')
 app.config['UPLOAD_ORIGINALPORTRAIT'] = environ.get('UPLOAD_ORIGINALPORTRAIT')
 app.config['UPLOAD_HAYSTACK'] = environ.get('UPLOAD_HAYSTACK')
-
-# app.config['UPLOAD_PORTRAIT'] = '/var/www/html/upload-images/ai-uploads/portrait/'
-# app.config['UPLOAD_ORIGINALPORTRAIT'] = '/var/www/html/upload-images/ai-uploads/originalportrait/'
-# app.config['UPLOAD_HAYSTACK'] = '/var/www/html/upload-images/ai-uploads/haystack/'
 
 
 
@@ -74,10 +55,10 @@ def allowed_image_file(filename):
 
 @ai_blueprint.route('/test', methods=["POST"])
 # @jwt_required()
-def test():
-    # res = Brimob_Luxand.test()
-    print("dafgDFDA")
-    return "sadas"
+def test(self=None):
+    res = dict()
+    res = Brimob_Luxand.test(self)
+    return res
 
 
 @ai_blueprint.route('/list_portrait', methods=["GET"])
@@ -99,7 +80,7 @@ def download_portrait(name):
 
 @ai_blueprint.route('/upload_portrait', methods=["POST"])
 def upload_portrait():
-    print ("uplaod")
+    print ("uplaod portrait")
     res = dict()
     if request.method == 'POST':
         # check if the post request has the file part
@@ -123,39 +104,52 @@ def upload_portrait():
             # print(os.path.join(app.config['UPLOAD_GIATHARIAN_FOLDER']))
             ts = time.time()
             # newfilename = str(user_id) + "-" + str(laporan_subkategori_id) + "-" + str(laporan_no) + "-" + os.path.splitext(str(ts))[0] + os.path.splitext(filename)[1]
+            originalfilename = os.path.splitext(str(ts))[0]
             newfilename = "portrait-" + os.path.splitext(str(ts))[0]
             extension = os.path.splitext(filename)[1]
+            original_name = "original-" + originalfilename.lower() + extension.lower()
             newfilename_ext = newfilename.lower() + extension.lower()
+            # print(app.config['UPLOAD_PORTRAIT'])
 
-            file.save(os.path.join(app.config['UPLOAD_PORTRAIT'] + "/" + newfilename.lower() + extension.lower()))
-            # file.save(os.path.join(app.config['UPLOAD_ORIGINALPORTRAIT'] + "/" + newfilename_ext))
+            file.save(os.path.join(app.config['UPLOAD_ORIGINALPORTRAIT'] + "/" + original_name))
+            file.close()
+
+            facedetect_result = Brimob_Luxand.create_portrait2(os.path.join(app.config['UPLOAD_ORIGINALPORTRAIT']  + original_name), os.path.join(app.config['UPLOAD_PORTRAIT']  + newfilename_ext))
+
+
+            # portrait_file.save(os.path.join(app.config['UPLOAD_PORTRAIT'] + "/" + newfilename_ext))
+            # file.close()
+            # portrait_file.close()
             print(newfilename_ext)
-
-            db.reconnect()
-            cursor = db.cursor(dictionary=True)
-            group = ""
-            tags = ""
-            now = datetime.now()
-            formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
-            query = "INSERT INTO ai_portrait_uploads (original_filename, portrait_filename, ai_portrait_uploads.group, tags, created_at) VALUES (%s, %s, %s, %s, %s)"
-            cursor.execute(query, (filename, newfilename_ext, group, tags, formatted_date))
-
             result = dict()
-            try:
-                db.commit()
-            except mysql.connector.Error as error:
-                print("Failed to update record to database rollback: {}".format(error))
-                # reverting changes because of exception
-                cursor.rollback()
-                result['result'] = 'failed'
+            if facedetect_result:
+                db.reconnect()
+                cursor = db.cursor(dictionary=True)
+                group = ""
+                tags = ""
+                now = datetime.now()
+                formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+                query = "INSERT INTO ai_portrait_uploads (original_filename, portrait_filename, ai_portrait_uploads.group, tags, created_at) VALUES (%s, %s, %s, %s, %s)"
+                cursor.execute(query, (original_name, newfilename_ext, group, tags, formatted_date))
+
+
+                try:
+                    db.commit()
+                    result['result'] = 'success'
+                    result['valid'] = 1
+                except mysql.connector.Error as error:
+                    print("Failed to update record to database rollback: {}".format(error))
+                    # reverting changes because of exception
+                    cursor.rollback()
+                    result['result'] = 'failed'
+                    result['valid'] = 2
+                finally:
+                    cursor.close()
+
+            else:
+                result['result'] = 'face detect failed'
                 result['valid'] = 2
-            finally:
-
-                cursor.close()
-                result['result'] = 'success'
-                result['valid'] = 1
-
-            cursor.close()
+                os.remove(os.path.join(app.config['UPLOAD_ORIGINALPORTRAIT'] + "/" + original_name))
             return result
 
     return '''
