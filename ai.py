@@ -30,7 +30,8 @@ from flask_jwt_extended import JWTManager
 
 from flask import send_from_directory
 from flask import request, flash, request, redirect, url_for
-
+from os import environ, path
+from dotenv import load_dotenv
 
 import bcrypt
 
@@ -41,10 +42,21 @@ ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 
 app = Flask(__name__)
-app.config['UPLOAD_PORTRAIT'] = './ai-uploads/portrait/'
-app.config['UPLOAD_ORIGINALPORTRAIT'] = './ai-uploads/originalportrait/'
 
-app.config['UPLOAD_HAYSTACK'] = './ai-uploads/haystack/'
+basedir = path.abspath(path.dirname(__file__))
+load_dotenv(path.join(basedir, '.env'))
+license_key = environ.get('license_key')
+
+
+app.config['UPLOAD_PORTRAIT'] = environ.get('UPLOAD_PORTRAIT')
+app.config['UPLOAD_ORIGINALPORTRAIT'] = environ.get('UPLOAD_ORIGINALPORTRAIT')
+app.config['UPLOAD_HAYSTACK'] = environ.get('UPLOAD_HAYSTACK')
+
+# app.config['UPLOAD_PORTRAIT'] = '/var/www/html/upload-images/ai-uploads/portrait/'
+# app.config['UPLOAD_ORIGINALPORTRAIT'] = '/var/www/html/upload-images/ai-uploads/originalportrait/'
+# app.config['UPLOAD_HAYSTACK'] = '/var/www/html/upload-images/ai-uploads/haystack/'
+
+
 
 
 dbObj = DBConfig()
