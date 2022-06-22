@@ -78,12 +78,13 @@ def list_portrait():
 def download_portrait(name):
     return send_from_directory(app.config["UPLOAD_PORTRAIT"], name)
 
+
 @ai_blueprint.route('/upload_portrait', methods=["POST"])
 def upload_portrait():
     print ("uplaod portrait")
     res = dict()
     if request.method == 'POST':
-        # check if the post request has the file part
+        # check if the post request has the uuuuu part
         if 'file' not in request.files:
             print('no file part')
             return redirect(request.url)
@@ -111,10 +112,10 @@ def upload_portrait():
             newfilename_ext = newfilename.lower() + extension.lower()
             # print(app.config['UPLOAD_PORTRAIT'])
 
-            file.save(os.path.join(app.config['UPLOAD_ORIGINALPORTRAIT'] + "/" + original_name))
+            file.save(os.path.join(app.config['UPLOAD_ORIGINALPORTRAIT']  + original_name))
             file.close()
 
-            facedetect_result = Brimob_Luxand.create_portrait2(os.path.join(app.config['UPLOAD_ORIGINALPORTRAIT']  + original_name), os.path.join(app.config['UPLOAD_PORTRAIT']  + newfilename_ext))
+            create_portrait_result = Brimob_Luxand.create_portrait(os.path.join(app.config['UPLOAD_ORIGINALPORTRAIT']  + original_name), os.path.join(app.config['UPLOAD_PORTRAIT']  + newfilename_ext))
 
 
             # portrait_file.save(os.path.join(app.config['UPLOAD_PORTRAIT'] + "/" + newfilename_ext))
@@ -122,7 +123,7 @@ def upload_portrait():
             # portrait_file.close()
             print(newfilename_ext)
             result = dict()
-            if facedetect_result:
+            if create_portrait_result:
                 db.reconnect()
                 cursor = db.cursor(dictionary=True)
                 group = ""
@@ -149,7 +150,7 @@ def upload_portrait():
             else:
                 result['result'] = 'face detect failed'
                 result['valid'] = 2
-                os.remove(os.path.join(app.config['UPLOAD_ORIGINALPORTRAIT'] + "/" + original_name))
+                os.remove(os.path.join(app.config['UPLOAD_ORIGINALPORTRAIT']  + original_name))
             return result
 
     return '''
@@ -167,6 +168,8 @@ def find_match_portrait():
     portraits = request.json.get("portraits", None)
     haystacks = request.json.get("haystacks", None)
 
+    for haystack in haystacks:
+        print(haystack)
 
     print(portraits)
     print(haystacks)

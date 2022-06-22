@@ -12,8 +12,7 @@ class Brimob_Luxand:
         print("tesT")
         return "test dari brimob luxand"
 
-    def create_portrait2(filepath, outpath):
-        print("inside create portrait")
+    def create_portrait(filepath, outpath):
         basedir = path.abspath(path.dirname(__file__))
         load_dotenv(path.join(basedir, '.env'))
         license_key = environ.get('license_key')
@@ -50,7 +49,7 @@ class Brimob_Luxand:
         return 1
 
 
-    def create_portrait(file):
+    def create_portrait_test(file):
         print("inside create portrait")
         basedir = path.abspath(path.dirname(__file__))
         load_dotenv(path.join(basedir, '.env'))
