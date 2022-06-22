@@ -219,7 +219,7 @@ def remove_portrait():
         query = 'DELETE FROM ai_portrait_uploads WHERE portrait_filename = %s'
         cursor.execute(query, (filename,))
         db.commit()
-        os.remove(app.config['UPLOAD_PORTRAIT'] + "/" + filename)
+        os.remove(app.config['UPLOAD_PORTRAIT'] + filename)
     cursor.close()
     res['result'] = 'success'
     res['valid'] = 1
@@ -238,7 +238,7 @@ def remove_original_portrait():
         query = 'DELETE FROM ai_portrait_uploads WHERE original_filename = %s'
         cursor.execute(query, (filename,))
         db.commit()
-        os.remove(app.config['UPLOAD_PORTRAITORIGINAL'] + "/" + filename)
+        os.remove(app.config['UPLOAD_PORTRAITORIGINAL']  + filename)
     cursor.close()
     res['result'] = 'success'
     res['valid'] = 1
