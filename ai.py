@@ -167,14 +167,17 @@ def upload_portrait():
 def find_match_portrait():
     portraits = request.json.get("portraits", None)
     haystacks = request.json.get("haystacks", None)
-
-    for haystack in haystacks:
-        print(haystack)
-
+    threshold = request.json.get("threshold", None)
     print(portraits)
     print(haystacks)
-
-    return ""
+    res = dict()
+    db_filename = "search.db"
+    Brimob_Luxand.populate_portrait_db(db_filename, portraits)
+    Brimob_Luxand.find_match_portrait(db_filename, threshold, haystacks)
+    a_file = open(db_filename, "w")
+    a_file.truncate()
+    a_file.close()
+    return res
 
 @ai_blueprint.route('/list_haystack', methods=["GET"])
 def list_haystack():

@@ -6,11 +6,91 @@ from os import environ, path
 from dotenv import load_dotenv
 import mysql.connector as mysql
 from os.path import exists
+import PIL
+from PIL import ImageDraw
+
+basedir = path.abspath(path.dirname(__file__))
+load_dotenv(path.join(basedir, '.env'))
+license_key = environ.get('license_key')
+FSDK.ActivateLibrary(license_key);
+FSDK.Initialize()
+
 
 class Brimob_Luxand:
     def test(self):
         print("tesT")
         return "test dari brimob luxand"
+
+        def draw_features(f,draw):
+            def dot_center(dots):  # calc geometric center of dots
+                return sum(p.x for p in dots) / len(dots), sum(p.y for p in dots) / len(dots)
+
+            xl, yl = dot_center([f[k] for k in FSDK.FSDKP_LEFT_EYE_SET])
+            xr, yr = dot_center([f[k] for k in FSDK.FSDKP_RIGHT_EYE_SET])
+            w = (xr - xl) * 2.8
+            h = w * 1.4
+            center = (xr + xl) / 2, (yr + yl) / 2 + w * 0.05
+            angle = math.atan2(yr - yl, xr - xl) * 180 / math.pi
+            frame = -w / 2, -h / 2, w / 2, h / 2
+            # container = graph.beginContainer()
+            # graph.translateTransform(*center).rotateTransform(angle).ellipse(facePen, *frame)  # draw frame
+            # graph.endContainer(container)
+            draw.rectangle((xl-w/2, yl-h/2, xl+w, yr+h*0.8), fill=None, outline="red")
+            print(xl, yl, xr, yr)
+            # for p in f: graph.circle(featurePen, p.x, p.y, 3)  # draw features
+
+    def find_match_portrait(db_filename, threshold, haystacks):
+
+        try:  # read all photo from database
+            with open(db_filename) as db:
+                base = dict(l.rsplit(' ', 1) for l in db if l)
+        except FileNotFoundError:
+            print('\nCannot open', db_filename, 'database file.\nUse "-a" option to create database.');
+            exit(1)
+
+        option = len(sys.argv) == 3 and sys.argv[2] or ''
+        if option not in ('', '-a', '-r'): print('Unrecognized option:', option); exit(-1)
+
+
+        for haystack in haystacks:
+            haystack_path = os.path.normcase(os.path.abspath(environ.get('UPLOAD_HAYSTACK') + haystack))
+            if os.path.exists(haystack_path):
+                img = FSDK.Image(haystack_path)
+                im = PIL.Image.open(haystack_path)
+                draw = ImageDraw.Draw(im)
+                faces = img.DetectMultipleFaces()
+                # print(faces)
+                for p in faces:
+                    template = img.GetFaceTemplate(p)
+                    src = ((n, FSDK.FaceTemplate(*base64.b64decode(ft))) for n, ft in base.items())
+                    for n, ft in src:
+                        percent = template.Match(ft) * 100
+                        if percent > threshold:
+                            print(n + " : " + str(percent))
+                            # draw_features(img.DetectFacialFeatures(p), draw)
+
+            else:
+                print("not exist")
+        return "match result"
+    def populate_portrait_db(db_filename, needles):
+        # print("Initializing FSDK... ", end='')
+        print("OK\nLicense info:", FSDK.GetLicenseInfo())
+        FSDK.SetFaceDetectionParameters(True, True, 384)  # HandleArbitraryRotations, DetermineFaceRotationAngle, InternalResizeWidthTrue 384 or 512 value
+        FSDK.SetFaceDetectionThreshold(3)
+        with open(db_filename, 'a+') as db:
+            for needle in needles:
+                portrait_path = os.path.normcase(os.path.abspath(environ.get('UPLOAD_PORTRAIT') + needle))
+                if os.path.exists(portrait_path):
+                    face_template = FSDK.Image(portrait_path).GetFaceTemplate()  # get template of detected face
+                    ft = base64.b64encode(face_template).decode('utf-8')
+                    print(portrait_path, ft, file=db)
+                    print(os.path.basename(portrait_path), 'is added to the database.')
+                else :
+                    print("not exist")
+        return "image mtch result"
+
+
+
 
     def create_portrait(filepath, outpath):
         basedir = path.abspath(path.dirname(__file__))
