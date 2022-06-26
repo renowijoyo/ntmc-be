@@ -173,10 +173,32 @@ def find_match_portrait():
     res = dict()
     db_filename = "search.db"
     Brimob_Luxand.populate_portrait_db(db_filename, portraits)
-    Brimob_Luxand.find_match_portrait(db_filename, threshold, haystacks)
+    res = Brimob_Luxand.find_match_portrait(db_filename, threshold, haystacks)
+    print(res)
+    db.reconnect()
+    cursor = db.cursor(dictionary=True)
+    now = datetime.now()
+    formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+    query = "INSERT INTO ai_match_result (haystacks, portraits,output, result_json,created_at) VALUES (%s, %s,%s, %s, %s)"
+    cursor.execute(query, (str(haystacks)[1:-1], str(portraits)[1:-1], res['output_file'], str(res['result']), formatted_date,))
     a_file = open(db_filename, "w")
     a_file.truncate()
     a_file.close()
+
+    try:
+        db.commit()
+    except mysql.connector.Error as error:
+        print("Failed to update record to database rollback: {}".format(error))
+        # reverting changes because of exception
+        cursor.rollback()
+        res['valid'] = 2
+    finally:
+        cursor.close()
+        res['valid'] = 1
+
+    cursor.close()
+
+
     return res
 
 @ai_blueprint.route('/list_haystack', methods=["GET"])
