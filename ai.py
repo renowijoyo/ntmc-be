@@ -57,7 +57,7 @@ def allowed_image_file(filename):
 # @jwt_required()
 def test(self=None):
     res = dict()
-    res = Brimob_Luxand.test(self)
+    # res = Brimob_Luxand.test(self)
     return res
 
 
