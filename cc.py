@@ -3,6 +3,8 @@ import time
 from datetime import date
 import os
 import json
+
+from stats import Stats
 from dbconfig import DBConfig
 from dbconfig2 import DBConfig2
 from flask import Flask, request
@@ -1268,38 +1270,18 @@ def data_laporan_user():
     # date = request.json.get('date')
     # subkategoriid = request.json.get('sub_kategori_id')
     # # subkategori = request.json.get('subkategori')
-    query = "SELECT laporan_giat.id, laporan.user_id, laporan_giat.region_id, laporan_giat.department_id, laporan_giat.no_laporan, laporan_giat.tgl_laporan, " \
-            "laporan_giat.laporan_text, laporan_giat_lat_pelapor, laporan_giat.long_pelapor, laporan_giat.laporan_subcategory_id, laporan_giat.image_file FROM laporan_giat "
-            # "LEFT JOIN laporan_published ON laporan_published.no_laporan = laporan.no_laporan " \
-            # "LEFT JOIN laporan_subcategory ON laporan_subcategory.id = laporan.laporan_subcategory_id " \
-            # "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan.sub_kategori_id " \
+    query = "SELECT laporan_giat.id, laporan_giat.user_id, laporan_giat.region_id, laporan_giat.department_id, laporan_giat.no_laporan, laporan_giat.tgl_laporan, " \
+            "laporan_giat.laporan_text, laporan_giat.lat_pelapor, laporan_giat.long_pelapor, laporan_giat.laporan_subcategory_id, subkategori.sub_kategori,  laporan_giat.image_file FROM laporan_giat " \
+            "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan_giat.laporan_subcategory_id "
             # "WHERE DATE(laporan_published.date_submitted) =  DATE('"+ date +"')  AND laporan.sub_kategori_id =  " + subkategoriid + " GROUP BY laporan.laporan_subcategory_id"
     cursor.execute(query,)
     record = cursor.fetchall()
     cursor.close()
     result = dict()
-    print(record)
+    # print(record)
     temp = dict()
 
-    # data_array = []
-    # nolaporan = ''
-    # subkategorinama = ''
-    # for x in record:
-    #     temp = dict()
-    #     temp['id'] = x['id']
-    #     temp['laporan_subcategory_id'] = x['laporan_subcategory_id']
-    #     temp['name'] = x['name']
-    #     temp['laporan_total'] = x['laporan_total']
-    #     nolaporan = x['no_laporan']
-    #     subkategorinama = x['sub_kategori']
-    #     # print(x['id'])
-    #     data_array.append(temp)
-    # print(data_array)
-    # result['data'] = record
-    # result['sub_kategori_id'] = subkategoriid
-    # result['sub_kategori_nama'] = subkategorinama
-
-    return jsonify(result)
+    return jsonify(record)
 
 
 @cc_blueprint.route('/laporan_data_review', methods=["POST"])
@@ -1401,6 +1383,56 @@ def create_laporan():
     cursor.close()
 
     return jsonify(result)
+
+
+
+
+
+@cc_blueprint.route('/display_stats', methods=["POST"])
+def display_stats(self=None):
+    db.reconnect()
+    cursor = db.cursor(dictionary=True)
+    result_array = []
+    # userid = request.json.get('user_id')
+    # laporan_subcategory_id = request.json.get('laporan_subcategory_id')
+    # # status = request.json.get('status')
+    # query = "SELECT laporan_giat.id, laporan_giat.user_id, laporan_giat.region_id, region.region_name, laporan_giat.department_id, department.department_name, no_laporan, tgl_laporan, lat_pelapor, long_pelapor, laporan_text, laporan_subcategory_id, subkategori.sub_kategori, image_file FROM laporan_giat " \
+    #         "LEFT JOIN region ON region.id = laporan_giat.region_id " \
+    #         "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan_giat.laporan_subcategory_id " \
+    #         "LEFT JOIN department ON department.id = laporan_giat.department_id WHERE laporan_giat.user_id = %s AND laporan_giat.laporan_subcategory_id = %s"
+    # cursor.execute(query, (userid,laporan_subcategory_id,))
+    # record = cursor.fetchall()
+    # cursor.close()
+    # result = dict()
+    # result = record
+
+    result = getattr(Stats, "stats_most_active_region")(2)
+    result2 = getattr(Stats, "stats_most_active_user")(2)
+    result_array.append(result)
+    result_array.append(result2)
+    result_array.append(result)
+    result_array.append(result2)
+    return jsonify(result_array)
+
+
+@cc_blueprint.route('/laporan_giat_list_peruser', methods=["POST"])
+def laporan_giat_list_peruser():
+    db.reconnect()
+    cursor = db.cursor(dictionary=True)
+    userid = request.json.get('user_id')
+    laporan_subcategory_id = request.json.get('laporan_subcategory_id')
+    # status = request.json.get('status')
+    query = "SELECT laporan_giat.id, laporan_giat.user_id, laporan_giat.region_id, region.region_name, laporan_giat.department_id, department.department_name, no_laporan, tgl_laporan, lat_pelapor, long_pelapor, laporan_text, laporan_subcategory_id, subkategori.sub_kategori, image_file FROM laporan_giat " \
+            "LEFT JOIN region ON region.id = laporan_giat.region_id " \
+            "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan_giat.laporan_subcategory_id " \
+            "LEFT JOIN department ON department.id = laporan_giat.department_id WHERE laporan_giat.user_id = %s AND laporan_giat.laporan_subcategory_id = %s"
+    cursor.execute(query, (userid,laporan_subcategory_id,))
+    record = cursor.fetchall()
+    cursor.close()
+    result = dict()
+    result = record
+    return jsonify(result)
+
 
 @cc_blueprint.route('/laporan_giat_list', methods=["GET"])
 def laporan_giat_list():
