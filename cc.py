@@ -1259,6 +1259,49 @@ def warga_upload_video():
     email = request.json.get('email')
     passwd = request.json.get('pass')
 
+
+@cc_blueprint.route('/data_laporan_user', methods=["POST"])
+def data_laporan_user():
+    print("data laporan user")
+    db.reconnect()
+    cursor = db.cursor(dictionary=True)
+    # date = request.json.get('date')
+    # subkategoriid = request.json.get('sub_kategori_id')
+    # # subkategori = request.json.get('subkategori')
+    query = "SELECT laporan_giat.id, laporan.user_id, laporan_giat.region_id, laporan_giat.department_id, laporan_giat.no_laporan, laporan_giat.tgl_laporan, " \
+            "laporan_giat.laporan_text, laporan_giat_lat_pelapor, laporan_giat.long_pelapor, laporan_giat.laporan_subcategory_id, laporan_giat.image_file FROM laporan_giat "
+            # "LEFT JOIN laporan_published ON laporan_published.no_laporan = laporan.no_laporan " \
+            # "LEFT JOIN laporan_subcategory ON laporan_subcategory.id = laporan.laporan_subcategory_id " \
+            # "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan.sub_kategori_id " \
+            # "WHERE DATE(laporan_published.date_submitted) =  DATE('"+ date +"')  AND laporan.sub_kategori_id =  " + subkategoriid + " GROUP BY laporan.laporan_subcategory_id"
+    cursor.execute(query,)
+    record = cursor.fetchall()
+    cursor.close()
+    result = dict()
+    print(record)
+    temp = dict()
+
+    # data_array = []
+    # nolaporan = ''
+    # subkategorinama = ''
+    # for x in record:
+    #     temp = dict()
+    #     temp['id'] = x['id']
+    #     temp['laporan_subcategory_id'] = x['laporan_subcategory_id']
+    #     temp['name'] = x['name']
+    #     temp['laporan_total'] = x['laporan_total']
+    #     nolaporan = x['no_laporan']
+    #     subkategorinama = x['sub_kategori']
+    #     # print(x['id'])
+    #     data_array.append(temp)
+    # print(data_array)
+    # result['data'] = record
+    # result['sub_kategori_id'] = subkategoriid
+    # result['sub_kategori_nama'] = subkategorinama
+
+    return jsonify(result)
+
+
 @cc_blueprint.route('/laporan_data_review', methods=["POST"])
 def laporan_data_review():
     db.reconnect()
