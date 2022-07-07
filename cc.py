@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, g
 import time
 from datetime import date
 import os
