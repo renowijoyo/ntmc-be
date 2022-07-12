@@ -1299,6 +1299,78 @@ def data_laporan_user():
 
     return jsonify(record)
 
+@cc_blueprint.route('/laporan_review', methods=["POST"])
+def laporan_review():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    no_laporan = request.json.get('no_laporan')
+
+
+    query = "SELECT data_laporan.id, data_laporan.tgl_laporan, laporan_published.no_laporan, laporan_published.status, laporan_subcategory.sub_category_id, subkategori.sub_kategori, " \
+            "data_laporan.data_laporan_subcategory_id, laporan_subcategory.name, data_laporan.laporan_total, data_laporan.laporan_text, laporan_published.date_submitted FROM data_laporan " \
+            "LEFT JOIN laporan_subcategory ON laporan_subcategory.id = data_laporan.data_laporan_subcategory_id " \
+            "LEFT JOIN laporan_published ON DATE(laporan_published.tgl_laporan) = DATE(data_laporan.tgl_laporan) AND " \
+            "laporan_published.region_id = data_laporan.region_id AND laporan_subcategory.sub_category_id = laporan_published.laporan_subcategory_id " \
+            "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan_subcategory.sub_category_id " \
+            "WHERE laporan_published.no_laporan = %s"
+    print("laporan review")
+    cursor.execute(query, (str(no_laporan),))
+    record = cursor.fetchall()
+    cursor.close()
+    result = dict()
+    result = record
+    return jsonify(result)
+
+@cc_blueprint.route('/data_laporan_review_all', methods=["POST"])
+def data_laporan_review_all():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    date = request.json.get('tgl_submitted')
+    subkategoriid = request.json.get('sub_kategori_id')
+
+
+    query = "SELECT data_laporan.id, data_laporan.tgl_laporan, laporan_published.no_laporan, laporan_published.status, laporan_subcategory.sub_category_id, subkategori.sub_kategori, " \
+            "data_laporan.data_laporan_subcategory_id, laporan_subcategory.name, data_laporan.laporan_total, data_laporan.laporan_text, laporan_published.date_submitted FROM data_laporan " \
+            "LEFT JOIN laporan_subcategory ON laporan_subcategory.id = data_laporan.data_laporan_subcategory_id " \
+            "LEFT JOIN laporan_published ON DATE(laporan_published.tgl_laporan) = DATE(data_laporan.tgl_laporan) AND " \
+            "laporan_published.region_id = data_laporan.region_id AND laporan_subcategory.sub_category_id = laporan_published.laporan_subcategory_id " \
+            "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan_subcategory.sub_category_id " \
+            "WHERE DATE(data_laporan.tgl_submitted) =  DATE('" + date + "') GROUP BY data_laporan.data_laporan_subcategory_id order by data_laporan.data_laporan_subcategory_id asc"
+
+    print("laporan review")
+    cursor.execute(query)
+    record = cursor.fetchall()
+    cursor.close()
+    result = dict()
+    result = record
+    return jsonify(result)
+
+@cc_blueprint.route('/data_laporan_review_peruser', methods=["POST"])
+def data_laporan_review_peruser():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    userid = request.json.get('user_id')
+    date = request.json.get('tgl_submitted')
+    # subkategoriid = request.json.get('sub_kategori_id')
+
+
+    query = "SELECT data_laporan.id, data_laporan.tgl_laporan, laporan_published.no_laporan, laporan_published.status, laporan_subcategory.sub_category_id, subkategori.sub_kategori, " \
+            "data_laporan.data_laporan_subcategory_id, laporan_subcategory.name, data_laporan.laporan_total, data_laporan.laporan_text, laporan_published.date_submitted FROM data_laporan " \
+            "LEFT JOIN laporan_subcategory ON laporan_subcategory.id = data_laporan.data_laporan_subcategory_id " \
+            "LEFT JOIN laporan_published ON DATE(laporan_published.tgl_laporan) = DATE(data_laporan.tgl_laporan) AND " \
+            "laporan_published.region_id = data_laporan.region_id AND laporan_subcategory.sub_category_id = laporan_published.laporan_subcategory_id " \
+            "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan_subcategory.sub_category_id " \
+            "WHERE DATE(data_laporan.tgl_submitted) =  DATE('" + date + "') AND data_laporan.user_id = '" + str(userid) + "' GROUP BY data_laporan.data_laporan_subcategory_id order by data_laporan.data_laporan_subcategory_id asc"
+
+    print("laporan review")
+    cursor.execute(query)
+    record = cursor.fetchall()
+    cursor.close()
+    result = dict()
+    result = record
+    return jsonify(result)
+
+
 
 @cc_blueprint.route('/laporan_data_review', methods=["POST"])
 def laporan_data_review():
@@ -1505,27 +1577,6 @@ def laporan_giat_submit():
         result['valid'] = 1
     return jsonify(result)
 
-@cc_blueprint.route('/laporan_review', methods=["POST"])
-def laporan_review():
-    db = get_db()
-    cursor = db.cursor(dictionary=True)
-    no_laporan = request.json.get('no_laporan')
-
-
-    query = "SELECT data_laporan.id, data_laporan.tgl_laporan, laporan_published.no_laporan, laporan_published.status, laporan_subcategory.sub_category_id, subkategori.sub_kategori, " \
-            "data_laporan.data_laporan_subcategory_id, laporan_subcategory.name, data_laporan.laporan_total, data_laporan.laporan_text, laporan_published.date_submitted FROM data_laporan " \
-            "LEFT JOIN laporan_subcategory ON laporan_subcategory.id = data_laporan.data_laporan_subcategory_id " \
-            "LEFT JOIN laporan_published ON DATE(laporan_published.tgl_laporan) = DATE(data_laporan.tgl_laporan) AND " \
-            "laporan_published.region_id = data_laporan.region_id AND laporan_subcategory.sub_category_id = laporan_published.laporan_subcategory_id " \
-            "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan_subcategory.sub_category_id " \
-            "WHERE laporan_published.no_laporan = %s"
-    print("laporan review")
-    cursor.execute(query, (str(no_laporan),))
-    record = cursor.fetchall()
-    cursor.close()
-    result = dict()
-    result = record
-    return jsonify(result)
 
 @cc_blueprint.route('/laporan_print', methods=["POST"])
 def laporan_print():

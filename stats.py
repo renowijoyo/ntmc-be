@@ -39,11 +39,11 @@ class Stats:
     def stats_most_active_region(region_id):
         result = dict()
         result['stat_name'] = "most active region"
-        result['stat_value'] = "20"
+        result['stat_value'] = "Aceh"
         return result
 
     def stats_most_active_user(region_id):
         result = dict()
         result['stat_name'] = "most active user"
-        result['stat_value'] = "2027"
+        result['stat_value'] = "zenner"
         return result
