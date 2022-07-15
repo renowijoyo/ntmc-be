@@ -1057,6 +1057,35 @@ def upload_userphoto():
     </form>
     '''
 
+@cc_blueprint.route('/get_giatharian_image', methods=["POST"])
+def get_giatharian_image():
+    res = dict()
+    filename = request.form['filename']
+    # name = user_id + ".jpeg"
+    path_to_file = app.config["UPLOAD_GIATHARIAN_FOLDER"] + '/'
+    file_exists = exists(path_to_file + filename)
+    if file_exists :
+        return send_from_directory(path_to_file, filename)
+    else :
+        res['valid'] = 0
+        res['error'] = "file does not exist"
+        return res
+
+@cc_blueprint.route('/get_giatinsidentil_image', methods=["POST"])
+def get_giatinsidentil_image():
+    res = dict()
+    filename = request.form['filename']
+    # name = user_id + ".jpeg"
+    path_to_file = app.config["UPLOAD_GIATINSIDENTIL_FOLDER"] + '/'
+    file_exists = exists(path_to_file + filename)
+    if file_exists :
+        return send_from_directory(path_to_file, filename)
+    else :
+        res['valid'] = 0
+        res['error'] = "file does not exist"
+        return res
+
+
 @cc_blueprint.route('/get_userphoto', methods=["POST"])
 def get_userphoto():
     res = dict()
