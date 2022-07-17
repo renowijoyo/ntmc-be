@@ -1316,8 +1316,8 @@ def warga_upload_video():
 
 ################### LAPORAN GIAT #################################################
 
-@cc_blueprint.route('/data_laporan_user', methods=["POST"])
-def data_laporan_user():
+@cc_blueprint.route('/laporan_giat_user', methods=["POST"])
+def laporan_giat_user():
     print("data laporan user")
     db = get_db()
     cursor = db.cursor(dictionary=True)
