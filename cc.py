@@ -1803,5 +1803,27 @@ def submit_laporan_data_list():
 @cc_blueprint.route('/print_pdf', methods=["GET"])
 def print_pdf():
     print("inside print pdf")
-    pdfkit.from_url('https://api.brimob.id/#/report?n=2022-6-08-1-1', 'laporan_siskamtibmas_2022-6-08-1-1.pdf')
+    options = {
+        'page-size': 'Letter',
+        'margin-top': '0.75in',
+        'margin-right': '0.75in',
+        'margin-bottom': '0.75in',
+        'margin-left': '0.75in',
+        'encoding': "UTF-8",
+        # 'custom-header': [
+        #     ('Accept-Encoding', 'gzip')
+        # ],
+        # 'cookie': [
+        #     ('cookie-empty-value', '""')
+        #     ('cookie-name1', 'cookie-value1'),
+        #     ('cookie-name2', 'cookie-value2'),
+        # ],
+        'no-outline': None,
+        'javascript-delay': 5000
+    }
+
+    # pdfkit.from_url('https://api.brimob.id/#/report?n=2022-6-08-1-1', 'laporan_siskamtibmas_2022-6-08-1-1.pdf', verbose=True)
+    pdfkit.from_url('https://api.brimob.id/#/report?n=1', 'out.pdf')
+    # pdfkit.from_url('https://api.brimob.id/#/report?n=1', 'out2.pdf',options=options)
+    # pdfkit.from_file('g.html', 'out.pdf')
     return "ok"
