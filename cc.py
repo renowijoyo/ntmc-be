@@ -1307,26 +1307,23 @@ def warga_upload_video():
     passwd = request.json.get('pass')
 
 
-@cc_blueprint.route('/data_laporan_user', methods=["POST"])
-def data_laporan_user():
-    print("data laporan user")
-    db = get_db()
-    cursor = db.cursor(dictionary=True)
-    # date = request.json.get('date')
-    # subkategoriid = request.json.get('sub_kategori_id')
-    # # subkategori = request.json.get('subkategori')
-    query = "SELECT laporan_giat.id, laporan_giat.user_id, laporan_giat.region_id, laporan_giat.department_id, laporan_giat.no_laporan, laporan_giat.tgl_laporan, " \
-            "laporan_giat.laporan_text, laporan_giat.lat_pelapor, laporan_giat.long_pelapor, laporan_giat.laporan_subcategory_id, subkategori.sub_kategori,  laporan_giat.image_file FROM laporan_giat " \
-            "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan_giat.laporan_subcategory_id "
-            # "WHERE DATE(laporan_published.date_submitted) =  DATE('"+ date +"')  AND laporan.sub_kategori_id =  " + subkategoriid + " GROUP BY laporan.laporan_subcategory_id"
-    cursor.execute(query,)
-    record = cursor.fetchall()
-    cursor.close()
-    result = dict()
-    # print(record)
-    temp = dict()
-
-    return jsonify(record)
+# @cc_blueprint.route('/data_laporan_user', methods=["POST"])
+# def data_laporan_user():
+#     print("data laporan user")
+#     db = get_db()
+#     cursor = db.cursor(dictionary=True)
+#     query = "SELECT laporan_giat.id, laporan_giat.user_id, laporan_giat.region_id, laporan_giat.department_id, laporan_giat.no_laporan, laporan_giat.tgl_laporan, " \
+#             "laporan_giat.laporan_text, laporan_giat.lat_pelapor, laporan_giat.long_pelapor, laporan_giat.laporan_subcategory_id, subkategori.sub_kategori,  laporan_giat.image_file FROM laporan_giat " \
+#             "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan_giat.laporan_subcategory_id "
+#             # "WHERE DATE(laporan_published.date_submitted) =  DATE('"+ date +"')  AND laporan.sub_kategori_id =  " + subkategoriid + " GROUP BY laporan.laporan_subcategory_id"
+#     cursor.execute(query,)
+#     record = cursor.fetchall()
+#     cursor.close()
+#     result = dict()
+#     # print(record)
+#     temp = dict()
+#
+#     return jsonify(record)
 
 @cc_blueprint.route('/laporan_review', methods=["POST"])
 def laporan_review():
