@@ -1307,23 +1307,97 @@ def warga_upload_video():
     passwd = request.json.get('pass')
 
 
-# @cc_blueprint.route('/data_laporan_user', methods=["POST"])
-# def data_laporan_user():
-#     print("data laporan user")
-#     db = get_db()
-#     cursor = db.cursor(dictionary=True)
-#     query = "SELECT laporan_giat.id, laporan_giat.user_id, laporan_giat.region_id, laporan_giat.department_id, laporan_giat.no_laporan, laporan_giat.tgl_laporan, " \
-#             "laporan_giat.laporan_text, laporan_giat.lat_pelapor, laporan_giat.long_pelapor, laporan_giat.laporan_subcategory_id, subkategori.sub_kategori,  laporan_giat.image_file FROM laporan_giat " \
-#             "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan_giat.laporan_subcategory_id "
-#             # "WHERE DATE(laporan_published.date_submitted) =  DATE('"+ date +"')  AND laporan.sub_kategori_id =  " + subkategoriid + " GROUP BY laporan.laporan_subcategory_id"
-#     cursor.execute(query,)
-#     record = cursor.fetchall()
-#     cursor.close()
-#     result = dict()
-#     # print(record)
-#     temp = dict()
-#
-#     return jsonify(record)
+
+
+
+
+
+
+
+################### LAPORAN GIAT #################################################
+
+@cc_blueprint.route('/data_laporan_user', methods=["POST"])
+def data_laporan_user():
+    print("data laporan user")
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT laporan_giat.id, laporan_giat.user_id, laporan_giat.region_id, laporan_giat.department_id, laporan_giat.no_laporan, laporan_giat.tgl_laporan, " \
+            "laporan_giat.laporan_text, laporan_giat.lat_pelapor, laporan_giat.long_pelapor, laporan_giat.laporan_subcategory_id, subkategori.sub_kategori,  laporan_giat.image_file FROM laporan_giat " \
+            "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan_giat.laporan_subcategory_id "
+            # "WHERE DATE(laporan_published.date_submitted) =  DATE('"+ date +"')  AND laporan.sub_kategori_id =  " + subkategoriid + " GROUP BY laporan.laporan_subcategory_id"
+    cursor.execute(query,)
+    record = cursor.fetchall()
+    cursor.close()
+    result = dict()
+    # print(record)
+    temp = dict()
+
+    return jsonify(record)
+
+
+
+
+
+@cc_blueprint.route('/laporan_giat_list', methods=["GET"])
+def laporan_giat_list():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    # date_submitted = request.json.get('date_submitted')
+    # date_approved = request.json.get('date_approved')
+    # status = request.json.get('status')
+    query = "SELECT laporan_giat.id, laporan_giat.user_id, laporan_giat.region_id, region.region_name, laporan_giat.department_id, department.department_name, no_laporan, tgl_laporan, lat_pelapor, long_pelapor, laporan_text, laporan_subcategory_id, subkategori.sub_kategori, image_file FROM laporan_giat " \
+            "LEFT JOIN region ON region.id = laporan_giat.region_id " \
+            "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan_giat.laporan_subcategory_id " \
+            "LEFT JOIN department ON department.id = laporan_giat.department_id "
+    cursor.execute(query)
+    record = cursor.fetchall()
+    cursor.close()
+    result = dict()
+    result = record
+    return jsonify(result)
+
+
+@cc_blueprint.route('/laporan_giat_submit', methods=["POST"])
+def laporan_giat_submit():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    no_laporan = request.json.get('no_laporan')
+    tgl_laporan = request.json.get('tgl_laporan')
+    laporan_subcategory_id = request.json.get('laporan_subcategory_id')
+    laporan_text = request.json.get('laporan_text')
+    user_id = request.json.get('user_id')
+    region_id = request.json.get('region_id')
+    department_id = request.json.get('department_id')
+    lat_pelapor = request.json.get('lat_pelapor')
+    long_pelapor = request.json.get('long_pelapor')
+    image_file = request.json.get('image_file')
+    formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+
+    query = "INSERT INTO laporan_giat (user_id, region_id, department_id, no_laporan, tgl_laporan, laporan_text,  lat_pelapor, long_pelapor, laporan_subcategory_id, image_file, tgl_submitted) VALUES (%s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
+
+    result = dict()
+    print("laporan giat review")
+    cursor.execute(query, (str(user_id),str(region_id),str(department_id),str(no_laporan), tgl_laporan, laporan_text,str(lat_pelapor),str(long_pelapor),str(laporan_subcategory_id),image_file,formatted_date))
+    try:
+        db.commit()
+    except mysql.connector.Error as error:
+        print("Failed to update record to database rollback: {}".format(error))
+        # reverting changes because of exception
+        cursor.rollback()
+        result['result'] = 'failed'
+        result['valid'] = 2
+    finally:
+        print("here success")
+        cursor.close()
+        result['result'] = 'success'
+        result['valid'] = 1
+    return jsonify(result)
+
+
+
+
+
+################### LAPORAN SISKAMBTIBMAS #################################################
 
 @cc_blueprint.route('/laporan_review', methods=["POST"])
 def laporan_review():
@@ -1404,7 +1478,7 @@ def laporan_data_review():
     cursor = db.cursor(dictionary=True)
     date = request.json.get('date')
     subkategoriid = request.json.get('sub_kategori_id')
-    # subkategori = request.json.get('subkategori')
+
     query = "SELECT laporan.id, laporan.no_laporan, laporan_published.status, laporan.laporan_total, laporan.sub_kategori_id, subkategori.sub_kategori, " \
             "laporan.laporan_subcategory_id, laporan_subcategory.name FROM laporan " \
             "LEFT JOIN laporan_published ON laporan_published.no_laporan = laporan.no_laporan " \
@@ -1548,60 +1622,6 @@ def laporan_giat_list_peruser():
     return jsonify(result)
 
 
-@cc_blueprint.route('/laporan_giat_list', methods=["GET"])
-def laporan_giat_list():
-    db = get_db()
-    cursor = db.cursor(dictionary=True)
-    # date_submitted = request.json.get('date_submitted')
-    # date_approved = request.json.get('date_approved')
-    # status = request.json.get('status')
-    query = "SELECT laporan_giat.id, laporan_giat.user_id, laporan_giat.region_id, region.region_name, laporan_giat.department_id, department.department_name, no_laporan, tgl_laporan, lat_pelapor, long_pelapor, laporan_text, laporan_subcategory_id, subkategori.sub_kategori, image_file FROM laporan_giat " \
-            "LEFT JOIN region ON region.id = laporan_giat.region_id " \
-            "LEFT JOIN subkategori ON subkategori.idsubkategori = laporan_giat.laporan_subcategory_id " \
-            "LEFT JOIN department ON department.id = laporan_giat.department_id "
-    cursor.execute(query)
-    record = cursor.fetchall()
-    cursor.close()
-    result = dict()
-    result = record
-    return jsonify(result)
-
-
-@cc_blueprint.route('/laporan_giat_submit', methods=["POST"])
-def laporan_giat_submit():
-    db = get_db()
-    cursor = db.cursor(dictionary=True)
-    no_laporan = request.json.get('no_laporan')
-    tgl_laporan = request.json.get('tgl_laporan')
-    laporan_subcategory_id = request.json.get('laporan_subcategory_id')
-    laporan_text = request.json.get('laporan_text')
-    user_id = request.json.get('user_id')
-    region_id = request.json.get('region_id')
-    department_id = request.json.get('department_id')
-    lat_pelapor = request.json.get('lat_pelapor')
-    long_pelapor = request.json.get('long_pelapor')
-    image_file = request.json.get('image_file')
-    formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
-
-    query = "INSERT INTO laporan_giat (user_id, region_id, department_id, no_laporan, tgl_laporan, laporan_text,  lat_pelapor, long_pelapor, laporan_subcategory_id, image_file, tgl_submitted) VALUES (%s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
-
-    result = dict()
-    print("laporan giat review")
-    cursor.execute(query, (str(user_id),str(region_id),str(department_id),str(no_laporan), tgl_laporan, laporan_text,str(lat_pelapor),str(long_pelapor),str(laporan_subcategory_id),image_file,formatted_date))
-    try:
-        db.commit()
-    except mysql.connector.Error as error:
-        print("Failed to update record to database rollback: {}".format(error))
-        # reverting changes because of exception
-        cursor.rollback()
-        result['result'] = 'failed'
-        result['valid'] = 2
-    finally:
-        print("here success")
-        cursor.close()
-        result['result'] = 'success'
-        result['valid'] = 1
-    return jsonify(result)
 
 
 @cc_blueprint.route('/laporan_print', methods=["POST"])
