@@ -1318,7 +1318,6 @@ def warga_upload_video():
 
 @cc_blueprint.route('/laporan_giat_user', methods=["POST"])
 def laporan_giat_user():
-    print("data laporan user")
     db = get_db()
     cursor = db.cursor(dictionary=True)
     query = "SELECT laporan_giat.id, laporan_giat.user_id, laporan_giat.region_id, laporan_giat.department_id, laporan_giat.no_laporan, laporan_giat.tgl_laporan, " \
@@ -1804,5 +1803,5 @@ def submit_laporan_data_list():
 @cc_blueprint.route('/print_pdf', methods=["GET"])
 def print_pdf():
     print("inside print pdf")
-    pdfkit.from_url('http://http://202.67.10.238/dist-brimob/report/1/2022-1-1-2-2', 'laporan_siskamtibmas_2022-1-3-4-55.pdf')
+    pdfkit.from_url('https://api.brimob.id/#/report?n=2022-6-08-1-1', 'laporan_siskamtibmas_2022-6-08-1-1.pdf')
     return "ok"
