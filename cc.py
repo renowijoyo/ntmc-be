@@ -1360,7 +1360,7 @@ def laporan_giat_list():
 def laporan_giat_submit():
     db = get_db()
     cursor = db.cursor(dictionary=True)
-    no_laporan = request.json.get('no_laporan')
+    # no_laporan = request.json.get('no_laporan')
     tgl_laporan = request.json.get('tgl_laporan')
     laporan_subcategory_id = request.json.get('laporan_subcategory_id')
     laporan_text = request.json.get('laporan_text')
