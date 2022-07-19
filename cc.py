@@ -1372,6 +1372,8 @@ def laporan_giat_submit():
     image_file = request.json.get('image_file')
     formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
 
+    ts = time.time()
+    no_laporan = str(user_id) + "-" + str(laporan_subcategory_id) + "-" + os.path.splitext(str(ts))[0]
     query = "INSERT INTO laporan_giat (user_id, region_id, department_id, no_laporan, tgl_laporan, laporan_text,  lat_pelapor, long_pelapor, laporan_subcategory_id, image_file, tgl_submitted) VALUES (%s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
 
     result = dict()
