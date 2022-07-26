@@ -65,7 +65,7 @@ UPLOAD_GIATINSIDENTIL_FOLDER = './uploads/giatinsidentil/'
 UPLOAD_KOMANDAN_FOLDER = './uploads/komandan/'
 UPLOAD_WAKIL_FOLDER = './uploads/wakil/'
 UPLOAD_REGION_FOLDER = './uploads/region/'
-
+UPLOAD_DEPARTMENT_FOLDER = './uploads/department/'
 
 DOWNLOAD_FOLDER = './downloads/'
 DOWNLOAD_LAPORAN_FOLDER = './downloads/laporan/'
@@ -82,6 +82,7 @@ app.config['UPLOAD_GIATINSIDENTIL_FOLDER'] = UPLOAD_GIATINSIDENTIL_FOLDER
 
 app.config['DOWNLOAD_FOLDER'] = DOWNLOAD_FOLDER
 app.config['UPLOAD_REGION_FOLDER'] = UPLOAD_REGION_FOLDER
+app.config['UPLOAD_DEPARTMENT_FOLDER'] = UPLOAD_DEPARTMENT_FOLDER
 
 
 
@@ -1411,6 +1412,9 @@ def laporan_giat_submit():
     return jsonify(result)
 
 
+
+################### REGION CRUD #################################################
+
 @cc_blueprint.route('/region_image_upload', methods=["POST"])
 def region_image_upload():
     res = dict()
@@ -1544,17 +1548,174 @@ def region_delete():
     result = dict()
     try:
         db.commit()
+        result['row_affected'] = cursor.rowcount
+        result['result'] = 'success'
+        result['valid'] = 1
     except mysql.connector.Error as error:
         print("Failed to update record to database rollback: {}".format(error))
         # reverting changes because of exception
         cursor.rollback()
         result['result'] = 'failed'
-        result['valid'] = 2
+        result['row_affected'] = cursor.rowcount
+        result['valid'] = 0
+    finally:
+
+        cursor.close()
+
+    cursor.close()
+    return result
+
+
+
+################### DEPARTMENT CRUD #################################################
+
+@cc_blueprint.route('/department_image_upload', methods=["POST"])
+def department_image_upload():
+    res = dict()
+    newfilename = ''
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            print('no file part')
+            res['valid'] = '0'
+        file = request.files['file']
+        department_id = request.form['department_id']
+        # If the user does not select a file, the browser submits an
+        # empty file without a filename.
+        if file.filename == '':
+            print("no selected file")
+            res['valid'] = '0'
+
+        if file and allowed_image_file(file.filename):
+            filename = secure_filename(file.filename)
+            img_ext = os.path.splitext(filename)[1]
+            file.save(os.path.join(app.config['UPLOAD_DEPARTMENT_FOLDER'] + "/" + str(department_id) + img_ext))
+            db = get_db()
+            cursor = db.cursor(dictionary=True)
+            newfilename = str(department_id) + img_ext
+            query = "UPDATE department set image = %s where id = %s"
+            cursor.execute(query, (newfilename, department_id,))
+            try:
+                db.commit()
+            except mysql.connector.Error as error:
+                print("Failed to update record to database rollback: {}".format(error))
+                # reverting changes because of exception
+                cursor.rollback()
+                res['result'] = 'failed'
+                res['valid'] = 0
+            finally:
+                cursor.close()
+                res['result'] = 'success'
+                res['valid'] = 1
+            cursor.close()
+    return res
+
+@cc_blueprint.route('/department_image_download', methods=["POST"])
+def department_image_download():
+    image_name = request.json.get('image_name')
+    return send_from_directory(app.config["UPLOAD_DEPARTMENT_FOLDER"], image_name)
+
+
+
+
+@cc_blueprint.route('/department_create', methods=["POST"])
+def department_create():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    department_name = request.json.get('department_name')
+    region_id = request.json.get('region_id')
+    query = "INSERT INTO department (region_id, department_name) VALUES (%s, %s)"
+    cursor.execute(query, (region_id, department_name,))
+
+    result = dict()
+    try:
+        db.commit()
+    except mysql.connector.Error as error:
+        print("Failed to update record to database rollback: {}".format(error))
+        # reverting changes because of exception
+        cursor.rollback()
+        result['result'] = 'failed'
+        result['valid'] = 0
     finally:
 
         cursor.close()
         result['result'] = 'success'
         result['valid'] = 1
+    cursor.close()
+    return result
+
+
+@cc_blueprint.route('/department_update', methods=["POST"])
+def department_update():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    department_id = request.json.get('department_id')
+    region_id = request.json.get('region_id')
+    department_name = request.json.get('department_name')
+    telp = request.json.get('telp')
+
+    query = "UPDATE department set department_name = %s, telp = %s, region_id = %s where id = %s"
+    cursor.execute(query, (department_name, telp, region_id,department_id,))
+
+    result = dict()
+    try:
+        db.commit()
+    except mysql.connector.Error as error:
+        print("Failed to update record to database rollback: {}".format(error))
+        # reverting changes because of exception
+        cursor.rollback()
+        result['result'] = 'failed'
+        result['valid'] = 0
+    finally:
+
+        cursor.close()
+        result['result'] = 'success'
+        result['valid'] = 1
+    cursor.close()
+    return result
+
+
+@cc_blueprint.route('/department_read', methods=["GET"])
+def department_read():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    department_id = request.json.get('department_id')
+    query = "SELECT id, region_id, department_name, telp, image from department WHERE id = %s"
+    cursor.execute(query, (str(department_id),))
+    record = cursor.fetchone()
+    cursor.close()
+    result = dict()
+    result = record
+    return jsonify(result)
+
+@cc_blueprint.route('/department_delete', methods=["DELETE"])
+def department_delete():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    department_id = request.json.get('department_id')
+
+    query = "DELETE FROM department where id = %s"
+    cursor.execute(query, (department_id,))
+
+    result = dict()
+    result['result'] = 'failed'
+    result['valid'] = 0
+    try:
+        db.commit()
+        result['result'] = 'success'
+        result['row_affected'] = cursor.rowcount
+        result['valid'] = 1
+    except mysql.connector.Error as error:
+        print("Failed to update record to database rollback: {}".format(error))
+        # reverting changes because of exception
+        cursor.rollback()
+        result['result'] = 'failed'
+        result['row_affected'] = cursor.rowcount
+        result['valid'] = 0
+    finally:
+
+        cursor.close()
+
     cursor.close()
     return result
 
