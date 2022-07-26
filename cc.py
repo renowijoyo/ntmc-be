@@ -1,3 +1,5 @@
+import random
+
 from flask import Blueprint, g
 import time
 from datetime import date
@@ -125,12 +127,20 @@ def tracker():
 def get_tracker_devices():
     db2 = get_db2()
     cursor = db2.cursor(dictionary=True)
-    query = "SELECT device_id, device_name, device_type, status, tracker_video.video_url FROM tracker_device LEFT JOIN " \
-            "tracker_video on tracker_video.tracker_device_id = tracker_device.device_id"
+
+    query = "select a.loc_id, a.tracker_device_id, a.lat, a.lon, a.altitude, a.speed, a.hdop, tracker_device.device_name, tracker_device.device_type, tracker_device.`status` from " \
+            "(select tracker_loc.id as 'loc_id', tracker_loc.tracker_device_id, tracker_loc.lat, tracker_loc.lon, tracker_loc.altitude, tracker_loc.speed, tracker_loc.hdop " \
+            "from tracker_loc where id in (select max(tracker_loc.id) as id from tracker_loc group by tracker_loc.tracker_device_id)) a " \
+            "LEFT JOIN tracker_device on a.tracker_device_id = tracker_device.device_id"
+    # query = "SELECT device_id, device_name, device_type, tracker_loc.id, tracker_loc.lat, tracker_loc.lon, tracker_loc.altitude, tracker_loc.hdop, tracker_loc.speed, status, tracker_video.video_url FROM tracker_device LEFT JOIN " \
+    #         "tracker_video on tracker_video.tracker_device_id = tracker_device.device_id LEFT JOIN tracker_loc on tracker_loc.tracker_device_id = tracker_device.device_id ORDER BY tracker_loc.id DESC"
     cursor.execute(query)
     record = cursor.fetchall()
     result = dict()
     result = record
+    dummylon = float(result[0]['lon']) + float(random.random() * 30)
+    print(dummylon)
+    result[0]['lon'] = dummylon
     return jsonify(result)
 
 
