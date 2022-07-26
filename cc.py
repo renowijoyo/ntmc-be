@@ -62,6 +62,11 @@ UPLOAD_FOLDER = './uploads/'
 UPLOAD_USERPHOTO_FOLDER = './uploads/userphoto/'
 UPLOAD_GIATHARIAN_FOLDER = './uploads/giatharian/'
 UPLOAD_GIATINSIDENTIL_FOLDER = './uploads/giatinsidentil/'
+UPLOAD_KOMANDAN_FOLDER = './uploads/komandan/'
+UPLOAD_WAKIL_FOLDER = './uploads/wakil/'
+UPLOAD_REGION_FOLDER = './uploads/region/'
+
+
 DOWNLOAD_FOLDER = './downloads/'
 DOWNLOAD_LAPORAN_FOLDER = './downloads/laporan/'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'mp4'}
@@ -76,7 +81,7 @@ app.config['UPLOAD_GIATHARIAN_FOLDER'] = UPLOAD_GIATHARIAN_FOLDER
 app.config['UPLOAD_GIATINSIDENTIL_FOLDER'] = UPLOAD_GIATINSIDENTIL_FOLDER
 
 app.config['DOWNLOAD_FOLDER'] = DOWNLOAD_FOLDER
-
+app.config['UPLOAD_REGION_FOLDER'] = UPLOAD_REGION_FOLDER
 
 
 
@@ -1406,6 +1411,152 @@ def laporan_giat_submit():
     return jsonify(result)
 
 
+@cc_blueprint.route('/region_image_upload', methods=["POST"])
+def region_image_upload():
+    res = dict()
+    newfilename = ''
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            print('no file part')
+            res['valid'] = '0'
+        print("FILE OK")
+        file = request.files['file']
+        region_id = request.form['region_id']
+        # If the user does not select a file, the browser submits an
+        # empty file without a filename.
+        if file.filename == '':
+            print("no selected file")
+            res['valid'] = '0'
+
+        if file and allowed_image_file(file.filename):
+            filename = secure_filename(file.filename)
+            img_ext = os.path.splitext(filename)[1]
+            file.save(os.path.join(app.config['UPLOAD_REGION_FOLDER'] + "/" + str(region_id) + img_ext))
+            db = get_db()
+            cursor = db.cursor(dictionary=True)
+            newfilename = str(region_id) + img_ext
+            query = "UPDATE region set image = %s where id = %s"
+            cursor.execute(query, (newfilename, region_id,))
+            try:
+                db.commit()
+            except mysql.connector.Error as error:
+                print("Failed to update record to database rollback: {}".format(error))
+                # reverting changes because of exception
+                cursor.rollback()
+                res['result'] = 'failed'
+                res['valid'] = 0
+            finally:
+                cursor.close()
+                res['result'] = 'success'
+                res['valid'] = 1
+            cursor.close()
+    return res
+
+@cc_blueprint.route('/region_image_download', methods=["POST"])
+def region_image_download():
+    image_name = request.json.get('image_name')
+    return send_from_directory(app.config["UPLOAD_REGION_FOLDER"], image_name)
+
+
+
+
+@cc_blueprint.route('/region_create', methods=["POST"])
+def region_create():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    region_name = request.json.get('region_name')
+
+    query = "INSERT INTO region (region_name) VALUES (%s)"
+    cursor.execute(query, (region_name,))
+
+    # print("here")
+    result = dict()
+    try:
+        db.commit()
+    except mysql.connector.Error as error:
+        print("Failed to update record to database rollback: {}".format(error))
+        # reverting changes because of exception
+        cursor.rollback()
+        result['result'] = 'failed'
+        result['valid'] = 2
+    finally:
+
+        cursor.close()
+        result['result'] = 'success'
+        result['valid'] = 1
+    cursor.close()
+    return result
+
+
+@cc_blueprint.route('/region_update', methods=["POST"])
+def region_update():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    region_id = request.json.get('region_id')
+    region_name = request.json.get('region_name')
+
+    query = "UPDATE region set region_name = %s where id = %s"
+    cursor.execute(query, (region_name, region_id,))
+
+    # print("here")
+    result = dict()
+    try:
+        db.commit()
+    except mysql.connector.Error as error:
+        print("Failed to update record to database rollback: {}".format(error))
+        # reverting changes because of exception
+        cursor.rollback()
+        result['result'] = 'failed'
+        result['valid'] = 2
+    finally:
+
+        cursor.close()
+        result['result'] = 'success'
+        result['valid'] = 1
+    cursor.close()
+    return result
+
+
+@cc_blueprint.route('/region_read', methods=["GET"])
+def region_read():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    region_id = request.json.get('region_id')
+    query = "SELECT id, region_name, image from region WHERE id = %s"
+    cursor.execute(query, (str(region_id),))
+    record = cursor.fetchone()
+    cursor.close()
+    result = dict()
+    result = record
+    return jsonify(result)
+
+@cc_blueprint.route('/region_delete', methods=["DELETE"])
+def region_delete():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    region_id = request.json.get('region_id')
+
+    query = "DELETE FROM region where id = %s"
+    cursor.execute(query, (region_id,))
+
+    # print("here")
+    result = dict()
+    try:
+        db.commit()
+    except mysql.connector.Error as error:
+        print("Failed to update record to database rollback: {}".format(error))
+        # reverting changes because of exception
+        cursor.rollback()
+        result['result'] = 'failed'
+        result['valid'] = 2
+    finally:
+
+        cursor.close()
+        result['result'] = 'success'
+        result['valid'] = 1
+    cursor.close()
+    return result
 
 
 
