@@ -1800,7 +1800,7 @@ def data_pimpinan_read():
     db = get_db()
     cursor = db.cursor(dictionary=True)
     region_id = request.json.get('region_id')
-    query = "SELECT data_pimpinan.id,data_pimpinan.region_id, department_id, department.department_name, komandan_nama, komandan_telp, komandan_email, wakil_nama, wakil_telp, wakil_email, alamat_lengkap, link_titik_lokasi, lat, lon, data_pimpinan.order " \
+    query = "SELECT data_pimpinan.id,data_pimpinan.region_id, department_id, department.department_name, komandan_nama, komandan_telp, komandan_email, komandan_foto, wakil_nama, wakil_telp, wakil_email, wakil_foto, alamat_lengkap, link_titik_lokasi, lat, lon, data_pimpinan.order " \
             "from data_pimpinan left join department on department.id = data_pimpinan.department_id WHERE data_pimpinan.region_id = %s"
     cursor.execute(query, (str(region_id),))
     record = cursor.fetchall()
