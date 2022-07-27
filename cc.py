@@ -2492,6 +2492,20 @@ def get_region_list():
     result = record
     return jsonify(result)
 
+@cc_blueprint.route('/get_department_list', methods=["GET"])
+def get_department_list():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    # sub_category_id = request.json.get('sub_kategori_id')
+    query = "select department.id, region_id, region.region_name, department_name, telp, department.image from department left join region on department.region_id = region.id"
+    cursor.execute(query,)
+    record = cursor.fetchall()
+    cursor.close()
+    result = dict()
+    result = record
+    return jsonify(result)
+
+
 
 # @cc_blueprint.route('/get_position_list', methods=["GET"])
 # def get_position_list():
