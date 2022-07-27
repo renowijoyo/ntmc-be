@@ -1329,8 +1329,6 @@ def warga_upload_video():
 
 
 
-
-
 ################### LAPORAN GIAT #################################################
 
 @cc_blueprint.route('/laporan_giat_user', methods=["POST"])
@@ -1411,6 +1409,207 @@ def laporan_giat_submit():
         result['result'] = 'success'
         result['valid'] = 1
     return jsonify(result)
+
+################### LAPORAN SIAP GERAK #################################################
+
+@cc_blueprint.route('/siap_gerak_create', methods=["POST"])
+def siap_gerak_create():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    title = request.json.get('title')
+    tanggal_laporan = request.json.get('tanggal_laporan')
+
+
+
+    query = "INSERT INTO siap_gerak (title, tanggal_laporan) VALUES (%s, %s)"
+    cursor.execute(query, (title,tanggal_laporan,))
+
+    result = dict()
+    try:
+        db.commit()
+    except mysql.connector.Error as error:
+        print("Failed to update record to database rollback: {}".format(error))
+        # reverting changes because of exception
+        cursor.rollback()
+        result['result'] = 'failed'
+        result['valid'] = 0
+    finally:
+
+        cursor.close()
+        result['result'] = 'success'
+        result['valid'] = 1
+    cursor.close()
+    return result
+
+@cc_blueprint.route('/siap_gerak_delete', methods=["DELETE"])
+def siap_gerak_delete():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    siap_gerak_id = request.json.get('siap_gerak_id')
+
+    query = "DELETE FROM siap_gerak where id = %s"
+    cursor.execute(query, (siap_gerak_id,))
+
+
+    result = dict()
+    try:
+        db.commit()
+        result['row_affected'] = cursor.rowcount
+        result['result'] = 'success'
+        result['valid'] = 1
+    except mysql.connector.Error as error:
+        print("Failed to update record to database rollback: {}".format(error))
+        # reverting changes because of exception
+        cursor.rollback()
+        result['result'] = 'failed'
+        result['row_affected'] = cursor.rowcount
+        result['valid'] = 0
+    finally:
+
+        cursor.close()
+
+    cursor.close()
+    return result
+
+
+@cc_blueprint.route('/data_siap_gerak_create', methods=["POST"])
+def data_siap_gerak_create():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    siap_gerak_id = request.json.get('siap_gerak_id')
+    region_id = request.json.get('region_id')
+    region_custom_name = request.json.get('region_custom_name')
+    jumlah_riil = request.json.get('jumlah_riil')
+    jumlah_pelaksana_tugas = request.json.get('jumlah_pelaksana_tugas')
+    jumlah_siap_opsnal = request.json.get('jumlah_siap_opsnal')
+    siap_opsnal = request.json.get('siap_opsnal')
+    jumlah_cadangan = request.json.get('jumlah_cadangan')
+    keterangan = request.json.get('keterangan')
+
+
+    query = "INSERT INTO data_siap_gerak (siap_gerak_id, region_id, region_custom_name, jumlah_riil, jumlah_pelaksana_tugas, jumlah_siap_opsnal, siap_opsnal, jumlah_cadangan, keterangan) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    cursor.execute(query, (siap_gerak_id,region_id,region_custom_name, jumlah_riil, jumlah_pelaksana_tugas,jumlah_siap_opsnal, siap_opsnal, jumlah_cadangan,keterangan,))
+
+    result = dict()
+    try:
+        db.commit()
+    except mysql.connector.Error as error:
+        print("Failed to update record to database rollback: {}".format(error))
+        # reverting changes because of exception
+        cursor.rollback()
+        result['result'] = 'failed'
+        result['valid'] = 0
+    finally:
+
+        cursor.close()
+        result['result'] = 'success'
+        result['valid'] = 1
+    cursor.close()
+    return result
+
+@cc_blueprint.route('/data_siap_gerak_delete', methods=["DELETE"])
+def data_siap_gerak_delete():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    data_siap_gerak_id = request.json.get('data_siap_gerak_id')
+
+    query = "DELETE FROM data_siap_gerak where id = %s"
+    cursor.execute(query, (data_siap_gerak_id,))
+
+
+    result = dict()
+    try:
+        db.commit()
+        result['row_affected'] = cursor.rowcount
+        result['result'] = 'success'
+        result['valid'] = 1
+    except mysql.connector.Error as error:
+        print("Failed to update record to database rollback: {}".format(error))
+        # reverting changes because of exception
+        cursor.rollback()
+        result['result'] = 'failed'
+        result['row_affected'] = cursor.rowcount
+        result['valid'] = 0
+    finally:
+
+        cursor.close()
+
+    cursor.close()
+    return result
+
+@cc_blueprint.route('/data_siap_gerak_update', methods=["POST"])
+def data_siap_gerak_update():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    data_siap_gerak_id = request.json.get('data_siap_gerak_id')
+    region_id = request.json.get('region_id')
+    region_custom_name = request.json.get('region_custom_name')
+    jumlah_riil = request.json.get('jumlah_riil')
+    jumlah_pelaksana_tugas = request.json.get('jumlah_pelaksana_tugas')
+    jumlah_siap_opsnal = request.json.get('jumlah_siap_opsnal')
+    siap_opsnal = request.json.get('siap_opsnal')
+    jumlah_cadangan = request.json.get('jumlah_cadangan')
+    keterangan = request.json.get('keterangan')
+
+    query = "UPDATE data_siap_gerak set region_id = %s, region_custom_name = %s, jumlah_riil = %s, jumlah_pelaksana_tugas = %s, jumlah_siap_opsnal = %s, siap_opsnal = %s, jumlah_cadangan = %s, keterangan = %s " \
+            "where id = %s"
+    cursor.execute(query, (region_id,region_custom_name,jumlah_riil,jumlah_pelaksana_tugas,jumlah_siap_opsnal,siap_opsnal,jumlah_cadangan,keterangan,data_siap_gerak_id,))
+
+    # print("here")
+    result = dict()
+    try:
+        db.commit()
+    except mysql.connector.Error as error:
+        print("Failed to update record to database rollback: {}".format(error))
+        # reverting changes because of exception
+        cursor.rollback()
+        result['result'] = 'failed'
+        result['row_affected'] = cursor.rowcount
+        result['valid'] = 0
+    finally:
+
+        cursor.close()
+        result['result'] = 'success'
+        result['row_affected'] = cursor.rowcount
+        result['valid'] = 1
+    cursor.close()
+    return result
+
+
+
+
+@cc_blueprint.route('/siap_gerak_update', methods=["POST"])
+def siap_gerak_update():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    siap_gerak_id = request.json.get('siap_gerak_id')
+    title = request.json.get('title')
+    tanggal_laporan = request.json.get('tanggal_laporan')
+
+
+    query = "UPDATE siap_gerak set title = %s, tanggal_laporan = %s where id = %s"
+    cursor.execute(query, (title,tanggal_laporan,siap_gerak_id,))
+
+
+    result = dict()
+    try:
+        db.commit()
+    except mysql.connector.Error as error:
+        print("Failed to update record to database rollback: {}".format(error))
+        # reverting changes because of exception
+        cursor.rollback()
+        result['result'] = 'failed'
+        result['valid'] = 2
+    finally:
+
+        cursor.close()
+        result['result'] = 'success'
+        result['valid'] = 1
+    cursor.close()
+    return result
+
+
+
 
 ################### DATA PIMPINAN CRUD #################################################
 
