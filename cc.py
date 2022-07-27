@@ -84,7 +84,8 @@ app.config['DOWNLOAD_FOLDER'] = DOWNLOAD_FOLDER
 app.config['UPLOAD_REGION_FOLDER'] = UPLOAD_REGION_FOLDER
 app.config['UPLOAD_DEPARTMENT_FOLDER'] = UPLOAD_DEPARTMENT_FOLDER
 
-
+app.config['UPLOAD_KOMANDAN_FOLDER'] = UPLOAD_KOMANDAN_FOLDER
+app.config['UPLOAD_WAKIL_FOLDER'] = UPLOAD_WAKIL_FOLDER
 
 
 
@@ -1410,6 +1411,235 @@ def laporan_giat_submit():
         result['result'] = 'success'
         result['valid'] = 1
     return jsonify(result)
+
+################### DATA PIMPINAN CRUD #################################################
+
+@cc_blueprint.route('/komandan_image_upload', methods=["POST"])
+def komandan_image_upload():
+    res = dict()
+    newfilename = ''
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            print('no file part')
+            res['valid'] = '0'
+        print("FILE OK")
+        file = request.files['file']
+        data_pimpinan_id = request.form['data_pimpinan_id']
+        # If the user does not select a file, the browser submits an
+        # empty file without a filename.
+        if file.filename == '':
+            print("no selected file")
+            res['valid'] = '0'
+
+        if file and allowed_image_file(file.filename):
+            filename = secure_filename(file.filename)
+            img_ext = os.path.splitext(filename)[1]
+            file.save(os.path.join(app.config['UPLOAD_KOMANDAN_FOLDER'] + "/" + str(data_pimpinan_id) + img_ext))
+            db = get_db()
+            cursor = db.cursor(dictionary=True)
+            newfilename = str(data_pimpinan_id) + img_ext
+            query = "UPDATE data_pimpinan set komandan_foto = %s where id = %s"
+            cursor.execute(query, (newfilename, data_pimpinan_id,))
+            try:
+                db.commit()
+            except mysql.connector.Error as error:
+                print("Failed to update record to database rollback: {}".format(error))
+                # reverting changes because of exception
+                cursor.rollback()
+                res['result'] = 'failed'
+                res['valid'] = 0
+            finally:
+                cursor.close()
+                res['result'] = 'success'
+                res['valid'] = 1
+            cursor.close()
+    return res
+
+@cc_blueprint.route('/komandan_image_download', methods=["POST"])
+def komandan_image_download():
+    image_name = request.json.get('image_name')
+    return send_from_directory(app.config["UPLOAD_KOMANDAN_FOLDER"], image_name)
+
+
+@cc_blueprint.route('/wakil_image_upload', methods=["POST"])
+def wakil_image_upload():
+    res = dict()
+    newfilename = ''
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            print('no file part')
+            res['valid'] = '0'
+        print("FILE OK")
+        file = request.files['file']
+        data_pimpinan_id = request.form['data_pimpinan_id']
+        # If the user does not select a file, the browser submits an
+        # empty file without a filename.
+        if file.filename == '':
+            print("no selected file")
+            res['valid'] = '0'
+
+        if file and allowed_image_file(file.filename):
+            filename = secure_filename(file.filename)
+            img_ext = os.path.splitext(filename)[1]
+            file.save(os.path.join(app.config['UPLOAD_WAKIL_FOLDER'] + "/" + str(data_pimpinan_id) + img_ext))
+            db = get_db()
+            cursor = db.cursor(dictionary=True)
+            newfilename = str(data_pimpinan_id) + img_ext
+            query = "UPDATE data_pimpinan set wakil_foto = %s where id = %s"
+            cursor.execute(query, (newfilename, data_pimpinan_id,))
+            try:
+                db.commit()
+            except mysql.connector.Error as error:
+                print("Failed to update record to database rollback: {}".format(error))
+                # reverting changes because of exception
+                cursor.rollback()
+                res['result'] = 'failed'
+                res['valid'] = 0
+            finally:
+                cursor.close()
+                res['result'] = 'success'
+                res['valid'] = 1
+            cursor.close()
+    return res
+
+@cc_blueprint.route('/wakil_image_download', methods=["POST"])
+def wakil_image_download():
+    image_name = request.json.get('image_name')
+    return send_from_directory(app.config["UPLOAD_WAKIL_FOLDER"], image_name)
+
+
+
+
+
+@cc_blueprint.route('/data_pimpinan_create', methods=["POST"])
+def data_pimpinan_create():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    region_id = request.json.get('region_id')
+    department_id = request.json.get('department_id')
+    komandan_nama = request.json.get('komandan_nama')
+    komandan_telp = request.json.get('komandan_telp')
+    komandan_email = request.json.get('komandan_email')
+    wakil_nama = request.json.get('wakil_nama')
+    wakil_telp = request.json.get('wakil_telp')
+    wakil_email = request.json.get('wakil_email')
+    alamat_lengkap = request.json.get('alamat_lengkap')
+    link_titik_lokasi = request.json.get('link_titik_lokasi')
+    lat = request.json.get('lat')
+    lon = request.json.get('lon')
+    order = request.json.get('order')
+
+
+    query = "INSERT INTO data_pimpinan (region_id, department_id, komandan_nama, komandan_telp, komandan_email, wakil_nama, wakil_telp, wakil_email, alamat_lengkap, link_titik_lokasi, " \
+            "lat, lon) VALUES (%s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s)"
+    cursor.execute(query, (region_id,department_id,komandan_nama,komandan_telp,komandan_email,wakil_nama, wakil_telp, wakil_email, alamat_lengkap, link_titik_lokasi, lat, lon,))
+
+    result = dict()
+    try:
+        db.commit()
+    except mysql.connector.Error as error:
+        print("Failed to update record to database rollback: {}".format(error))
+        # reverting changes because of exception
+        cursor.rollback()
+        result['result'] = 'failed'
+        result['valid'] = 0
+    finally:
+
+        cursor.close()
+        result['result'] = 'success'
+        result['valid'] = 1
+    cursor.close()
+    return result
+
+
+@cc_blueprint.route('/data_pimpinan_update', methods=["POST"])
+def data_pimpinan_update():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    data_pimpinan_id = request.json.get('data_pimpinan_id')
+    region_id = request.json.get('region_id')
+    department_id = request.json.get('department_id')
+    komandan_nama = request.json.get('komandan_nama')
+    komandan_telp = request.json.get('komandan_telp')
+    komandan_email = request.json.get('komandan_email')
+    wakil_nama = request.json.get('wakil_nama')
+    wakil_telp = request.json.get('wakil_telp')
+    wakil_email = request.json.get('wakil_email')
+    alamat_lengkap = request.json.get('alamat_lengkap')
+    link_titik_lokasi = request.json.get('link_titik_lokasi')
+    lat = request.json.get('lat')
+    lon = request.json.get('lon')
+    order = request.json.get('order')
+
+    query = "UPDATE data_pimpinan set region_id = %s, department_id = %s, komandan_nama = %s, komandan_telp = %s, komandan_email = %s, wakil_nama = %s, wakil_telp = %s, wakil_email = %s, " \
+            "alamat_lengkap = %s, link_titik_lokasi = %s, lat = %s, lon = %s, data_pimpinan.order = %s where id = %s"
+    cursor.execute(query, (region_id,department_id,komandan_nama,komandan_telp,komandan_email,wakil_nama,wakil_telp,wakil_email,alamat_lengkap,link_titik_lokasi,lat,lon, order, data_pimpinan_id,))
+
+    # print("here")
+    result = dict()
+    try:
+        db.commit()
+    except mysql.connector.Error as error:
+        print("Failed to update record to database rollback: {}".format(error))
+        # reverting changes because of exception
+        cursor.rollback()
+        result['result'] = 'failed'
+        result['valid'] = 2
+    finally:
+
+        cursor.close()
+        result['result'] = 'success'
+        result['valid'] = 1
+    cursor.close()
+    return result
+
+
+@cc_blueprint.route('/data_pimpinan_read_per_region', methods=["GET"])
+def data_pimpinan_read():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    region_id = request.json.get('region_id')
+    query = "SELECT id,region_id, department_id, komandan_nama, komandan_telp, komandan_email, wakil_nama, wakil_telp, wakil_email, alamat_lengkap, link_titik_lokasi, lat, lon, data_pimpinan.order " \
+            "from data_pimpinan WHERE region_id = %s"
+    cursor.execute(query, (str(region_id),))
+    record = cursor.fetchall()
+    cursor.close()
+    result = dict()
+    result = record
+    return jsonify(result)
+
+@cc_blueprint.route('/data_pimpinan_delete', methods=["DELETE"])
+def data_pimpinan_delete():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    data_pimpinan_id = request.json.get('data_pimpinan_id')
+
+    query = "DELETE FROM data_pimpinan where id = %s"
+    cursor.execute(query, (data_pimpinan_id,))
+
+
+    result = dict()
+    try:
+        db.commit()
+        result['row_affected'] = cursor.rowcount
+        result['result'] = 'success'
+        result['valid'] = 1
+    except mysql.connector.Error as error:
+        print("Failed to update record to database rollback: {}".format(error))
+        # reverting changes because of exception
+        cursor.rollback()
+        result['result'] = 'failed'
+        result['row_affected'] = cursor.rowcount
+        result['valid'] = 0
+    finally:
+
+        cursor.close()
+
+    cursor.close()
+    return result
+
 
 
 
