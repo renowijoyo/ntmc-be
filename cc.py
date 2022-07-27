@@ -1795,13 +1795,13 @@ def data_pimpinan_update():
     return result
 
 
-@cc_blueprint.route('/data_pimpinan_read_per_region', methods=["GET"])
+@cc_blueprint.route('/data_pimpinan_read_per_region', methods=["POST"])
 def data_pimpinan_read():
     db = get_db()
     cursor = db.cursor(dictionary=True)
     region_id = request.json.get('region_id')
-    query = "SELECT id,region_id, department_id, komandan_nama, komandan_telp, komandan_email, wakil_nama, wakil_telp, wakil_email, alamat_lengkap, link_titik_lokasi, lat, lon, data_pimpinan.order " \
-            "from data_pimpinan WHERE region_id = %s"
+    query = "SELECT data_pimpinan.id,data_pimpinan.region_id, department_id, department.department_name, komandan_nama, komandan_telp, komandan_email, wakil_nama, wakil_telp, wakil_email, alamat_lengkap, link_titik_lokasi, lat, lon, data_pimpinan.order " \
+            "from data_pimpinan left join department on department.id = data_pimpinan.department_id WHERE data_pimpinan.region_id = %s"
     cursor.execute(query, (str(region_id),))
     record = cursor.fetchall()
     cursor.close()
