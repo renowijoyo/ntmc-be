@@ -1956,7 +1956,7 @@ def region_read():
     db = get_db()
     cursor = db.cursor(dictionary=True)
     region_id = request.json.get('region_id')
-    query = "SELECT id, region_name, image from region WHERE id = %s"
+    query = "SELECT id, region_name, region_name as 'region_description', image from region WHERE id = %s"
     cursor.execute(query, (str(region_id),))
     record = cursor.fetchone()
     cursor.close()
