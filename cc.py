@@ -1953,7 +1953,7 @@ def region_update():
     return result
 
 
-@cc_blueprint.route('/region_read', methods=["GET"])
+@cc_blueprint.route('/region_read', methods=["POST"])
 def region_read():
     db = get_db()
     cursor = db.cursor(dictionary=True)
