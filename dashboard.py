@@ -37,7 +37,7 @@ def get_db():
     return g.mysql_db
 
 
-@dashboard_blueprint.route('/get_petugas', methods=["GET"])
+@dashboard_blueprint.route('/get_petugas', methods=["POST"])
 def get_petugas():
     db = get_db()
     cursor = db.cursor(dictionary=True)
