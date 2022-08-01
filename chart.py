@@ -76,24 +76,34 @@ def filtered():
     records = cursor.fetchall()
     result = dict()
 
-    result['kasus_open'] = 0
-    result['kasus_receieved'] = 0
-    result['kasus_on_process'] = 0
-    result['kasus_done'] =0
+    result['kasus_open'] = []
+    result['kasus_receieved'] = []
+    result['kasus_on_process'] = []
+    result['kasus_done'] = []
 
 
     # result['list'] = records
 
     for record in records:
         if (record['status'] == 1):
-            result['kasus_open'] = record['itung_received']
+            result['kasus_open'].append({'itung_open' : record['itung_received']})
         if (record['status'] == 2):
-            result['kasus_receieved'] = record['itung_received']
+            result['kasus_receieved'].append({'itung_received' : record['itung_received']})
         if (record['status'] == 3):
-            result['kasus_on_process'] = record['itung_received']
+            result['kasus_on_process'].append({'itung_on_process' : record['itung_received']})
         if (record['status'] == 4):
-            result['kasus_done'] = record['itung_received']
+            result['kasus_done'].append({'itung_done' : record['itung_received']})
 
+
+    # for record in records:
+    #     if (record['status'] == 1):
+    #         result['kasus_open'].append(record['itung_received'])
+    #     if (record['status'] == 2):
+    #         result['kasus_receieved'] = record['itung_received']
+    #     if (record['status'] == 3):
+    #         result['kasus_on_process'] = record['itung_received']
+    #     if (record['status'] == 4):
+    #         result['kasus_done'] = record['itung_received']
 
 
     cursor.execute(query2)
