@@ -56,3 +56,24 @@ def get_petugas():
     return jsonify(result)
 
 
+@dashboard_blueprint.route('/get_work_order', methods=["GET"])
+def get_work_order():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT * FROM work_order WHERE status = '1'"
+    cursor.execute(query)
+    record = cursor.fetchall()
+    tahun = now.strftime('%Y')
+    month = now.strftime('%m')
+    query2 = "SELECT wo.sub_kategori_id, sk.sub_kategori, sk.icon, wo.idworkorder, wo.lat_pelapor, wo.long_pelapor," \
+            "wo.alamat_pelapor FROM work_order AS wo INNER JOIN subkategori AS sk ON wo.sub_kategori_id = sk.idsubkategori " \
+            "WHERE MONTH(`tgl_kontak`) = %s AND YEAR(`tgl_kontak`) = %s AND `lat_pelapor` != ''"
+
+    cursor.execute(query2,(month, tahun,))
+    record2 = cursor.fetchall()
+    result = dict()
+    result['open'] = record
+    result['list'] = record2
+    return jsonify(result)
+
+
