@@ -56,7 +56,7 @@ def get_petugas():
     return jsonify(result)
 
 
-@dashboard_blueprint.route('/get_work_order', methods=["GET"])
+@dashboard_blueprint.route('/get_work_order', methods=["POST"])
 def get_work_order():
     db = get_db()
     cursor = db.cursor(dictionary=True)
