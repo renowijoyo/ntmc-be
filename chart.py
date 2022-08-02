@@ -81,20 +81,35 @@ def filtered():
     result['kasus_on_process'] = []
     result['kasus_done'] = []
 
+    flag_1 = 0
+    flag_2 = 0
+    flag_3 = 0
+    flag_4 = 0
 
     # result['list'] = records
 
     for record in records:
         if (record['status'] == 1):
+            flag_1 = 1
             result['kasus_open'].append({'itung_open' : record['itung_received']})
         if (record['status'] == 2):
+            flag_2 = 1
             result['kasus_receieved'].append({'itung_received' : record['itung_received']})
         if (record['status'] == 3):
+            flag_3 = 1
             result['kasus_on_process'].append({'itung_on_process' : record['itung_received']})
         if (record['status'] == 4):
+            flag_4 = 1
             result['kasus_done'].append({'itung_done' : record['itung_received']})
 
-
+    if flag_1 == 0:
+        result['kasus_open'].append({'itung_open': 0})
+    if flag_2 == 0:
+        result['kasus_receieved'].append({'itung_received': 0})
+    if flag_3 == 0:
+        result['kasus_on_process'].append({'itung_on_process': 0})
+    if flag_4 == 0:
+        result['kasus_done'].append({'itung_done': 0})
     # for record in records:
     #     if (record['status'] == 1):
     #         result['kasus_open'].append(record['itung_received'])
