@@ -47,15 +47,15 @@ def filtered():
     tahun = request.args.get('tahun')
     bulan = request.args.get('bulan')
 
-    if(idpolda is not None):
+    if(int(idpolda) > 0):
         show_polda = " AND polda_id=" + idpolda
     else :
         show_polda = ""
-    if(bulan is not None):
+    if(int(bulan) > 0):
         show_bulan = " AND MONTH(tgl_kontak)=" + bulan
     else :
         show_bulan = ""
-    if(tahun is not None):
+    if(int(tahun) > 0):
         show_tahun = " AND YEAR(tgl_kontak)=" + tahun
     else :
         show_tahun = ""
@@ -72,6 +72,7 @@ def filtered():
              "WHERE sub_kategori_id IS NOT NULL " + show_polda + show_bulan + show_tahun + " GROUP BY sub_kategori_id"
 
 
+    print(query)
     cursor.execute(query)
     records = cursor.fetchall()
     result = dict()
