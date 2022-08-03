@@ -91,24 +91,29 @@ def get_superadmin_dashboard_data():
     result['kasus_receieved'] = []
     result['kasus_on_process'] = []
     result['kasus_done'] = []
+    result['kasus_total'] = []
 
     flag_1 = 0
     flag_2 = 0
     flag_3 = 0
     flag_4 = 0
-
+    total = 0;
     for record in records:
         if (record['status'] == 1):
             flag_1 = 1
+            total = total + int(record['itung_received'])
             result['kasus_open'].append({'itung_open' : record['itung_received']})
         if (record['status'] == 2):
             flag_2 = 1
+            total = total + int(record['itung_received'])
             result['kasus_receieved'].append({'itung_received' : record['itung_received']})
         if (record['status'] == 3):
             flag_3 = 1
+            total = total + int(record['itung_received'])
             result['kasus_on_process'].append({'itung_on_process' : record['itung_received']})
         if (record['status'] == 4):
             flag_4 = 1
+            total = total + int(record['itung_received'])
             result['kasus_done'].append({'itung_done' : record['itung_received']})
 
     if flag_1 == 0:
@@ -119,6 +124,8 @@ def get_superadmin_dashboard_data():
         result['kasus_on_process'].append({'itung_on_process': 0})
     if flag_4 == 0:
         result['kasus_done'].append({'itung_done': 0})
+
+    result['kasus_total'].append({'itung_total': total})
 
     # $data['kasus_total'] = $this->Mrun->kasus_total_all();
     querytotal = "SELECT kategori_id,sub_kategori, COUNT(*) AS itungan FROM work_order LEFT JOIN subkategori ON " \
