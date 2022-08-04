@@ -76,6 +76,19 @@ def get_work_order():
     result['list'] = record2
     return jsonify(result)
 
+@dashboard_blueprint.route('/get_polda_no_cc', methods=["POST"])
+def get_polda_no_cc():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    query = "SELECT idpolda,polda FROM polda WHERE polda LIKE 'POLDA%' OR polda LIKE 'KORLANTAS POLRI' ORDER BY polda ASC"
+    cursor.execute(query)
+    record = cursor.fetchall()
+    result = dict()
+    result = record
+    return jsonify(result)
+
+
+
 
 @dashboard_blueprint.route('/get_superadmin_dashboard_data', methods=["POST"])
 def get_superadmin_dashboard_data():
