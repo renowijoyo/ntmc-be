@@ -49,5 +49,6 @@ def check_login():
             "user.iduser = user_license.user_id WHERE username = %s"
     cursor.execute(query, (username,))
     records = cursor.fetchall()
+    records[0]['login_success'] = 'true'
     result = records
     return jsonify(result)
